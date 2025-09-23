@@ -1,0 +1,155 @@
+---
+import ArtistForm from './ArtistForm.astro';
+import AuthModalForm from './AuthModalForm.astro';
+import * as m from '../paraglide/messages.js';
+
+// Get authentication state from Layout props
+const { user, isAuthenticated } = Astro.props;
+---
+
+<!-- Modal Backdrop -->
+<div 
+  id="artist-modal" 
+  class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden items-center justify-center p-4"
+  transition:persist="artist-modal"
+>
+  <!-- Modal Container -->
+  <div class="bg-white rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto relative">
+    <!-- Close Button -->
+    <button 
+      id="close-modal-btn"
+      class="absolute top-4 right-4 z-10 bg-gray-100 hover:bg-gray-200 rounded-full w-10 h-10 flex items-center justify-center transition-colors"
+      aria-label="Close modal"
+    >
+      <svg class="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+      </svg>
+    </button>
+    
+    <!-- Modal Content -->
+    <div class="p-6">
+      <!-- Auth Form (shown when not logged in) -->
+      <div id="auth-section" class={isAuthenticated ? "hidden" : ""}>
+        <div class="text-center mb-4">
+          <h2 class="text-xl font-bold text-gray-900 mb-2">{m.join_community()}</h2>
+          <p class="text-gray-600">Connectez-vous pour rejoindre la communauté</p>
+        </div>
+        <AuthModalForm />
+      </div>
+      
+      <!-- Artist Form (shown when logged in) -->
+      <div id="artist-section" class={isAuthenticated ? "" : "hidden"}>
+        <ArtistForm />
+      </div>
+    </div>
+  </div>
+</div>
+
+<script define:vars={{ isAuthenticated }}>
+  function initModal() {
+    const modal = document.getElementById('artist-modal');
+    const closeBtn = document.getElementById('close-modal-btn');
+    const joinBtns = document.querySelectorAll('#join-community-btn');
+    const authSection = document.getElementById('auth-section');
+    const artistSection = document.getElementById('artist-section');
+    
+    if (!modal) return;
+    
+    // Function to open modal (no need to check auth state - it's already set server-side)
+    function openModal() {
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+      document.body.style.overflow = 'hidden';
+    }
+    
+    // Function to close modal
+    function closeModal() {
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+      document.body.style.overflow = 'auto';
+    }
+    
+    // Function to switch to artist form after successful auth
+    function switchToArtistForm() {
+      authSection.classList.add('hidden');
+      artistSection.classList.remove('hidden');
+    }
+    
+    // Add event listeners to all join community buttons
+    joinBtns.forEach(btn => {
+      btn.addEventListener('click', openModal);
+    });
+    
+    // Close modal when clicking close button
+    closeBtn?.addEventListener('click', closeModal);
+    
+    // Close modal when clicking backdrop
+    modal.addEventListener('click', function(e) {
+      if (e.target === modal) {
+        closeModal();
+      }
+    });
+    
+    // Close modal on Escape key
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape' && !modal.classList.contains('hidden')) {
+        closeModal();
+      }
+    });
+    
+    // Listen for successful authentication (when user logs in via modal)
+    window.addEventListener('authSuccess', switchToArtistForm);
+    
+    // Override the form success callback to close modal
+    const originalAlert = window.alert;
+    window.alert = function(message) {
+      if (message.includes('✅') || message.includes('success')) {
+        closeModal();
+        originalAlert(message);
+      } else {
+        originalAlert(message);
+      }
+    };
+  }
+  
+  // Initialize modal when DOM is loaded
+  document.addEventListener('DOMContentLoaded', initModal);
+  
+  // Also initialize immediately in case DOM is already loaded
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initModal);
+  } else {
+    initModal();
+  }
+</script>
+
+<style>
+  /* Ensure modal content is scrollable */
+  #artist-modal .bg-white {
+    max-height: 90vh;
+  }
+  
+  /* Smooth transitions */
+  #artist-modal {
+    transition: opacity 0.3s ease;
+  }
+  
+  /* Custom scrollbar for modal content */
+  #artist-modal .bg-white::-webkit-scrollbar {
+    width: 8px;
+  }
+  
+  #artist-modal .bg-white::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+  }
+  
+  #artist-modal .bg-white::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 4px;
+  }
+  
+  #artist-modal .bg-white::-webkit-scrollbar-thumb:hover {
+    background: #a1a1a1;
+  }
+</style>

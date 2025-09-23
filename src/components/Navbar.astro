@@ -1,0 +1,185 @@
+---
+import * as m from '../paraglide/messages.js';
+import ArtistFormModal from './ArtistFormModal.astro';
+import Blog from '../assets/images/blog_button.svg';
+import BlogFlat from '../assets/images/blog_flat.svg';
+import Map from '../assets/images/map_button.svg';
+import MapFlat from '../assets/images/map_flat.svg';
+import About from '../assets/images/about_button.svg';
+import AboutFlat from '../assets/images/about_flat.svg';
+import HoverLink from './HoverLink.astro';
+import Logo from '../assets/images/logo.svg';
+
+interface Props {
+  currentPage: 'map' | 'blog' | 'about';
+}
+
+const { currentPage } = Astro.props;
+const user = Astro.locals.user;
+const currentPath = Astro.url.pathname;
+
+---
+
+<nav class="navbar">
+  <!-- Partie GAUCHE : Bouton dynamique -->
+  <div class="nav-left">
+    {currentPath.includes('/about') ? (
+      <HoverLink href="/map" normal={MapFlat.src} hover={Map.src} alt="map" />
+    ) : currentPath.includes('/blog') ? (
+      <HoverLink href="/map" normal={MapFlat.src} hover={Map.src} alt="map" />
+    ) : (
+      <HoverLink href="/about" normal={AboutFlat.src} hover={About.src} alt="about" />
+    )}
+  </div>
+
+  <!-- Partie CENTRE : Titre + sous-titre -->
+  <div class="nav-center">
+    <h1>The European electronic music artists map</h1>
+    <h1>Connect with artists around Europe</h1>
+  </div>
+
+  <!-- Partie DROITE : Bouton dynamique + "Join the Community" -->
+  <div class="nav-right">
+    {currentPath.includes('/about') ? (
+      <HoverLink href="/blog" normal={BlogFlat.src} hover={Blog.src} alt="blog" />
+    ) : currentPath.includes('/blog') ? (
+      <HoverLink href="/about" normal={AboutFlat.src} hover={About.src} alt="about" />
+    ) : (
+      <HoverLink href="/blog" normal={BlogFlat.src} hover={Blog.src} alt="blog" />
+    )}
+  </div>
+  <a href="/community" class="community-button">
+    <div class="community-content">
+      Join the community
+      <img src={Logo.src} alt="'logo" />
+    </div>
+  </a>
+</nav>
+
+<style>
+  /* Structure globale */
+  .navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    margin: 0 1rem;
+    border-bottom: solid 2px black;
+  }
+
+  /* Partie GAUCHE */
+  .nav-left {
+    display: flex;
+    padding: 4px 2rem;
+    flex: 0.3;
+  }
+
+  /* Partie CENTRE */
+  .nav-center {
+    align-items: start;
+    font-weight: 500;
+    font-size: 18px;
+    flex: 1;
+  }
+
+  .nav-right {
+    flex: 0.3
+  }
+
+  /* Boutons dynamiques */
+  .nav-button {
+    text-decoration: none;
+    color: black;
+  }
+  .nav-button:hover {
+    background: #f0f0f0;
+  }
+
+  /* Bouton "Join the Community" */
+  .community-button {
+    background: white;
+    color: black;
+    padding: 0;
+    text-decoration: none;
+    width: 30%;
+    height: inherit;
+    font-size: 22px;
+    font-weight: 500;
+    padding: 12px;
+  }
+
+  .community-content {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+  }
+
+  img {
+    height: 50px;
+  }
+</style>
+
+<!-- Artist Form Modal -->
+<ArtistFormModal />
+
+<script define:vars={{ currentPage }}>
+  // Function to update navigation based on current page
+  function updateNavigation() {
+    const navLinks = document.querySelectorAll('.nav-link');
+    const currentPath = window.location.pathname;
+    
+    // Determine current page from path
+    let page = 'home';
+    if (currentPath === '/map') page = 'map';
+    else if (currentPath === '/blog' || currentPath.startsWith('/blog/')) page = 'blog';
+    else if (currentPath === '/about') page = 'about';
+    
+    // Show/hide links based on current page
+    navLinks.forEach(link => {
+      const linkPage = link.getAttribute('data-page');
+      if (linkPage === page) {
+        link.style.display = 'none'; // Hide current page link
+      } else {
+        link.style.display = 'block'; // Show other links
+      }
+    });
+  }
+  
+  // Update on initial load
+  function initNavigation() {
+    updateNavigation();
+  }
+  
+  // Update on page changes (View Transitions)
+  document.addEventListener('astro:page-load', updateNavigation);
+  
+  // Also run on initial load
+  document.addEventListener('DOMContentLoaded', initNavigation);
+  
+  // Listen for successful authentication to show logout button
+  function showLogoutButton() {
+    const authButtons = document.querySelector('.flex.items-center.space-x-3');
+    if (authButtons) {
+      // Check if logout button already exists
+      const existingLogout = authButtons.querySelector('a[href="/api/auth/logout"]');
+      if (!existingLogout) {
+        // Create logout button
+        const logoutBtn = document.createElement('a');
+        logoutBtn.href = '/api/auth/logout';
+        logoutBtn.className = 'bg-gray-100 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors';
+        logoutBtn.textContent = 'Logout';
+        authButtons.appendChild(logoutBtn);
+      }
+    }
+  }
+  
+  // Listen for authSuccess event
+  window.addEventListener('authSuccess', showLogoutButton);
+  
+  // Fallback for immediate execution
+  if (document.readyState !== 'loading') {
+    initNavigation();
+  }
+</script>

@@ -1,0 +1,81 @@
+---
+import { getLocale, cookieName } from '../paraglide/runtime.js';
+import * as m from '../paraglide/messages.js';
+
+const currentLang = getLocale();
+const languages = [
+  { code: 'en', name: 'English' },
+  { code: 'fr', name: 'Français' },
+  { code: 'es', name: 'Español' }
+];
+
+const currentPath = Astro.url.pathname;
+// We'll handle language switching via JavaScript and cookies
+const getCurrentPath = () => {
+  const url = new URL(Astro.url);
+  return url.pathname;
+};
+---
+
+<div class="relative group">
+  <button 
+    class="glass-card px-4 py-2 text-white font-medium rounded-lg flex items-center gap-2 hover:bg-white/20 transition-all duration-200"
+    id="language-toggle"
+  >
+    <span class="text-sm">🌐</span>
+    <span class="text-sm">{languages.find(lang => lang.code === currentLang)?.name}</span>
+    <svg class="w-4 h-4 transition-transform group-hover:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+    </svg>
+  </button>
+  
+  <div 
+    class="absolute top-full left-0 mt-2 min-w-full bg-white/95 backdrop-blur-sm rounded-lg shadow-lg border border-white/20 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50"
+    id="language-dropdown"
+  >
+    {languages.map(lang => (
+      <button 
+        type="button"
+        class={`block w-full text-left px-4 py-2 text-sm hover:bg-primary-50 transition-colors first:rounded-t-lg last:rounded-b-lg ${
+          currentLang === lang.code ? 'bg-primary-100 text-primary-700 font-medium' : 'text-gray-700'
+        }`}
+        data-lang={lang.code}
+        onclick={`changeLanguage('${lang.code}')`}
+      >
+        {lang.name}
+      </button>
+    ))}
+  </div>
+</div>
+
+<script>
+  // Import Paraglide's setLocale function
+  import { setLocale } from '../paraglide/runtime.js';
+  
+  // Function to change language
+  function changeLanguage(langCode) {
+    // Use Paraglide's setLocale - it will handle cookies and reload automatically
+    setLocale(langCode);
+  }
+  
+  // Make function globally available
+  window.changeLanguage = changeLanguage;
+  
+  document.addEventListener('DOMContentLoaded', () => {
+    const toggle = document.getElementById('language-toggle');
+    const dropdown = document.getElementById('language-dropdown');
+    
+    if (toggle && dropdown) {
+      toggle.addEventListener('click', (e) => {
+        e.stopPropagation();
+        dropdown.classList.toggle('opacity-0');
+        dropdown.classList.toggle('invisible');
+      });
+      
+      document.addEventListener('click', () => {
+        dropdown.classList.add('opacity-0');
+        dropdown.classList.add('invisible');
+      });
+    }
+  });
+</script>

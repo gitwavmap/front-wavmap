@@ -1,0 +1,40 @@
+---
+const { href = '#', normal, hover, alt = '' } = Astro.props;
+---
+<a href={href} class="nav-button hover-link" data-normal-src={normal} data-hover-src={hover}>
+  <img src={normal} alt={alt} />
+</a>
+
+<script>
+  (function () {
+    // cherche tous les liens qui ont data-hover-src
+    const links = document.querySelectorAll('[data-hover-src]');
+    links.forEach(link => {
+      if (link.dataset.hoverBound) return; // évite les doublons
+      const img = link.querySelector('img');
+      const normalSrc = link.dataset.normalSrc;
+      const hoverSrc = link.dataset.hoverSrc;
+      if (!img || !normalSrc || !hoverSrc) return;
+      link.addEventListener('mouseenter', () => img.src = hoverSrc);
+      link.addEventListener('mouseleave', () => img.src = normalSrc);
+      // optionnel: support basique pour les écrans tactiles
+      link.addEventListener('touchstart', () => img.src = hoverSrc);
+      link.addEventListener('touchend', () => img.src = normalSrc);
+      link.dataset.hoverBound = 'true';
+    });
+  })();
+</script>
+
+<style>
+img { 
+  height: 50px;
+}
+.nav-button img {
+  transition: transform 0.3s ease; /* animation fluide */
+  height: 40px;
+}
+
+.nav-button:hover img {
+  transform: scale(1.1); /* agrandit l'image à 110% */
+}
+</style>

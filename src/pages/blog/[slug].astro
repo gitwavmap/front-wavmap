@@ -1,0 +1,283 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import Navbar from '../../components/Navbar.astro';
+import * as m from '../../paraglide/messages.js';
+import BackBtn from '../../assets/images/close_btn.svg';
+
+const { slug } = Astro.params;
+
+// Fetch article data server-side
+let article = null;
+let error = null;
+
+if (!slug) {
+  return Astro.redirect('/blog');
+}
+
+try {
+  // Create Directus client for server-side API
+  // For Cloudflare Pages SSR, use runtime env instead of import.meta.env
+  const directusUrl = Astro.locals.runtime?.env?.DIRECTUS_URL || 
+                     import.meta.env.DIRECTUS_URL;
+  if (!directusUrl) {
+    throw new Error('DIRECTUS_URL environment variable is not set');
+  }
+  
+  const directus = createDirectus(directusUrl).with(rest());
+
+  // Fetch all published posts and find the matching one
+  const allArticles = await directus.request(
+    readItems('posts', {
+      fields: [
+        'id',
+        'title', 
+        'slug',
+        'content',
+        'excerpt',
+        'image',
+        'status',
+        'date_created',
+        'date_updated',
+        'published_date'
+      ],
+      filter: {
+        status: {
+          _eq: 'published'
+        }
+      }
+    })
+  );
+
+  // Find article by comparing cleaned slugs
+  const foundArticle = allArticles.find((article: any) => {
+    const cleanSlug = article.slug ? article.slug.trim().toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '') : article.id;
+    return cleanSlug === slug;
+  });
+
+  if (foundArticle) {
+    // Transform article to include proper image URL
+    article = {
+      ...foundArticle,
+      imageUrl: foundArticle.image ? `${directusUrl.replace(/\/$/, '')}/assets/${foundArticle.image}?width=1200&height=675&fit=cover` : null
+    };
+  }
+} catch (e) {
+  console.error('Error fetching article:', e);
+  error = 'Failed to load article';
+}
+
+// If article not found, redirect to blog list
+if (!article) {
+  return Astro.redirect('/blog');
+}
+
+// Format date
+const formatDate = (dateString: string) => {
+  return new Date(dateString).toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric'
+  });
+};
+
+// Get author name
+const authorName = article.user_created 
+  ? `${article.user_created.first_name || ''} ${article.user_created.last_name || ''}`.trim()
+  : 'Unknown Author';
+---
+
+<Layout title={`${article.title} - Wavmap Blog`} description={article.excerpt || 'Read this article on Wavmap blog'}>
+  <div class="px-4">
+    <Navbar currentPage="blog" />
+
+    <!-- Article Content -->
+    <main class="py-4">
+      <div class="mx-auto article-container">
+        <!-- Back to Blog Link -->
+        <!-- <div class="mb-8">
+          <a 
+            href="/blog" 
+            class="inline-flex items-center text-primary-600 hover:text-primary-700 font-medium"
+          >
+            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+            </svg>
+            Back to Blog
+          </a>
+        </div> -->
+
+        <!-- Article -->
+        <article class="">
+          <!-- Featured Image -->
+          {article.imageUrl && (
+            <div class="aspect-video bg-gray-200">
+              <img 
+                src={article.imageUrl} 
+                alt={article.title}
+                class="w-full h-full object-cover"
+              />
+               <!-- Article Header -->
+              <header class="p-8 pb-6">
+                <h1 class="text-5xl font-bold mb-6 leading-tight">
+                  {article.title}
+                </h1>
+              </header>
+            </div>
+          )}
+          <div class="flex items-center justify-between pb-6 pt-2 pl-12 pr-12">
+            <div class="flex items-center space-x-4">
+              <span class="font-medium text-sm">By Admin</span>
+              <span>•</span>
+              <time class="text-sm">{formatDate(article.published_date || article.date_created)}</time>
+            </div>
+            
+            {article.date_updated && article.date_updated !== article.date_created && (
+              <div class="text-sm">
+                Updated: {formatDate(article.date_updated)}
+              </div>
+            )}
+          </div>
+
+          <!-- Article Content -->
+          <!-- <div class="px-8 pb-8">
+            {article.excerpt && (
+              <div class="text-xl text-gray-700 font-medium mb-8 leading-relaxed pl-6 italic">
+                {article.excerpt}
+              </div>
+            )} -->
+            
+            <!-- TODO: à décommenter -->
+            <!-- <div class="prose prose-lg max-w-none" set:html={article.content}> -->
+             <div class="prose prose-lg max-w-none content">
+              Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed non risus. Suspendisse lectus tortor, dignissim sit amet, adipiscing nec, ultricies sed, dolor. Cras elementum ultrices diam. Maecenas ligula massa, varius a, semper congue, euismod non, mi. Proin porttitor, orci nec nonummy molestie, enim est eleifend mi, non fermentum diam nisl sit amet erat. Duis semper. Duis arcu massa, scelerisque vitae, consequat in, pretium a, enim. Pellentesque congue. Ut in risus volutpat libero pharetra tempor. Cras vestibulum bibendum augue. Praesent egestas leo in pede. Praesent blandit odio eu enim. Pellentesque sed dui ut augue blandit sodales. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Aliquam nibh. Mauris ac mauris sed pede pellentesque fermentum. Maecenas adipiscing ante non diam sodales hendrerit.
+Ut velit mauris, egestas sed, gravida nec, ornare ut, mi. Aenean ut orci vel massa suscipit pulvinar. Nulla sollicitudin. Fusce varius, ligula non tempus aliquam, nunc turpis ullamcorper nibh, in tempus sapien eros vitae ligula. Pellentesque rhoncus nunc et augue. Integer id felis. Curabitur aliquet pellentesque diam. Integer quis metus vitae elit lobortis egestas. Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Morbi vel erat non mauris convallis vehicula. Nulla et sapien. Integer tortor tellus, aliquam faucibus, convallis id, congue eu, quam. Mauris ullamcorper felis vitae erat. Proin feugiat, augue non elementum posuere, metus purus iaculis lectus, et tristique ligula justo vitae magna.
+
+Aliquam convallis sollicitudin purus. Praesent aliquam, enim at fermentum mollis, ligula massa adipiscing nisl, ac euismod nibh nisl eu lectus. Fusce vulputate sem at sapien. Vivamus leo. Aliquam euismod libero eu enim. Nulla nec felis sed leo placerat imperdiet. Aenean suscipit nulla in justo. Suspendisse cursus rutrum augue. Nulla tincidunt tincidunt mi. Curabitur iaculis, lorem vel rhoncus faucibus, felis magna fermentum augue, et ultricies lacus lorem varius purus. Curabitur eu amet.
+            </div>
+          </div>
+        </article>
+
+        <!-- Navigation to other articles -->
+        <div class="mt-4 text-center flex justify-end">
+          <a 
+            href="/blog" 
+            class="close"
+          >
+            <img src={BackBtn.src} alt="back" />
+          </a>
+        </div>
+      </div>
+    </main>
+  </div>
+</Layout>
+
+<style>
+  /* Aspect ratio utility */
+  .aspect-video {
+    object-fit: fill;
+    max-height: 350px;
+    width: 100%;
+    position: relative;
+  }
+
+  /* Enhanced prose styles for article content */
+  .prose {
+    color: #374151;
+    line-height: 1.75;
+  }
+
+  header {
+    position: absolute;
+    bottom: 2rem;
+    left: 2rem;
+    padding-bottom: 0;
+    color: white;
+  }
+
+  header h1 {
+    text-transform: uppercase;
+  }
+
+  .prose h1, .prose h2, .prose h3, .prose h4, .prose h5, .prose h6 {
+    color: #111827;
+    font-weight: 700;
+    margin-top: 2rem;
+    margin-bottom: 1rem;
+  }
+
+  .prose h2 {
+    font-size: 1.875rem;
+    border-bottom: 2px solid #e5e7eb;
+    padding-bottom: 0.5rem;
+  }
+
+  .prose h3 {
+    font-size: 1.5rem;
+  }
+
+  .close img {
+    height: 40px;
+  }
+  
+  .content {
+    column-count: 3;
+    column-gap: 2.55rem;
+    text-align: start;
+    font-size: 16px;
+    font-weight: 400;
+    padding: 0 3rem 0 3rem ;
+  }
+
+  .prose a {
+    color: #6366f1;
+    text-decoration: underline;
+  }
+
+  .prose a:hover {
+    color: #4f46e5;
+  }
+
+  .prose blockquote {
+    border-left: 4px solid #6366f1;
+    padding-left: 1.5rem;
+    margin: 2rem 0;
+    font-style: italic;
+    color: #6b7280;
+  }
+
+  .prose ul, .prose ol {
+    margin: 1.5rem 0;
+    padding-left: 2rem;
+  }
+
+  .prose li {
+    margin-bottom: 0.5rem;
+  }
+
+  .prose img {
+    border-radius: 0.5rem;
+    margin: 2rem 0;
+  }
+
+  .prose code {
+    background-color: #f3f4f6;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.25rem;
+    font-size: 0.875rem;
+  }
+
+  .prose pre {
+    background-color: #1f2937;
+    color: #f9fafb;
+    padding: 1.5rem;
+    border-radius: 0.5rem;
+    overflow-x: auto;
+    margin: 2rem 0;
+  }
+
+  .prose pre code {
+    background-color: transparent;
+    padding: 0;
+    color: inherit;
+  }
+</style>

@@ -1,0 +1,377 @@
+---
+import * as m from '../paraglide/messages.js';
+---
+
+<div class="auth-modal-container">
+  <div class="auth-toggle-buttons">
+    <button id="login-tab" class="tab-button active">{m.login()}</button>
+    <button id="register-tab" class="tab-button">{m.register()}</button>
+  </div>
+
+  <!-- Login Form -->
+  <div id="login-form" class="auth-form-section active">
+    <h2 class="form-title">{m.login()}</h2>
+    <div id="login-error" class="error-message hidden"></div>
+    
+    <form id="auth-login-form" method="POST" action="/api/auth/login" class="space-y-4">
+      <div class="form-group">
+        <label for="login-email" class="form-label">{m.email()}</label>
+        <input
+          type="email"
+          id="login-email"
+          name="email"
+          class="form-input"
+          required
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="login-password" class="form-label">{m.password()}</label>
+        <input
+          type="password"
+          id="login-password"
+          name="password"
+          class="form-input"
+          required
+        />
+      </div>
+
+      <button type="submit" class="btn btn-primary btn-lg w-full" id="login-submit">
+        {m.login()}
+      </button>
+    </form>
+  </div>
+
+  <!-- Register Form -->
+  <div id="register-form" class="auth-form-section">
+    <h2 class="form-title">{m.register()}</h2>
+    <div id="register-error" class="error-message hidden"></div>
+    
+    <form id="auth-register-form" method="POST" action="/api/auth/register" class="space-y-4">
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div class="form-group">
+          <label for="register-firstName" class="form-label">{m.first_name()}</label>
+          <input
+            type="text"
+            id="register-firstName"
+            name="firstName"
+            class="form-input"
+            required
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="register-lastName" class="form-label">{m.last_name()}</label>
+          <input
+            type="text"
+            id="register-lastName"
+            name="lastName"
+            class="form-input"
+            required
+          />
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="register-email" class="form-label">{m.email()}</label>
+        <input
+          type="email"
+          id="register-email"
+          name="email"
+          class="form-input"
+          required
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="register-password" class="form-label">{m.password()}</label>
+        <input
+          type="password"
+          id="register-password"
+          name="password"
+          class="form-input"
+          required
+        />
+      </div>
+
+      <button type="submit" class="btn btn-primary btn-lg w-full" id="register-submit">
+        {m.register()}
+      </button>
+    </form>
+  </div>
+</div>
+
+<script define:vars={{ 
+  signingIn: m.signing_in(), 
+  signingUp: m.signing_up(), 
+  errorOccurred: m.error_occurred(), 
+  networkError: m.network_error() 
+}}>
+  function initAuthModal() {
+    const loginTab = document.getElementById('login-tab');
+    const registerTab = document.getElementById('register-tab');
+    const loginForm = document.getElementById('login-form');
+    const registerForm = document.getElementById('register-form');
+    const loginSubmit = document.getElementById('login-submit');
+    const registerSubmit = document.getElementById('register-submit');
+    const loginError = document.getElementById('login-error');
+    const registerError = document.getElementById('register-error');
+
+    // Tab switching
+    loginTab?.addEventListener('click', () => {
+      loginTab.classList.add('active');
+      registerTab.classList.remove('active');
+      loginForm.classList.add('active');
+      registerForm.classList.remove('active');
+    });
+
+    registerTab?.addEventListener('click', () => {
+      registerTab.classList.add('active');
+      loginTab.classList.remove('active');
+      registerForm.classList.add('active');
+      loginForm.classList.remove('active');
+    });
+
+    // Login form handling
+    document.getElementById('auth-login-form')?.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const formData = new FormData(e.target);
+      const originalText = loginSubmit?.textContent;
+      
+      try {
+        loginSubmit.disabled = true;
+        loginSubmit.textContent = signingIn;
+        loginError.classList.add('hidden');
+        
+        const response = await fetch('/api/auth/login', {
+          method: 'POST',
+          body: formData,
+        });
+        
+        if (response.ok) {
+          // Success - trigger artist form view
+          window.dispatchEvent(new CustomEvent('authSuccess'));
+        } else {
+          const data = await response.json();
+          loginError.textContent = data.error || errorOccurred;
+          loginError.classList.remove('hidden');
+        }
+      } catch (error) {
+        loginError.textContent = networkError;
+        loginError.classList.remove('hidden');
+      } finally {
+        loginSubmit.disabled = false;
+        loginSubmit.textContent = originalText;
+      }
+    });
+
+    // Register form handling
+    document.getElementById('auth-register-form')?.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const formData = new FormData(e.target);
+      const originalText = registerSubmit?.textContent;
+      
+      try {
+        registerSubmit.disabled = true;
+        registerSubmit.textContent = signingUp;
+        registerError.classList.add('hidden');
+        
+        const response = await fetch('/api/auth/register', {
+          method: 'POST',
+          body: formData,
+        });
+        
+        const data = await response.json();
+        
+        if (response.ok) {
+          // Success message
+          registerError.textContent = data.message || 'Registration successful!';
+          registerError.className = 'success-message';
+          registerError.classList.remove('hidden');
+          
+          // Switch to login after success
+          setTimeout(() => {
+            loginTab.click();
+            registerError.classList.add('hidden');
+            registerError.className = 'error-message hidden';
+          }, 2000);
+        } else {
+          registerError.textContent = data.error || errorOccurred;
+          registerError.classList.remove('hidden');
+        }
+      } catch (error) {
+        registerError.textContent = networkError;
+        registerError.classList.remove('hidden');
+      } finally {
+        registerSubmit.disabled = false;
+        registerSubmit.textContent = originalText;
+      }
+    });
+  }
+
+  // Initialize when loaded
+  document.addEventListener('DOMContentLoaded', initAuthModal);
+  if (document.readyState !== 'loading') {
+    initAuthModal();
+  }
+</script>
+
+<style>
+  .auth-modal-container {
+    background: white;
+    padding: 2rem;
+    border-radius: 1rem;
+    max-width: 500px;
+    width: 100%;
+    margin: 0 auto;
+  }
+
+  .auth-toggle-buttons {
+    display: flex;
+    margin-bottom: 2rem;
+    border-bottom: 1px solid #e5e7eb;
+  }
+
+  .tab-button {
+    flex: 1;
+    padding: 1rem;
+    border: none;
+    background: none;
+    cursor: pointer;
+    font-weight: 500;
+    color: #6b7280;
+    border-bottom: 2px solid transparent;
+    transition: all 0.2s;
+  }
+
+  .tab-button.active {
+    color: #6366f1;
+    border-bottom-color: #6366f1;
+  }
+
+  .tab-button:hover:not(.active) {
+    color: #374151;
+  }
+
+  .auth-form-section {
+    display: none;
+  }
+
+  .auth-form-section.active {
+    display: block;
+  }
+
+  .form-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #1f2937;
+    margin-bottom: 1.5rem;
+    text-align: center;
+  }
+
+  .error-message {
+    padding: 0.75rem;
+    border-radius: 0.5rem;
+    background-color: #fef2f2;
+    color: #dc2626;
+    border: 1px solid #fecaca;
+    margin-bottom: 1rem;
+    font-size: 0.875rem;
+  }
+
+  .success-message {
+    padding: 0.75rem;
+    border-radius: 0.5rem;
+    background-color: #f0fdf4;
+    color: #16a34a;
+    border: 1px solid #bbf7d0;
+    margin-bottom: 1rem;
+    font-size: 0.875rem;
+  }
+
+  .form-group {
+    margin-bottom: 1rem;
+  }
+
+  .form-label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    color: #1f2937;
+    font-size: 0.875rem;
+  }
+
+  .form-input {
+    width: 100%;
+    padding: 0.75rem;
+    border: 2px solid #e5e7eb;
+    border-radius: 0.5rem;
+    font-size: 1rem;
+    transition: border-color 0.2s;
+  }
+
+  .form-input:focus {
+    outline: none;
+    border-color: #6366f1;
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+  }
+
+  .btn {
+    font-weight: 600;
+    border-radius: 0.5rem;
+    transition: all 0.2s;
+    cursor: pointer;
+    border: none;
+  }
+
+  .btn-primary {
+    background: linear-gradient(135deg, #6366f1, #8b5cf6);
+    color: white;
+  }
+
+  .btn-primary:hover:not(:disabled) {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
+  }
+
+  .btn-primary:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+  }
+
+  .btn-lg {
+    padding: 0.875rem 1.5rem;
+    font-size: 1rem;
+  }
+
+  .w-full {
+    width: 100%;
+  }
+
+  .space-y-4 > * + * {
+    margin-top: 1rem;
+  }
+
+  .grid {
+    display: grid;
+  }
+
+  .grid-cols-1 {
+    grid-template-columns: repeat(1, 1fr);
+  }
+
+  @media (min-width: 640px) {
+    .sm\\:grid-cols-2 {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  .gap-4 {
+    gap: 1rem;
+  }
+
+  .hidden {
+    display: none;
+  }
+</style>
