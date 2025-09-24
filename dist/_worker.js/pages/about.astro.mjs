@@ -1,28 +1,243 @@
 globalThis.process ??= {}; globalThis.process.env ??= {};
 /* empty css                                 */
-import { c as createComponent, r as renderComponent, a as renderTemplate, m as maybeRenderHead } from '../chunks/astro/server_CrUJU3Ch.mjs';
-import { $ as $$Layout } from '../chunks/Layout_g5zOGT9n.mjs';
-import { $ as $$Navbar } from '../chunks/Navbar_-Y9DRhkq.mjs';
+import { c as createComponent, r as renderComponent, b as renderScript, a as renderTemplate, m as maybeRenderHead } from '../chunks/astro/server_DT6E8k0k.mjs';
+import { $ as $$Layout } from '../chunks/Layout_DZ88bLxA.mjs';
+import { $ as $$Navbar } from '../chunks/Navbar_CW1GVZKe.mjs';
+import { $ as $$Footer } from '../chunks/Footer_CqfJwBpE.mjs';
+/* empty css                                 */
 export { renderers } from '../renderers.mjs';
 
 const $$About = createComponent(($$result, $$props, $$slots) => {
-  return renderTemplate`${renderComponent($$result, "Layout", $$Layout, { "title": `About - Wavmap`, "description": "About Wavmap - Underground music community platform" }, { "default": ($$result2) => renderTemplate` ${maybeRenderHead()}<div class="min-h-screen bg-gray-50"> ${renderComponent($$result2, "Navbar", $$Navbar, { "currentPage": "about" })} <!-- About Content --> <main class="py-16"> <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8"> <div class="bg-white rounded-2xl shadow-sm p-12"> <h1 class="text-5xl font-bold text-gray-900 mb-12 text-center">About Wavmap</h1> <div class="prose prose-xl mx-auto max-w-4xl"> <p class="text-xl text-gray-700 mb-8 leading-relaxed">
-Wavmap is a platform dedicated to connecting and showcasing artists from the underground music community around the world.
-</p> <h2 class="text-3xl font-semibold text-gray-900 mb-6">Our Mission</h2> <p class="text-lg text-gray-700 mb-8 leading-relaxed">
-We believe in the power of underground music to bring people together, challenge conventions, and create meaningful connections across geographic and cultural boundaries.
-</p> <h2 class="text-3xl font-semibold text-gray-900 mb-6">What We Do</h2> <ul class="text-lg text-gray-700 mb-8 space-y-3 leading-relaxed"> <li>• Connect artists from diverse musical backgrounds and locations</li> <li>• Provide a platform for discovery and collaboration</li> <li>• Support marginalized voices in the music community</li> <li>• Foster inclusive and accessible music spaces</li> </ul> <div class="text-center mt-16"> <div class="text-8xl mb-6">🎵</div> <p class="text-xl text-gray-600 font-medium">
-Join the movement and be part of the underground music revolution.
-</p> </div> </div> </div> </div> </main> </div> ` })}`;
+  return renderTemplate`${renderComponent($$result, "Layout", $$Layout, { "title": `About - Wavmap`, "description": "About Wavmap - Underground music community platform", "data-astro-cid-kh7btl4r": true }, { "default": ($$result2) => renderTemplate` ${renderComponent($$result2, "Navbar", $$Navbar, { "currentPage": "about", "data-astro-cid-kh7btl4r": true })} ${maybeRenderHead()}<main id="parallax-container" class="flex flex-row min-h-screen container" data-astro-cid-kh7btl4r> <!-- Colonne 1 - lente --> <div class="flex-1 relative will-change-transform p-6 overflow-hidden" data-speed="0.25" data-astro-cid-kh7btl4r> <div class="content-wrapper" data-astro-cid-kh7btl4r> <p class="xtra-large" data-astro-cid-kh7btl4r>CODE OF CONDUCT</p> <p class="large" data-astro-cid-kh7btl4r>Our Vision</p> <p class="text-base" data-astro-cid-kh7btl4r>With WAVMAP, we want to contribute to an electronic music 
+          scene where every person feels equally welcome and has the possibility to express 
+          themselves, be creative and enjoy the pleasures of club culture. This means 
+          confronting the oppressive systems ingrained in our societies - such as but 
+          not limited to racism, sexism, antisemitism, homophobia, transphobia, queerphobia, 
+          ableism and classism - that shape who gets access to spaces, resources, and 
+          recognition under capitalism. While we’ve all been socialized under these 
+          systems, their violence disproportionately targets marginalized communities</p> <p class="text-base" data-astro-cid-kh7btl4r>In addition to the above, we also believe in transborder 
+          solidarity. In times of war, occupation, and displacement (from Europe to the 
+          SWANA region and beyond), we hope WAVMAP can foster a community that 
+          transcends borders, celebrating what unites us over what divides us. 
+          Therefore, we want to give importance to voices from affected regions 
+          and support initiatives that align with our values.</p> <p class="text-base" data-astro-cid-kh7btl4r>
+Dance music and club culture have emerged as an attempt to create 
+          safer spaces for people suffering from the above mentioned systems 
+          of oppression. This is especially true for racialised and queer people. 
+          Although we don’t think that the electronic music scene alone will put 
+          an end to these oppressions, we believe that we have a responsibility 
+          in trying to create spaces where marginalized people feel included. 
+          We therefore wish to create an environment of solidarity and respect, 
+          both on our platform and during our online and in-person events.
+</p> <p class="text-base" data-astro-cid-kh7btl4r>
+All users of WAVMAP and participants of WAVMAP events of any kind shall 
+          accept the following code of conduct and contribute, according to their 
+          personal situation and capabilities, to a joyful and liberating electronic 
+          music scene for all. We acknowledge that we all still have to learn, but 
+          we believe in the transformative power of collective action and music.
+</p> <p class="text-base" data-astro-cid-kh7btl4r>
+If you have questions, critique or suggestions, please don’t hesitate 
+          to reach out to our team via : …@wavmap.eu.
+</p> <div class="separator" data-astro-cid-kh7btl4r></div> <p class="xtra-large" data-astro-cid-kh7btl4r>
+Code of conduct
+</p> <p class="large" data-astro-cid-kh7btl4r>Why we need Awareness</p> <p class="text-base" data-astro-cid-kh7btl4r>
+We live in a society in which unequal power relations are a reality. People 
+          have privileges or face discrimination on the basis of different characteristics.
+           Discrimination can happen intentionally, but in most cases it happens unintentionally. 
+           Awareness is a concept that opposes all forms of discrimination, violence and boundary 
+          violations. We want to empower those affected and actively support in developing their own 
+          strategies for dealing with discrimination.
+</p> <div class="separator" data-astro-cid-kh7btl4r></div> <p class="large" data-astro-cid-kh7btl4r>
+Respect and dignity
+</p> <p class="text-base" data-astro-cid-kh7btl4r>
+Whether it is during in-person or online events linked to WAVMAP, we have a 
+          responsibility towards each other to ensure that everyone has the best experience. 
+          We encourage all users and participants to treat everyone with respect, dignity and 
+          kindness. We don’t tolerate any form of discrimination, harassment and abuse - whether 
+          verbal or physical. We want an atmosphere in which everyone is able to speak up and in 
+          which different levels of knowledge can be brought together productively. An approachable 
+          and attentive culture of discussion is a crucial basis for this. We advocate openness to 
+          a wide range of positions and tolerance for ambivalence, as well as the need for dialog 
+          - as long as this does not involve discrimination or crossing boundaries and is done in a respectful way.
+</p> <div class="separator" data-astro-cid-kh7btl4r></div> <p class="large" data-astro-cid-kh7btl4r>Awareness of power structures</p> <p class="text-base" data-astro-cid-kh7btl4r>
+We want to encourage WAVMAP users and participants in our events and other 
+          activities to be aware of their position within a group and underlying power 
+          structures. Don’t take too much space and give enough space to others, especially 
+          people from marginalised groups. This applies to physical space as well as space 
+          within a conversation. For example: Reflect on how your identity (e.g., gender, 
+          race, ability) might affect how much space you take in conversations or decision-making. 
+          We can only confront, change and dismantle power structures by working together. For us, 
+          this includes raising awareness of our own privileges and existing power structures, as 
+          well as the initiative, self-reflection and sensitization of each individual.
+</p> <div class="separator" data-astro-cid-kh7btl4r></div> <p class="large" data-astro-cid-kh7btl4r>
+Consent
+</p> <p class="text-base" data-astro-cid-kh7btl4r>
+We want to create an environment where interactions between individuals, and 
+          especially physical interactions or the discussion of sensitive topics, are 
+          based on consent. Consent must be explicit, reversible, and ongoing—for 
+          physical touch (e.g., dancing), photography, or personal discussions. 
+          Don't forget : only yes means yes, and a yes can always be revoked !
+</p> <div class="separator" data-astro-cid-kh7btl4r></div> <p class="large" data-astro-cid-kh7btl4r>
+Personal boundaries
+</p> <p class="text-base" data-astro-cid-kh7btl4r>
+Respecting each one’s personal boundaries is fundamental to 
+          creating an environment where everyone feels respected. Whenever 
+          someone requests to respect their personal boundaries, it is 
+          important to do so. Please refrain from questioning other 
+          people's perceptions when it comes to their personal boundaries. 
+          Just because you perceive something differently, as less bad or 
+          not bad at all, it doesn't have to correspond to the perception 
+          and feelings of the other person.
+</p> <div class="separator" data-astro-cid-kh7btl4r></div> <p class="large" data-astro-cid-kh7btl4r>Inclusive language</p> <p class="text-base" data-astro-cid-kh7btl4r>
+We want to encourage the use of inclusive language that doesn’t 
+          make assumptions about others. The use of pronouns according to a 
+          person’s wish creates an environment where they feel welcomed. 
+          If you are unsure which pronouns a person uses, do not simply 
+          assume a gender based on appearance, but ask about the pronouns 
+          or do not use any pronouns until you have learned them (e.g. only 
+          use the name of the person). Also, please do not use derogatory or 
+          discriminatory terms in any form.
+</p> <div class="separator" data-astro-cid-kh7btl4r></div> <p class="large" data-astro-cid-kh7btl4r>Accessibility</p> <p class="text-base" data-astro-cid-kh7btl4r>
+We prioritize accessibility at events (e.g. ramps, quiet spaces). 
+          We try to make each event as accessible for everyone to the best of 
+          our ability and the individual needs of our participants. 
+          Unfortunately at the time we can’t fully guarantee sufficient accessibility 
+          at every single one of our events, but we are committed to learning over 
+          time and are constantly reviewing and improving our events in this respect. 
+          Please don't hesitate to contact us in advance for needs at help@wavmap.eu.
+</p> <div class="separator" data-astro-cid-kh7btl4r></div> <p class="large" data-astro-cid-kh7btl4r>Reporting procedures</p> <p class="text-base" data-astro-cid-kh7btl4r>
+Whether it is during online or in-person events, please reach out 
+          to our team or any designated staff if you feel uncomfortable with 
+          a situation. In online-events please feel free to reach out to our 
+          team and/or moderator of the event via direct message. In the event 
+          of an incident, the person negatively affected by discrimination and/or 
+          the violation of their personal boundaries always decides what support 
+          is required. Together with our team, options for dealing with the 
+          incident are discussed and actions will be taken accordingly. 
+          Where possible, we provide a safe and quiet room to provide a place 
+          of retreat for affected persons. Posters will be displayed at the 
+          event explaining how to contact the relevant staff and will include 
+          contact details. Additionally you can report problematic situations 
+          after the event by writing to us at help@wavmap.eu. Reporting is 
+          confidential. We commit to responding within 48 hours and involving 
+          affected parties in decisions where possible. Our team will also be 
+          available after an incident to provide emotional support to affected 
+          people and will refer them to further support services, where needed.
+</p> <div class="separator" data-astro-cid-kh7btl4r></div> <p class="large" data-astro-cid-kh7btl4r>Consequences</p> <p class="text-base" data-astro-cid-kh7btl4r>
+In case of abuse, harassment, violence or discrimination against 
+          another person or group that occurs during an online or in-person 
+          event, depending on the gravity of the situation and in accordance 
+          with victim’s demands, we will take consequences ranging from 
+          warnings to temporary or definite exclusion from an event, as well 
+          as from the WAVMAP platform. Incidents might be documented 
+          (anonymously) and used for prevention at future events.
+</p> <div class="separator" data-astro-cid-kh7btl4r></div> <p class="large" data-astro-cid-kh7btl4r>Prioritization of safety of marginalised groups</p> <p class="text-base" data-astro-cid-kh7btl4r>
+Although we aim towards a club culture where everyone feels 
+          equally welcome, we acknowledge that this is not yet the case. 
+          We therefore want to collectively prioritize the safety of marginalised groups.
+</p> <div class="separator" data-astro-cid-kh7btl4r></div> <p class="large" data-astro-cid-kh7btl4r>Active intervention</p> <p class="text-base" data-astro-cid-kh7btl4r>
+personal boundaries and resolutely counter such behavior. There 
+          are people responsible for awareness during our event - but it 
+          is also necessary that we all take responsibility individually. 
+          As we believe in collective action and responsibility, we strongly 
+          encourage bystander intervention. If it is safe to do so, we 
+          encourage participants to intervene in a situation that appears 
+          to be one of harassment or discrimination. If you are unable to 
+          intervene for whatever reason, we encourage you to reach out to 
+          our team in these instances, also if you aren’t affected yourself 
+          or if you are unsure, if a person is indeed in need of help or not. 
+          We call on everyone to be mindful and attentive when working 
+          together and ask everyone to pay attention to and respect their 
+          own and others' needs and boundaries. If support is required in 
+          communicating boundaries, our designated staff is also available for this.
+</p> </div> </div> <!-- Colonne 2 - moyenne --> <div class="flex-1 relative will-change-transform p-6" data-speed="0.5" data-astro-cid-kh7btl4r> <div class="space-y-6 content-wrapper" data-astro-cid-kh7btl4r> <p class="xtra-large" data-astro-cid-kh7btl4r>
+ABOUT
+</p> <p class="text-base" data-astro-cid-kh7btl4r>
+WAVMAP is a digital platform for the independent electronic music scene. 
+          WAVMAP encourages DJs, producers, promoters, labels and curators from all 
+          over Europe to find like-minded individuals and collectives to exchange, 
+          co-create and collaborate. We see WAVMAP as a contribution to a better 
+          connected, more resilient underground scene, where artists and music 
+          transcend borders to nurture creativity, generate new opportunities and build solidarity.
+</p> <p class="text-base" data-astro-cid-kh7btl4r>
+WAVMAP empowers artists, activists and professionals to expand 
+          their networks, provides them with valuable insights into less-explored 
+          cities for live performances, and fosters cross-border co-creation beyond 
+          the major electronic music hubs. By doing so, WAVMAP not only helps 
+          bridge geographical gaps but also aims to support more inclusive, 
+          sustainable, and collaborative music practices across Europe.
+</p> <img data-astro-cid-kh7btl4r> </div> </div> <!-- Colonne 3 - rapide --> <div class="flex-1 relative will-change-transform p-6 overflow-hidden" data-speed="0.75" data-astro-cid-kh7btl4r> <div class="space-y-6 content-wrapper" data-astro-cid-kh7btl4r> <p class="xtra-large" data-astro-cid-kh7btl4r>FAQ</p> <p class="large" data-astro-cid-kh7btl4r>Why does WAVMAP mention club politics in the inscription form ?</p> <p class="text-base" data-astro-cid-kh7btl4r>
+Electronic music and rave culture have always been tied to resistance—born 
+          from the creativity and need for liberation of marginalized communities 
+          (BiPOC, queer, and working-class artists) who pioneered genres like techno, 
+          house, footwork, and jungle. Yet today, many of these same groups face 
+          exclusion as cultural appropriation, corporate interests and, in some cases, 
+          fascist or reactionary ideologies infiltrate the scene.
+</p> <p class="text-base" data-astro-cid-kh7btl4r>
+For marginalized artists, knowing the political values of collaborators 
+          and venues isn’t just practical—it’s a matter of safety and survival. 
+          WAVMAP highlights these stances to help foster safer spaces and solidarity, 
+          ensuring the scene remains a place where its creators can thrive.
+</p> <p class="text-base" data-astro-cid-kh7btl4r>
+This isn’t about sacrificing joy for politics; it’s about recognizing 
+          that activism and celebration go hand in hand. The dance floor has always 
+          been political—we’re just honoring that legacy.
+</p> <p class="large" data-astro-cid-kh7btl4r>
+What’s the economic model of WAVMAP ?
+</p> <p class="text-base" data-astro-cid-kh7btl4r>
+WAVMAP is a project run by Commune de nuit, a non-profit based in Marseille 
+          (France). The initial platform development has been made possible thanks to a 
+          co-founding by the European Union via the LiveMX program. LiveMX aims at 
+          supporting music export and artists mobility within Europe.
+</p> <p class="text-base" data-astro-cid-kh7btl4r>
+Unlike platforms backed by investment funds or corporations, 
+          WAVMAP is and always will be independent and non-profit driven.
+</p> <p class="text-base" data-astro-cid-kh7btl4r>
+For now, everything on WAVMAP is free to use. In order to guarantee our 
+          independence and ensure long-term sustainability, we may introduce optional 
+          paid features in the future - fair and accessible to everyone. If you have 
+          ideas on fair pricing models or funding strategies, please reach out to us !
+</p> <p class="large" data-astro-cid-kh7btl4r>Why is my country not on the list ?</p> <p class="text-base" data-astro-cid-kh7btl4r>
+WAVMAP was made possible through co-funding of the European Union’s 
+          Creative Europe program, so the initial list only includes countries 
+          participating in this program. This also allows us to adopt a more effective 
+          and high-quality communication and distribution strategy, since we can focus 
+          on a precise number of countries and their respective local scenes. However, 
+          in the future, we would like to add more countries to the list. If you would 
+          like to support this effort or have ideas for funding opportunities in your 
+          country or region, we’d love to hear your ideas !
+</p> <p class="large" data-astro-cid-kh7btl4r>
+How can I get involved with WAVMAP ?
+</p> <p class="text-base" data-astro-cid-kh7btl4r>
+There are many ways to support WAVMAP and help grow this community—here’s how you can contribute:
+</p> <p class="text-base" data-astro-cid-kh7btl4r>
+Spread the word
+          Share the platform with your local music community! The more people join, 
+          the stronger the network becomes, creating new opportunities for collaboration 
+          and exchange.
+</p> <p class="text-base" data-astro-cid-kh7btl4r>
+Host or co-organize an event
+          WAVMAP is all about connecting people from the electronic 
+          music underground, creating moments of knowledge exchange and 
+          collective imagination. We would love to come to your city or support 
+          an event that you put up, so please drop us a message.
+</p> <p class="text-base" data-astro-cid-kh7btl4r>
+Support us financially
+          Donations help keep WAVMAP independent and sustainable. 
+          If you’d like to contribute, you can do so here (link).
+</p> <p class="text-base" data-astro-cid-kh7btl4r>
+Have another idea? We’re all ears—reach out and let’s make it happen.
+</p> </div> </div> </main> ${renderComponent($$result2, "Footer", $$Footer, { "data-astro-cid-kh7btl4r": true })} ` })} <!-- Replace your existing script with this one --> ${renderScript($$result, "/home/glm/wavmap/src/pages/about.astro?astro&type=script&index=0&lang.ts")} `;
 }, "/home/glm/wavmap/src/pages/about.astro", void 0);
 
 const $$file = "/home/glm/wavmap/src/pages/about.astro";
 const $$url = "/about";
 
 const _page = /*#__PURE__*/Object.freeze(/*#__PURE__*/Object.defineProperty({
-	__proto__: null,
-	default: $$About,
-	file: $$file,
-	url: $$url
+  __proto__: null,
+  default: $$About,
+  file: $$file,
+  url: $$url
 }, Symbol.toStringTag, { value: 'Module' }));
 
 const page = () => _page;

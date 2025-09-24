@@ -64,6 +64,8 @@ import * as m from '../paraglide/messages.js';
       const data = await response.json();
       if (data.success) {
         citiesData = data.cities;
+        // Make cities data available globally for form validation
+        window.citiesData = citiesData;
       } else {
         throw new Error(data.message);
       }
@@ -84,6 +86,8 @@ import * as m from '../paraglide/messages.js';
         {"id": "vienna_at", "name": "Vienna", "country": "AT", "countryName": "Austria", "coordinates": [16.363449, 48.210033]},
         {"id": "zurich_ch", "name": "Zurich", "country": "CH", "countryName": "Switzerland", "coordinates": [8.541694, 47.376887]}
       ];
+      // Make fallback data available globally too
+      window.citiesData = citiesData;
     }
   }
 
@@ -127,13 +131,24 @@ import * as m from '../paraglide/messages.js';
         filteredCities = citiesData;
       }
       
-      // Clear city input when country changes
+      // Clear city input and hidden fields when country changes
       if (cityInput.value && selectedCountry) {
-        const currentCity = filteredCities.find(city => 
+        const currentCity = filteredCities.find(city =>
           city.name.toLowerCase() === cityInput.value.toLowerCase()
         );
         if (!currentCity) {
+          // City is not valid for this country, clear everything
           cityInput.value = '';
+          const cityIdField = document.getElementById('city-id');
+          const latField = document.getElementById('latitude');
+          const lngField = document.getElementById('longitude');
+
+          if (cityIdField) cityIdField.value = '';
+          if (latField) latField.value = '';
+          if (lngField) lngField.value = '';
+
+          // Reset border color
+          cityInput.style.borderColor = '';
         }
       }
       
@@ -232,8 +247,66 @@ import * as m from '../paraglide/messages.js';
     
     cityInput.addEventListener('blur', () => {
       // Small delay to allow click on suggestions
-      setTimeout(hideSuggestions, 150);
+      setTimeout(() => {
+        hideSuggestions();
+        // Auto-resolve city when user leaves the field
+        tryAutoResolveCity();
+      }, 150);
     });
+
+    // Function to auto-resolve city when user types and leaves field
+    function tryAutoResolveCity() {
+      const cityName = cityInput.value.trim();
+      const selectedCountry = countrySelect.value;
+
+      if (!cityName || !selectedCountry) return;
+
+      // Check if we already have city data
+      const cityIdField = document.getElementById('city-id');
+      const latField = document.getElementById('latitude');
+      const lngField = document.getElementById('longitude');
+
+      if (cityIdField?.value && latField?.value && lngField?.value) {
+        // Already have data, no need to resolve
+        return;
+      }
+
+      // Try to find exact match
+      const exactMatch = filteredCities.find(city =>
+        city.name.toLowerCase() === cityName.toLowerCase()
+      );
+
+      if (exactMatch) {
+        console.log('🎯 Auto-resolving city:', exactMatch);
+        selectCity(exactMatch);
+        // Visual feedback
+        cityInput.style.borderColor = '#10b981'; // green
+        setTimeout(() => { cityInput.style.borderColor = ''; }, 2000);
+        return;
+      }
+
+      // Try partial match
+      const partialMatch = filteredCities.find(city =>
+        city.name.toLowerCase().includes(cityName.toLowerCase()) ||
+        cityName.toLowerCase().includes(city.name.toLowerCase())
+      );
+
+      if (partialMatch) {
+        console.log('🎯 Auto-resolving with partial match:', partialMatch);
+        // Update the input to the exact city name
+        cityInput.value = partialMatch.name;
+        selectCity(partialMatch);
+        // Visual feedback
+        cityInput.style.borderColor = '#f59e0b'; // amber
+        setTimeout(() => { cityInput.style.borderColor = ''; }, 2000);
+        return;
+      }
+
+      console.warn('⚠️ Could not auto-resolve city:', cityName, 'in country:', selectedCountry);
+      // Visual feedback for unrecognized city
+      cityInput.style.borderColor = '#ef4444'; // red
+      setTimeout(() => { cityInput.style.borderColor = ''; }, 3000);
+    }
 
     // Keyboard navigation
     cityInput.addEventListener('keydown', (e) => {

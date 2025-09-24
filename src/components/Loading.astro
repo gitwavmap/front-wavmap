@@ -1,0 +1,29 @@
+---
+import LogoGif from '../assets/images/logo.gif';
+---
+
+<div class="loading-screen">
+  <img src={LogoGif.src} alt="Loading..." class="loading-logo" />
+</div>
+
+<style>
+  .loading-screen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: black;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+  }
+
+  .loading-logo {
+    width: auto;
+    height: auto;
+    max-width: 200px;
+    max-height: 200px;
+  }
+</style>

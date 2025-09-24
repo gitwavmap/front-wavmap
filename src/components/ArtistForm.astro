@@ -528,6 +528,38 @@ const currentLang = getLocale();
         alert(selectGenre);
         return;
       }
+
+      // Validate and auto-resolve city coordinates if missing
+      const cityInput = form.querySelector('#city');
+      const countryInput = form.querySelector('#country');
+      const cityIdField = form.querySelector('#city-id');
+      const latField = form.querySelector('#latitude');
+      const lngField = form.querySelector('#longitude');
+
+      if (cityInput && countryInput && cityInput.value && countryInput.value) {
+        // If city is entered but no cityId, try to find it
+        if (!cityIdField?.value || !latField?.value || !lngField?.value) {
+          console.log('🔍 Missing city data, attempting to resolve...');
+
+          // Try to find the city in the cities data
+          if (window.citiesData) {
+            const matchingCity = window.citiesData.find(city =>
+              city.name.toLowerCase() === cityInput.value.toLowerCase() &&
+              city.country === countryInput.value
+            );
+
+            if (matchingCity) {
+              console.log('✅ Found matching city:', matchingCity);
+              if (cityIdField) cityIdField.value = matchingCity.id;
+              if (latField && matchingCity.coordinates) latField.value = matchingCity.coordinates[1];
+              if (lngField && matchingCity.coordinates) lngField.value = matchingCity.coordinates[0];
+            } else {
+              console.warn('⚠️ City not found in database:', cityInput.value, countryInput.value);
+              alert(`Warning: The city "${cityInput.value}" was not found in our database. Your submission will be processed but may not appear on the map immediately.`);
+            }
+          }
+        }
+      }
       
       try {
         // Disable button

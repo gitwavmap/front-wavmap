@@ -3,6 +3,9 @@ import Layout from '../../layouts/Layout.astro';
 import Navbar from '../../components/Navbar.astro';
 import * as m from '../../paraglide/messages.js';
 import BackBtn from '../../assets/images/close_btn.svg';
+import { createDirectus, rest, readItems } from '@directus/sdk';
+import BackBtnBg from '../../assets/images/close_bg.svg';
+import HoverLink from '../../components/HoverLink.astro';
 
 const { slug } = Astro.params;
 
@@ -159,12 +162,7 @@ Aliquam convallis sollicitudin purus. Praesent aliquam, enim at fermentum mollis
 
         <!-- Navigation to other articles -->
         <div class="mt-4 text-center flex justify-end">
-          <a 
-            href="/blog" 
-            class="close"
-          >
-            <img src={BackBtn.src} alt="back" />
-          </a>
+          <HoverLink href="/blog" normal={BackBtn.src} hover={BackBtnBg.src} />
         </div>
       </div>
     </main>
@@ -225,7 +223,70 @@ Aliquam convallis sollicitudin purus. Praesent aliquam, enim at fermentum mollis
     text-align: start;
     font-size: 16px;
     font-weight: 400;
-    padding: 0 3rem 0 3rem ;
+    padding: 0 3rem 0 3rem;
+  }
+
+  /* Responsive design - single column on mobile */
+  @media (max-width: 768px) {
+    .content {
+      column-count: 1;
+      column-gap: 0;
+      padding: 0 1rem;
+    }
+
+    /* Article container adjustments */
+    .article-container {
+      padding: 0;
+    }
+
+    /* Header adjustments - keep overlay on image */
+    header {
+      position: absolute;
+      bottom: 1rem;
+      left: 1rem;
+      right: 1rem;
+      padding: 1rem;
+      color: white;
+    }
+
+    header h1 {
+      font-size: 2rem;
+      line-height: 1.2;
+      margin-bottom: 0;
+    }
+
+    /* Image adjustments */
+    .aspect-video {
+      max-height: 200px;
+    }
+
+    /* Meta info adjustments */
+    .flex.items-center.justify-between {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 0.5rem;
+      padding: 1rem;
+    }
+
+    /* Close button adjustments */
+    .close img {
+      height: 30px;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .content {
+      padding: 0 0.5rem;
+      font-size: 14px;
+    }
+
+    header h1 {
+      font-size: 1.5rem;
+    }
+
+    .aspect-video {
+      max-height: 150px;
+    }
   }
 
   .prose a {

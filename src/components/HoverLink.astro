@@ -1,40 +1,103 @@
 ---
 const { href = '#', normal, hover, alt = '' } = Astro.props;
+const uniqueId = `hover-link-${Math.random().toString(36).substr(2, 9)}`;
 ---
-<a href={href} class="nav-button hover-link" data-normal-src={normal} data-hover-src={hover}>
-  <img src={normal} alt={alt} />
+<a href={href} class="nav-button hover-link" id={uniqueId} data-normal-src={normal} data-hover-src={hover}>
+  <img src={normal} alt={alt} class="hover-image" />
 </a>
 
-<script>
-  (function () {
-    // cherche tous les liens qui ont data-hover-src
-    const links = document.querySelectorAll('[data-hover-src]');
-    links.forEach(link => {
-      if (link.dataset.hoverBound) return; // évite les doublons
-      const img = link.querySelector('img');
-      const normalSrc = link.dataset.normalSrc;
-      const hoverSrc = link.dataset.hoverSrc;
-      if (!img || !normalSrc || !hoverSrc) return;
-      link.addEventListener('mouseenter', () => img.src = hoverSrc);
-      link.addEventListener('mouseleave', () => img.src = normalSrc);
-      // optionnel: support basique pour les écrans tactiles
-      link.addEventListener('touchstart', () => img.src = hoverSrc);
-      link.addEventListener('touchend', () => img.src = normalSrc);
-      link.dataset.hoverBound = 'true';
-    });
-  })();
+<script define:vars={{ uniqueId, normal, hover }}>
+  // Attendre que le DOM soit prêt
+  function initializeHover() {
+    const link = document.getElementById(uniqueId);
+    if (!link || link.dataset.hoverInitialized) return;
+
+    const img = link.querySelector('.hover-image');
+    if (!img) return;
+
+    // Preload images pour éviter les délais
+    const normalImg = new Image();
+    const hoverImg = new Image();
+    normalImg.src = normal;
+    hoverImg.src = hover;
+
+    // Event listeners avec gestion d'erreur
+    const handleMouseEnter = () => {
+      try {
+        img.src = hover;
+      } catch (e) {
+        console.warn('Error changing to hover image:', e);
+      }
+    };
+
+    const handleMouseLeave = () => {
+      try {
+        img.src = normal;
+      } catch (e) {
+        console.warn('Error changing to normal image:', e);
+      }
+    };
+
+    // Desktop hover
+    link.addEventListener('mouseenter', handleMouseEnter, { passive: true });
+    link.addEventListener('mouseleave', handleMouseLeave, { passive: true });
+
+    // Mobile touch (avec délai pour éviter les conflits)
+    link.addEventListener('touchstart', handleMouseEnter, { passive: true });
+    link.addEventListener('touchend', () => {
+      setTimeout(handleMouseLeave, 150);
+    }, { passive: true });
+
+    // Focus pour accessibilité
+    link.addEventListener('focus', handleMouseEnter);
+    link.addEventListener('blur', handleMouseLeave);
+
+    link.dataset.hoverInitialized = 'true';
+  }
+
+  // Initialiser immédiatement si possible
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initializeHover);
+  } else {
+    initializeHover();
+  }
+
+  // Réinitialiser après navigation Astro
+  document.addEventListener('astro:page-load', initializeHover);
 </script>
 
 <style>
-img { 
-  height: 50px;
-}
-.nav-button img {
-  transition: transform 0.3s ease; /* animation fluide */
-  height: 40px;
+.hover-link {
+  display: inline-block;
+  text-decoration: none;
+  transition: all 0.2s ease;
 }
 
-.nav-button:hover img {
-  transform: scale(1.1); /* agrandit l'image à 110% */
+.hover-image {
+  height: 40px;
+  width: auto;
+  transition: transform 0.2s ease, opacity 0.1s ease;
+  display: block;
+  object-fit: contain;
+  object-position: center;
+}
+
+.nav-button .hover-image {
+  height: 40px;
+  object-fit: contain;
+}
+
+/* Effet de hover CSS en fallback */
+.hover-link:hover .hover-image {
+  transform: scale(1.05);
+}
+
+/* Assurer la compatibilité mobile */
+.hover-link:active .hover-image {
+  transform: scale(0.95);
+}
+
+.hover-link:focus .hover-image {
+  transform: scale(1.05);
 }
 </style>

@@ -1,10 +1,13 @@
 globalThis.process ??= {}; globalThis.process.env ??= {};
 /* empty css                                    */
-import { c as createComponent, b as createAstro, r as renderComponent, a as renderTemplate, m as maybeRenderHead, u as unescapeHTML, d as addAttribute } from '../../chunks/astro/server_CrUJU3Ch.mjs';
-import { $ as $$Layout } from '../../chunks/Layout_g5zOGT9n.mjs';
-import { $ as $$Navbar } from '../../chunks/Navbar_-Y9DRhkq.mjs';
+import { c as createComponent, d as createAstro, r as renderComponent, a as renderTemplate, m as maybeRenderHead, e as addAttribute } from '../../chunks/astro/server_DT6E8k0k.mjs';
+import { $ as $$Layout } from '../../chunks/Layout_DZ88bLxA.mjs';
+import { c as createSvgComponent, $ as $$Navbar } from '../../chunks/Navbar_CW1GVZKe.mjs';
+import { l as le, j as ju, L as Ls } from '../../chunks/index_Dhdmj7aT.mjs';
 /* empty css                                     */
 export { renderers } from '../../renderers.mjs';
+
+const BackBtn = createSvgComponent({"meta":{"src":"/_astro/close_btn.uafqJeUd.svg","width":159,"height":68,"format":"svg"},"attributes":{"width":"159","height":"68","viewBox":"0 0 159 68","fill":"none"},"children":"\n<path d=\"M12.7057 2H2V52.4173L26.6697 66H38.6605V56.1007L55.994 66H69.8467V56.1007L87.1802 66H99.171V56.1007L116.505 66H128.263V56.1007L145.596 66H157V14.4317L133.494 2H122.323V11.4388L103.937 2H92.7658V11.4388L71.8198 2H60.6486V11.4388L42.4955 2H31.3243V11.4388L12.7057 2Z\" fill=\"#F6F6F6\" stroke=\"black\" stroke-width=\"4\" />\n<path d=\"M26.4803 33.862C26.4803 31.9353 26.7523 30.2013 27.2963 28.66C27.8403 27.096 28.611 25.77 29.6083 24.682C30.6283 23.594 31.8523 22.7553 33.2803 22.166C34.7083 21.554 36.3063 21.248 38.0743 21.248C39.5703 21.248 40.9417 21.4633 42.1883 21.894C43.4577 22.302 44.5683 22.9027 45.5203 23.696C46.4723 24.4893 47.277 25.464 47.9343 26.62C48.5917 27.776 49.0563 29.0907 49.3283 30.564H45.2143C44.7837 28.6827 43.945 27.232 42.6983 26.212C41.4517 25.1693 39.8877 24.648 38.0063 24.648C36.8957 24.648 35.8757 24.8633 34.9463 25.294C34.017 25.7247 33.2237 26.3367 32.5663 27.13C31.909 27.9233 31.399 28.8867 31.0363 30.02C30.6737 31.1307 30.4923 32.4113 30.4923 33.862C30.4923 35.2673 30.6737 36.5367 31.0363 37.67C31.399 38.8033 31.909 39.7667 32.5663 40.56C33.2237 41.3533 34.017 41.9653 34.9463 42.396C35.8757 42.8267 36.9183 43.042 38.0743 43.042C40.0237 43.042 41.6217 42.4867 42.8683 41.376C44.1377 40.2427 44.9537 38.6447 45.3163 36.582H49.4303C49.2037 38.146 48.773 39.54 48.1383 40.764C47.5037 41.9653 46.6877 42.9853 45.6903 43.824C44.7157 44.6627 43.5823 45.3087 42.2903 45.762C40.9983 46.2153 39.5817 46.442 38.0403 46.442C36.295 46.442 34.7083 46.1473 33.2803 45.558C31.8523 44.9687 30.6283 44.13 29.6083 43.042C28.611 41.954 27.8403 40.6393 27.2963 39.098C26.7523 37.5567 26.4803 35.8113 26.4803 33.862ZM52.0635 46V21.69H55.9395V42.6H68.2815V46H52.0635ZM68.3163 33.862C68.3163 31.9353 68.5996 30.19 69.1663 28.626C69.7329 27.062 70.5376 25.736 71.5803 24.648C72.6229 23.56 73.8696 22.7213 75.3203 22.132C76.7936 21.5427 78.4256 21.248 80.2163 21.248C82.0069 21.248 83.6389 21.5427 85.1123 22.132C86.5856 22.7213 87.8436 23.56 88.8863 24.648C89.9289 25.736 90.7336 27.062 91.3003 28.626C91.8669 30.19 92.1503 31.9353 92.1503 33.862C92.1503 35.8113 91.8669 37.568 91.3003 39.132C90.7336 40.6733 89.9289 41.988 88.8863 43.076C87.8663 44.164 86.6083 45.0027 85.1123 45.592C83.6389 46.1587 82.0069 46.442 80.2163 46.442C78.4256 46.442 76.7936 46.1587 75.3203 45.592C73.8469 45.0027 72.5889 44.164 71.5463 43.076C70.5263 41.9653 69.7329 40.6393 69.1663 39.098C68.5996 37.5567 68.3163 35.8113 68.3163 33.862ZM72.3283 33.862C72.3283 35.2673 72.5096 36.548 72.8723 37.704C73.2576 38.8373 73.7903 39.8007 74.4703 40.594C75.1729 41.3873 76.0003 41.9993 76.9523 42.43C77.9269 42.838 79.0149 43.042 80.2163 43.042C81.4176 43.042 82.5056 42.838 83.4803 42.43C84.4549 41.9993 85.2823 41.3873 85.9623 40.594C86.6649 39.8007 87.1976 38.8373 87.5603 37.704C87.9456 36.5707 88.1383 35.29 88.1383 33.862C88.1383 32.4113 87.9456 31.1193 87.5603 29.986C87.1749 28.8527 86.6423 27.8893 85.9623 27.096C85.2823 26.3027 84.4549 25.702 83.4803 25.294C82.5056 24.8633 81.4176 24.648 80.2163 24.648C79.0376 24.648 77.9609 24.8633 76.9863 25.294C76.0116 25.702 75.1843 26.3027 74.5043 27.096C73.8243 27.8893 73.2916 28.8527 72.9063 29.986C72.5209 31.1193 72.3283 32.4113 72.3283 33.862ZM93.4407 37.534H97.4527C97.5433 38.3953 97.7473 39.1773 98.0647 39.88C98.4047 40.56 98.8467 41.138 99.3907 41.614C99.9347 42.09 100.581 42.4527 101.329 42.702C102.077 42.9287 102.927 43.042 103.879 43.042C104.672 43.042 105.386 42.9627 106.021 42.804C106.678 42.6453 107.222 42.4073 107.653 42.09C108.106 41.75 108.446 41.3533 108.673 40.9C108.922 40.424 109.047 39.9027 109.047 39.336C109.047 38.656 108.899 38.1007 108.605 37.67C108.31 37.2167 107.879 36.8427 107.313 36.548C106.769 36.2533 106.1 36.0153 105.307 35.834C104.513 35.63 103.629 35.426 102.655 35.222C101.499 34.9953 100.399 34.7347 99.3567 34.44C98.314 34.1453 97.396 33.7487 96.6027 33.25C95.8093 32.7513 95.1747 32.1167 94.6987 31.346C94.2227 30.5527 93.9847 29.5553 93.9847 28.354C93.9847 27.2887 94.1887 26.3253 94.5967 25.464C95.0047 24.58 95.5827 23.832 96.3307 23.22C97.1013 22.5853 98.0307 22.098 99.1187 21.758C100.229 21.418 101.465 21.248 102.825 21.248C104.343 21.248 105.692 21.4633 106.871 21.894C108.049 22.3247 109.047 22.914 109.863 23.662C110.701 24.41 111.359 25.3053 111.835 26.348C112.311 27.368 112.583 28.4787 112.651 29.68H108.639C108.548 28.9547 108.355 28.286 108.061 27.674C107.789 27.062 107.403 26.5293 106.905 26.076C106.406 25.6227 105.805 25.2713 105.103 25.022C104.423 24.7727 103.652 24.648 102.791 24.648C102.088 24.648 101.442 24.7387 100.853 24.92C100.263 25.0787 99.7533 25.328 99.3227 25.668C98.9147 25.9853 98.5973 26.3593 98.3707 26.79C98.144 27.2207 98.0307 27.708 98.0307 28.252C98.0307 28.8867 98.1893 29.4193 98.5067 29.85C98.8467 30.258 99.2887 30.598 99.8327 30.87C100.399 31.142 101.057 31.3687 101.805 31.55C102.553 31.7313 103.357 31.9127 104.219 32.094C105.465 32.3433 106.621 32.6267 107.687 32.944C108.775 33.2387 109.715 33.6467 110.509 34.168C111.325 34.6893 111.948 35.3467 112.379 36.14C112.832 36.9333 113.059 37.9307 113.059 39.132C113.059 40.2653 112.832 41.2853 112.379 42.192C111.948 43.0987 111.325 43.8693 110.509 44.504C109.693 45.116 108.718 45.592 107.585 45.932C106.451 46.272 105.205 46.442 103.845 46.442C102.235 46.442 100.796 46.2267 99.5267 45.796C98.28 45.3653 97.2147 44.7533 96.3307 43.96C95.4467 43.1667 94.7553 42.226 94.2567 41.138C93.758 40.05 93.486 38.8487 93.4407 37.534ZM115.415 46V21.69H132.143V25.09H119.291V32.128H131.565V35.46H119.291V42.6H132.313V46H115.415Z\" fill=\"black\" />\n"});
 
 const $$Astro = createAstro();
 const $$slug = createComponent(async ($$result, $$props, $$slots) => {
@@ -12,20 +15,46 @@ const $$slug = createComponent(async ($$result, $$props, $$slots) => {
   Astro2.self = $$slug;
   const { slug } = Astro2.params;
   let article = null;
-  let error = null;
   if (!slug) {
     return Astro2.redirect("/blog");
   }
   try {
-    const response = await fetch(`${Astro2.url.origin}/api/blog/${slug}`);
-    const result = await response.json();
-    if (result.success) {
-      article = result.data;
-    } else {
-      error = result.error;
+    const directusUrl = Astro2.locals.runtime?.env?.DIRECTUS_URL || "https://directus-production-1f5c.up.railway.app/";
+    if (!directusUrl) ;
+    const directus = le(directusUrl).with(ju());
+    const allArticles = await directus.request(
+      Ls("posts", {
+        fields: [
+          "id",
+          "title",
+          "slug",
+          "content",
+          "excerpt",
+          "image",
+          "status",
+          "date_created",
+          "date_updated",
+          "published_date"
+        ],
+        filter: {
+          status: {
+            _eq: "published"
+          }
+        }
+      })
+    );
+    const foundArticle = allArticles.find((article2) => {
+      const cleanSlug = article2.slug ? article2.slug.trim().toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "") : article2.id;
+      return cleanSlug === slug;
+    });
+    if (foundArticle) {
+      article = {
+        ...foundArticle,
+        imageUrl: foundArticle.image ? `${directusUrl.replace(/\/$/, "")}/assets/${foundArticle.image}?width=1200&height=675&fit=cover` : null
+      };
     }
   } catch (e) {
-    error = "Failed to load article";
+    console.error("Error fetching article:", e);
   }
   if (!article) {
     return Astro2.redirect("/blog");
@@ -38,14 +67,29 @@ const $$slug = createComponent(async ($$result, $$props, $$slots) => {
     });
   };
   article.user_created ? `${article.user_created.first_name || ""} ${article.user_created.last_name || ""}`.trim() : "Unknown Author";
-  return renderTemplate`${renderComponent($$result, "Layout", $$Layout, { "title": `${article.title} - Wavmap Blog`, "description": article.excerpt || "Read this article on Wavmap blog", "data-astro-cid-4sn4zg3r": true }, { "default": async ($$result2) => renderTemplate` ${maybeRenderHead()}<div class="min-h-screen bg-gray-50" data-astro-cid-4sn4zg3r> ${renderComponent($$result2, "Navbar", $$Navbar, { "currentPage": "blog", "data-astro-cid-4sn4zg3r": true })} <!-- Article Content --> <main class="py-16" data-astro-cid-4sn4zg3r> <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8" data-astro-cid-4sn4zg3r> <!-- Back to Blog Link --> <div class="mb-8" data-astro-cid-4sn4zg3r> <a href="/blog" class="inline-flex items-center text-primary-600 hover:text-primary-700 font-medium" data-astro-cid-4sn4zg3r> <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" data-astro-cid-4sn4zg3r> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" data-astro-cid-4sn4zg3r></path> </svg>
-Back to Blog
-</a> </div> <!-- Article --> <article class="bg-white rounded-2xl shadow-sm overflow-hidden" data-astro-cid-4sn4zg3r> <!-- Featured Image --> ${article.imageUrl && renderTemplate`<div class="aspect-video bg-gray-200" data-astro-cid-4sn4zg3r> <img${addAttribute(article.imageUrl, "src")}${addAttribute(article.title, "alt")} class="w-full h-full object-cover" data-astro-cid-4sn4zg3r> </div>`} <!-- Article Header --> <header class="p-8 pb-6" data-astro-cid-4sn4zg3r> <h1 class="text-4xl font-bold text-gray-900 mb-6 leading-tight" data-astro-cid-4sn4zg3r> ${article.title} </h1> <div class="flex items-center justify-between text-gray-600 border-b border-gray-200 pb-6" data-astro-cid-4sn4zg3r> <div class="flex items-center space-x-4" data-astro-cid-4sn4zg3r> <span class="font-medium" data-astro-cid-4sn4zg3r>By Admin</span> <span data-astro-cid-4sn4zg3r>•</span> <time data-astro-cid-4sn4zg3r>${formatDate(article.published_date || article.date_created)}</time> </div> ${article.date_updated && article.date_updated !== article.date_created && renderTemplate`<div class="text-sm text-gray-500" data-astro-cid-4sn4zg3r>
-Updated: ${formatDate(article.date_updated)} </div>`} </div> </header> <!-- Article Content --> <div class="px-8 pb-8" data-astro-cid-4sn4zg3r> ${article.excerpt && renderTemplate`<div class="text-xl text-gray-700 font-medium mb-8 leading-relaxed border-l-4 border-primary-600 pl-6 italic" data-astro-cid-4sn4zg3r> ${article.excerpt} </div>`} <div class="prose prose-lg max-w-none" data-astro-cid-4sn4zg3r>${unescapeHTML(article.content)}</div> </div> </article> <!-- Navigation to other articles --> <div class="mt-12 text-center" data-astro-cid-4sn4zg3r> <a href="/blog" class="inline-flex items-center bg-primary-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-primary-700 transition-colors" data-astro-cid-4sn4zg3r> <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" data-astro-cid-4sn4zg3r> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0l-4 4m4-4l-4-4" data-astro-cid-4sn4zg3r></path> </svg>
-Read More Articles
-</a> </div> </div> </main> </div> ` })} `;
-}, "/home/glm/wavmap/src/pages/blog/[slug].astro", void 0);
+  return renderTemplate`${renderComponent($$result, "Layout", $$Layout, { "title": `${article.title} - Wavmap Blog`, "description": article.excerpt || "Read this article on Wavmap blog", "data-astro-cid-4sn4zg3r": true }, { "default": async ($$result2) => renderTemplate` ${maybeRenderHead()}<div class="px-4" data-astro-cid-4sn4zg3r> ${renderComponent($$result2, "Navbar", $$Navbar, { "currentPage": "blog", "data-astro-cid-4sn4zg3r": true })} <!-- Article Content --> <main class="py-4" data-astro-cid-4sn4zg3r> <div class="mx-auto article-container" data-astro-cid-4sn4zg3r> <!-- Back to Blog Link --> <!-- <div class="mb-8">
+          <a 
+            href="/blog" 
+            class="inline-flex items-center text-primary-600 hover:text-primary-700 font-medium"
+          >
+            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+            </svg>
+            Back to Blog
+          </a>
+        </div> --> <!-- Article --> <article class="" data-astro-cid-4sn4zg3r> <!-- Featured Image --> ${article.imageUrl && renderTemplate`<div class="aspect-video bg-gray-200" data-astro-cid-4sn4zg3r> <img${addAttribute(article.imageUrl, "src")}${addAttribute(article.title, "alt")} class="w-full h-full object-cover" data-astro-cid-4sn4zg3r> <!-- Article Header --> <header class="p-8 pb-6" data-astro-cid-4sn4zg3r> <h1 class="text-5xl font-bold mb-6 leading-tight" data-astro-cid-4sn4zg3r> ${article.title} </h1> </header> </div>`} <div class="flex items-center justify-between pb-6 pt-2 pl-12 pr-12" data-astro-cid-4sn4zg3r> <div class="flex items-center space-x-4" data-astro-cid-4sn4zg3r> <span class="font-medium text-sm" data-astro-cid-4sn4zg3r>By Admin</span> <span data-astro-cid-4sn4zg3r>•</span> <time class="text-sm" data-astro-cid-4sn4zg3r>${formatDate(article.published_date || article.date_created)}</time> </div> ${article.date_updated && article.date_updated !== article.date_created && renderTemplate`<div class="text-sm" data-astro-cid-4sn4zg3r>
+Updated: ${formatDate(article.date_updated)} </div>`} </div> <!-- Article Content --> <!-- <div class="px-8 pb-8">
+            {article.excerpt && (
+              <div class="text-xl text-gray-700 font-medium mb-8 leading-relaxed pl-6 italic">
+                {article.excerpt}
+              </div>
+            )} --> <!-- TODO: à décommenter --> <!-- <div class="prose prose-lg max-w-none" set:html={article.content}> --> <div class="prose prose-lg max-w-none content" data-astro-cid-4sn4zg3r>
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed non risus. Suspendisse lectus tortor, dignissim sit amet, adipiscing nec, ultricies sed, dolor. Cras elementum ultrices diam. Maecenas ligula massa, varius a, semper congue, euismod non, mi. Proin porttitor, orci nec nonummy molestie, enim est eleifend mi, non fermentum diam nisl sit amet erat. Duis semper. Duis arcu massa, scelerisque vitae, consequat in, pretium a, enim. Pellentesque congue. Ut in risus volutpat libero pharetra tempor. Cras vestibulum bibendum augue. Praesent egestas leo in pede. Praesent blandit odio eu enim. Pellentesque sed dui ut augue blandit sodales. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Aliquam nibh. Mauris ac mauris sed pede pellentesque fermentum. Maecenas adipiscing ante non diam sodales hendrerit.
+Ut velit mauris, egestas sed, gravida nec, ornare ut, mi. Aenean ut orci vel massa suscipit pulvinar. Nulla sollicitudin. Fusce varius, ligula non tempus aliquam, nunc turpis ullamcorper nibh, in tempus sapien eros vitae ligula. Pellentesque rhoncus nunc et augue. Integer id felis. Curabitur aliquet pellentesque diam. Integer quis metus vitae elit lobortis egestas. Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Morbi vel erat non mauris convallis vehicula. Nulla et sapien. Integer tortor tellus, aliquam faucibus, convallis id, congue eu, quam. Mauris ullamcorper felis vitae erat. Proin feugiat, augue non elementum posuere, metus purus iaculis lectus, et tristique ligula justo vitae magna.
 
+Aliquam convallis sollicitudin purus. Praesent aliquam, enim at fermentum mollis, ligula massa adipiscing nisl, ac euismod nibh nisl eu lectus. Fusce vulputate sem at sapien. Vivamus leo. Aliquam euismod libero eu enim. Nulla nec felis sed leo placerat imperdiet. Aenean suscipit nulla in justo. Suspendisse cursus rutrum augue. Nulla tincidunt tincidunt mi. Curabitur iaculis, lorem vel rhoncus faucibus, felis magna fermentum augue, et ultricies lacus lorem varius purus. Curabitur eu amet.
+</div> </article></div> <!-- Navigation to other articles --> <div class="mt-4 text-center flex justify-end" data-astro-cid-4sn4zg3r> <a href="/blog" class="close" data-astro-cid-4sn4zg3r> <img${addAttribute(BackBtn.src, "src")} alt="back" data-astro-cid-4sn4zg3r> </a> </div> </main></div> ` })} `;
+}, "/home/glm/wavmap/src/pages/blog/[slug].astro", void 0);
 const $$file = "/home/glm/wavmap/src/pages/blog/[slug].astro";
 const $$url = "/blog/[slug]";
 

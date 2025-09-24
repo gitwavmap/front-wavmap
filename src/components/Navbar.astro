@@ -21,39 +21,65 @@ const currentPath = Astro.url.pathname;
 ---
 
 <nav class="navbar">
-  <!-- Partie GAUCHE : Bouton dynamique -->
+  <!-- Partie GAUCHE : Boutons dynamiques (desktop) + boutons regroupés (mobile) -->
   <div class="nav-left">
-    {currentPath.includes('/about') ? (
-      <HoverLink href="/map" normal={MapFlat.src} hover={Map.src} alt="map" />
-    ) : currentPath.includes('/blog') ? (
-      <HoverLink href="/map" normal={MapFlat.src} hover={Map.src} alt="map" />
-    ) : (
-      <HoverLink href="/about" normal={AboutFlat.src} hover={About.src} alt="about" />
-    )}
+    <!-- Bouton gauche desktop -->
+    <div class="desktop-left">
+      {currentPath.includes('/about') ? (
+        <HoverLink href="/map" normal={MapFlat.src} hover={Map.src} alt="map" />
+      ) : currentPath.includes('/blog') ? (
+        <HoverLink href="/map" normal={MapFlat.src} hover={Map.src} alt="map" />
+      ) : (
+        <HoverLink href="/about" normal={AboutFlat.src} hover={About.src} alt="about" />
+      )}
+    </div>
+
+    <!-- Boutons regroupés mobile -->
+    <div class="mobile-buttons">
+      {currentPath.includes('/about') ? (
+        <>
+          <HoverLink href="/map" normal={MapFlat.src} hover={Map.src} alt="map" />
+          <HoverLink href="/blog" normal={BlogFlat.src} hover={Blog.src} alt="blog" />
+        </>
+      ) : currentPath.includes('/blog') ? (
+        <>
+          <HoverLink href="/map" normal={MapFlat.src} hover={Map.src} alt="map" />
+          <HoverLink href="/about" normal={AboutFlat.src} hover={About.src} alt="about" />
+        </>
+      ) : (
+        <>
+          <HoverLink href="/about" normal={AboutFlat.src} hover={About.src} alt="about" />
+          <HoverLink href="/blog" normal={BlogFlat.src} hover={Blog.src} alt="blog" />
+        </>
+      )}
+    </div>
   </div>
 
-  <!-- Partie CENTRE : Titre + sous-titre -->
+  <!-- Partie CENTRE : Titre + sous-titre (caché en mobile) -->
   <div class="nav-center">
     <h1>The European electronic music artists map</h1>
     <h1>Connect with artists around Europe</h1>
   </div>
 
-  <!-- Partie DROITE : Bouton dynamique + "Join the Community" -->
+  <!-- Partie DROITE : Bouton dynamique (desktop) + "Join the Community" -->
   <div class="nav-right">
-    {currentPath.includes('/about') ? (
-      <HoverLink href="/blog" normal={BlogFlat.src} hover={Blog.src} alt="blog" />
-    ) : currentPath.includes('/blog') ? (
-      <HoverLink href="/about" normal={AboutFlat.src} hover={About.src} alt="about" />
-    ) : (
-      <HoverLink href="/blog" normal={BlogFlat.src} hover={Blog.src} alt="blog" />
-    )}
+    <div class="desktop-right">
+      {currentPath.includes('/about') ? (
+        <HoverLink href="/blog" normal={BlogFlat.src} hover={Blog.src} alt="blog" />
+      ) : currentPath.includes('/blog') ? (
+        <HoverLink href="/about" normal={AboutFlat.src} hover={About.src} alt="about" />
+      ) : (
+        <HoverLink href="/blog" normal={BlogFlat.src} hover={Blog.src} alt="blog" />
+      )}
+    </div>
   </div>
+
   <a href="/community" class="community-button">
     <div class="community-content">
       Join the community
       <img src={Logo.src} alt="'logo" />
     </div>
-  </a>
+  </button>
 </nav>
 
 <style>
@@ -74,6 +100,18 @@ const currentPath = Astro.url.pathname;
     flex: 0.3;
   }
 
+  /* Boutons desktop */
+  .desktop-left,
+  .desktop-right {
+    display: flex;
+  }
+
+  /* Boutons mobile - cachés par défaut */
+  .mobile-buttons {
+    display: none;
+    gap: 1rem;
+  }
+
   /* Partie CENTRE */
   .nav-center {
     align-items: start;
@@ -83,7 +121,94 @@ const currentPath = Astro.url.pathname;
   }
 
   .nav-right {
-    flex: 0.3
+    flex: 0.3;
+  }
+
+  /* Responsive */
+  @media (max-width: 768px) {
+    /* Cacher le centre sur mobile */
+    .nav-center {
+      display: none;
+    }
+
+    /* Cacher les boutons desktop */
+    .desktop-left,
+    .desktop-right {
+      display: none;
+    }
+
+    /* Afficher les boutons mobile à gauche */
+    .mobile-buttons {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    /* Ajuster la navbar mobile */
+    .navbar {
+      justify-content: space-between;
+    }
+
+    .nav-left {
+      flex: 1;
+      justify-content: flex-start;
+    }
+
+    .nav-right {
+      flex: 0;
+    }
+
+    /* Ajuster le bouton community pour mobile */
+    .community-button {
+      width: auto !important;
+      min-width: auto;
+      font-size: 14px;
+      padding: 4px 6px;
+      white-space: nowrap;
+      display: inline-flex;
+      align-items: center;
+    }
+
+    /* Ajuster le contenu du bouton community */
+    .community-content {
+      gap: 0.5rem;
+      flex-direction: row;
+      font-size: 14px;
+    }
+
+    /* Ajuster la taille du logo sur mobile */
+    .community-button img {
+      height: 30px;
+      width: auto;
+    }
+
+    /* S'assurer que les boutons navigation gardent une taille décente */
+    .mobile-buttons :global(a) {
+      min-width: 40px;
+      min-height: 40px;
+    }
+
+    .mobile-buttons :global(img) {
+      height: 40px !important;
+      width: auto;
+    }
+  }
+
+  @media (max-width: 480px) {
+    /* Pour très petits écrans */
+    .community-button {
+      font-size: 8px;
+      min-width: auto;
+      padding: 3px 4px;
+      white-space: nowrap;
+    }
+
+    .community-button img {
+      height: 25px;
+    }
+
+    .mobile-buttons {
+      gap: 0.25rem;
+    }
   }
 
   /* Boutons dynamiques */
@@ -99,13 +224,19 @@ const currentPath = Astro.url.pathname;
   .community-button {
     background: white;
     color: black;
-    padding: 0;
-    text-decoration: none;
+    border: none;
+    cursor: pointer;
     width: 30%;
     height: inherit;
     font-size: 22px;
     font-weight: 500;
     padding: 12px;
+    transition: all 0.2s ease;
+  }
+
+  .community-button:hover {
+    background: #f8f8f8;
+    transform: translateY(-1px);
   }
 
   .community-content {
@@ -122,7 +253,7 @@ const currentPath = Astro.url.pathname;
 </style>
 
 <!-- Artist Form Modal -->
-<ArtistFormModal />
+<ArtistFormModal user={user} isAuthenticated={!!user} />
 
 <script define:vars={{ currentPage }}>
   // Function to update navigation based on current page

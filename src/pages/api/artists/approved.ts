@@ -47,14 +47,16 @@ export const GET: APIRoute = async ({ request, locals }) => {
         },
         fields: [
           'id',
-          'artistname', 
+          'artistname',
           'maincity',
           'country',
           'latitude',
           'longitude',
           'activitydomains',
-          'musicalstyles'
-          // Champs optimisés pour la map - bio/liens dans l'API individuelle
+          'musicalstyles',
+          'socialtopics',
+          'anyotherpoliticalapproach'
+          // Champs optimisés pour la map + filtres - bio/liens dans l'API individuelle
         ],
         limit: 1000, // Limite raisonnable pour éviter les timeouts
         sort: ['-date_created'] // Plus récents en premier
@@ -110,7 +112,26 @@ export const GET: APIRoute = async ({ request, locals }) => {
           }
         }
       }
-      
+
+      // Parser les sujets sociaux/politiques pour les filtres
+      let socialTopics = [];
+      if (artist.socialtopics) {
+        if (Array.isArray(artist.socialtopics)) {
+          socialTopics = artist.socialtopics;
+        } else if (typeof artist.socialtopics === 'string') {
+          try {
+            if (artist.socialtopics.startsWith('[') || artist.socialtopics.startsWith('{')) {
+              socialTopics = JSON.parse(artist.socialtopics);
+            } else {
+              socialTopics = artist.socialtopics.split(',').map(s => s.trim()).filter(s => s);
+            }
+          } catch (e) {
+            console.warn(`⚠️ Invalid social topics data for artist ${artist.id}:`, artist.socialtopics);
+            socialTopics = [];
+          }
+        }
+      }
+
       const result = {
         id: artist.id,
         artistName: artist.artistname,
@@ -119,7 +140,9 @@ export const GET: APIRoute = async ({ request, locals }) => {
         latitude: artist.latitude,
         longitude: artist.longitude,
         activities,
-        genres
+        genres,
+        socialTopics,
+        clubPolitics: artist.anyotherpoliticalapproach || ''
       };
       
       return result;

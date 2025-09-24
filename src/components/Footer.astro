@@ -2,24 +2,28 @@
 
 import Livemx from '../assets/images/LIVEMX_logo.svg';
 import EU from '../assets/images/eu_logo.svg';
-import Background from '../assets/images/footer_background.svg';
 
 ---
 
 <footer class="footer">
   <div class="footer-content">
     <h2>Crédits</h2>
-    <p>Design OKMERCISTUDIO | Development Camille & Guillaume</p>
+    <p class="subtitle">Design OKMERCISTUDIO | Development Camille & Guillaume</p>
+
     <div class="logos">
-      <img src={EU.src} alt="EU Logo">
-      <img src={Livemx.src} alt="Livemix Logo">
+      <div class="logo-group">
+        <img src={EU.src} alt="EU Logo" class="eu-logo">
+      </div>
+      <img src={Livemx.src} alt="Livemix Logo" class="livemx-logo">
     </div>
+
     <p class="disclaimer">
-      Views and opinions expressed are however those of the author(s) only 
-      and do not necessarily reflect those of the European Union or the 
-      European Education and Culture Executive Agency (EACEA). Neither 
-      the European Union nor the granting authority can be held responsible for them.
+      Views and opinions expressed are however those of the author(s) only and do not
+      necessarily reflect those of the European Union or the European Education and
+      Culture Executive Agency (EACEA). Neither the European Union nor the granting
+      authority can be held responsible for them.
     </p>
+
     <p class="links">
       <a href="#">Contact</a> | <a href="#">Terms of Use</a> | <a href="#">Privacy Policy</a>
     </p>
@@ -29,55 +33,107 @@ import Background from '../assets/images/footer_background.svg';
 <style>
 
 .footer {
-  /* background: grey; */
-  border: 2px solid black;
   position: relative;
-  background: #A4A4A4 url(Background) top center;
+  color: black;
   font-weight: 500;
+  min-height: 350px;
+  background-image: url('../assets/images/footer_bg.svg');
+  background-size: cover;
+  background-position: top center;
+  background-repeat: no-repeat;
+}
+
+
+.footer-content {
+  max-width: 900px;
+  margin: 0 auto;
+  text-align: center;
+  padding: 3rem 2rem 2rem 2rem;
 }
 
 h2 {
-  font-weight: 800;
-  margin-bottom: 0;
+  font-weight: 900;
+  font-size: 2.5rem;
+  margin-bottom: 0.5rem;
+  margin-top: 0;
 }
 
-.disclaimer {
-  text-align: left;
-  padding: 1.5rem 0;
-}
-
-.footer-top {
-  width: 100%;
-  height: 30px;
-  display: block;
-}
-
-.footer-content {
-  max-width: 800px;
-  margin: 0 auto;
-  text-align: center;
-  padding: 2rem;
+.subtitle {
+  font-weight: 500;
+  font-size: 1.1rem;
+  margin-bottom: 2rem;
+  margin-top: 1rem;
 }
 
 .logos {
   display: flex;
   justify-content: center;
-  gap: 2rem;
-  margin: 1.5rem 0;
+  align-items: center;
+  gap: 3rem;
 }
 
-.logos img {
-  height: 50px;
+.logo-group {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.eu-logo {
+  height: 60px;
+  width: auto;
+}
+
+.livemx-logo {
+  height: 60px;
+  width: auto;
+}
+
+.disclaimer {
+  text-align: center;
+  padding: 1.5rem 0;
+  font-size: 0.9rem;
+  line-height: 1.4;
+  max-width: 700px;
+  margin: 0 auto;
+}
+
+.links {
+  font-weight: 600;
+  margin-top: 1rem;
 }
 
 .links a {
   color: inherit;
   text-decoration: none;
-  padding-bottom: 1rem;
 }
 
 .links a:hover {
   text-decoration: underline;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .footer-content {
+    padding: 2rem 1rem;
+  }
+
+  h2 {
+    font-size: 2rem;
+  }
+
+  .logos {
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  .logo-group {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .co-funded {
+    text-align: center;
+  }
 }
 
 </style>

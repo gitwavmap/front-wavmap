@@ -219,9 +219,6 @@ import * as m from '../paraglide/messages.js';
 <style>
   .auth-modal-container {
     background: white;
-    padding: 2rem;
-    border-radius: 1rem;
-    max-width: 500px;
     width: 100%;
     margin: 0 auto;
   }
@@ -229,28 +226,32 @@ import * as m from '../paraglide/messages.js';
   .auth-toggle-buttons {
     display: flex;
     margin-bottom: 2rem;
-    border-bottom: 1px solid #e5e7eb;
+    border: 3px solid black;
+    background: #A4A4A4;
   }
 
   .tab-button {
     flex: 1;
     padding: 1rem;
     border: none;
-    background: none;
+    background: transparent;
     cursor: pointer;
-    font-weight: 500;
-    color: #6b7280;
-    border-bottom: 2px solid transparent;
+    font-weight: 700;
+    color: black;
+    text-transform: uppercase;
+    letter-spacing: 1px;
     transition: all 0.2s;
+    font-size: 0.9rem;
+    position: relative;
   }
 
   .tab-button.active {
-    color: #6366f1;
-    border-bottom-color: #6366f1;
+    background: black;
+    color: white;
   }
 
   .tab-button:hover:not(.active) {
-    color: #374151;
+    background: rgba(0, 0, 0, 0.1);
   }
 
   .auth-form-section {
@@ -263,85 +264,143 @@ import * as m from '../paraglide/messages.js';
 
   .form-title {
     font-size: 1.5rem;
-    font-weight: 700;
-    color: #1f2937;
-    margin-bottom: 1.5rem;
+    font-weight: 900;
+    color: black;
+    margin-bottom: 2rem;
     text-align: center;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    position: relative;
+  }
+
+  .form-title::after {
+    content: "";
+    position: absolute;
+    bottom: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 50px;
+    height: 3px;
+    background: black;
   }
 
   .error-message {
-    padding: 0.75rem;
-    border-radius: 0.5rem;
+    padding: 1rem;
     background-color: #fef2f2;
     color: #dc2626;
-    border: 1px solid #fecaca;
-    margin-bottom: 1rem;
+    border: 2px solid #dc2626;
+    margin-bottom: 1.5rem;
     font-size: 0.875rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    position: relative;
+  }
+
+  .error-message::before {
+    content: "⚠";
+    position: absolute;
+    top: -15px;
+    left: 10px;
+    background: #dc2626;
+    color: white;
+    padding: 0.25rem 0.5rem;
+    font-size: 0.75rem;
+    font-weight: 900;
   }
 
   .success-message {
-    padding: 0.75rem;
-    border-radius: 0.5rem;
+    padding: 1rem;
     background-color: #f0fdf4;
     color: #16a34a;
-    border: 1px solid #bbf7d0;
-    margin-bottom: 1rem;
+    border: 2px solid #16a34a;
+    margin-bottom: 1.5rem;
     font-size: 0.875rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    position: relative;
+  }
+
+  .success-message::before {
+    content: "✓";
+    position: absolute;
+    top: -15px;
+    left: 10px;
+    background: #16a34a;
+    color: white;
+    padding: 0.25rem 0.5rem;
+    font-size: 0.75rem;
+    font-weight: 900;
   }
 
   .form-group {
-    margin-bottom: 1rem;
+    margin-bottom: 1.5rem;
+    position: relative;
   }
 
   .form-label {
     display: block;
-    font-weight: 600;
+    font-weight: 700;
     margin-bottom: 0.5rem;
-    color: #1f2937;
+    color: black;
     font-size: 0.875rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
   }
 
   .form-input {
     width: 100%;
-    padding: 0.75rem;
-    border: 2px solid #e5e7eb;
-    border-radius: 0.5rem;
+    padding: 1rem;
+    border: 3px solid black;
+    background: white;
     font-size: 1rem;
-    transition: border-color 0.2s;
+    transition: all 0.2s;
+    font-weight: 500;
   }
 
   .form-input:focus {
     outline: none;
-    border-color: #6366f1;
-    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+    background: #f8f9fa;
+    box-shadow: 4px 4px 0px rgba(0, 0, 0, 0.3);
+    transform: translateX(-2px) translateY(-2px);
+  }
+
+  .form-input:hover {
+    box-shadow: 2px 2px 0px rgba(0, 0, 0, 0.2);
   }
 
   .btn {
-    font-weight: 600;
-    border-radius: 0.5rem;
+    font-weight: 700;
     transition: all 0.2s;
     cursor: pointer;
-    border: none;
+    border: 3px solid black;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    position: relative;
   }
 
   .btn-primary {
-    background: linear-gradient(135deg, #6366f1, #8b5cf6);
+    background: black;
     color: white;
   }
 
   .btn-primary:hover:not(:disabled) {
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
+    background: white;
+    color: black;
+    transform: translateX(-2px) translateY(-2px);
+    box-shadow: 4px 4px 0px rgba(0, 0, 0, 0.8);
   }
 
   .btn-primary:disabled {
     opacity: 0.6;
     cursor: not-allowed;
     transform: none;
+    box-shadow: none;
   }
 
   .btn-lg {
-    padding: 0.875rem 1.5rem;
+    padding: 1rem 1.5rem;
     font-size: 1rem;
   }
 
@@ -373,5 +432,26 @@ import * as m from '../paraglide/messages.js';
 
   .hidden {
     display: none;
+  }
+
+  /* Responsive */
+  @media (max-width: 768px) {
+    .form-title {
+      font-size: 1.25rem;
+    }
+
+    .tab-button {
+      font-size: 0.8rem;
+      padding: 0.75rem;
+    }
+
+    .form-input {
+      padding: 0.75rem;
+    }
+
+    .btn-lg {
+      padding: 0.75rem 1rem;
+      font-size: 0.9rem;
+    }
   }
 </style>

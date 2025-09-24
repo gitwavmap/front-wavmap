@@ -112,16 +112,21 @@ function transformFormData(formData: ArtistFormData): ArtistSubmission {
   
   // Si pas de coordonnées du client OU coordonnées invalides → calcul serveur
   if (!finalLatitude || !finalLongitude || isNaN(finalLatitude) || isNaN(finalLongitude)) {
-    
+    console.log(`🔍 Missing coordinates for: ${formData.city}, ${formData.country}`);
+    console.log(`📍 Received cityId: ${formData.cityId}, lat: ${formData.latitude}, lng: ${formData.longitude}`);
+
     const serverCoords = findCityCoordinates(formData.city, formData.country);
     if (serverCoords) {
+      console.log(`✅ Server found coordinates:`, serverCoords);
       finalLatitude = serverCoords.latitude;
       finalLongitude = serverCoords.longitude;
       finalCityId = serverCoords.cityId || '';
     } else {
       console.warn(`⚠️ No coordinates found for: ${formData.city}, ${formData.country}`);
+      console.warn(`Available cities in database:`, citiesData.filter(c => c.country === formData.country).map(c => c.name));
     }
   } else {
+    console.log(`✅ Using client coordinates: ${finalLatitude}, ${finalLongitude}, cityId: ${finalCityId}`);
   }
 
   return {

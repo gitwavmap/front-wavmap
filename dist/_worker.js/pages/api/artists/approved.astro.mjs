@@ -1,5 +1,5 @@
 globalThis.process ??= {}; globalThis.process.env ??= {};
-import { L as Ls, l as le, j as ju } from '../../../chunks/index_B9RZUytk.mjs';
+import { L as Ls, l as le, j as ju } from '../../../chunks/index_Dhdmj7aT.mjs';
 export { renderers } from '../../../renderers.mjs';
 
 const prerender = false;
@@ -30,8 +30,10 @@ const GET = async ({ request, locals }) => {
           "latitude",
           "longitude",
           "activitydomains",
-          "musicalstyles"
-          // Champs optimisés pour la map - bio/liens dans l'API individuelle
+          "musicalstyles",
+          "socialtopics",
+          "anyotherpoliticalapproach"
+          // Champs optimisés pour la map + filtres - bio/liens dans l'API individuelle
         ],
         limit: 1e3,
         // Limite raisonnable pour éviter les timeouts
@@ -74,6 +76,23 @@ const GET = async ({ request, locals }) => {
           }
         }
       }
+      let socialTopics = [];
+      if (artist.socialtopics) {
+        if (Array.isArray(artist.socialtopics)) {
+          socialTopics = artist.socialtopics;
+        } else if (typeof artist.socialtopics === "string") {
+          try {
+            if (artist.socialtopics.startsWith("[") || artist.socialtopics.startsWith("{")) {
+              socialTopics = JSON.parse(artist.socialtopics);
+            } else {
+              socialTopics = artist.socialtopics.split(",").map((s) => s.trim()).filter((s) => s);
+            }
+          } catch (e) {
+            console.warn(`⚠️ Invalid social topics data for artist ${artist.id}:`, artist.socialtopics);
+            socialTopics = [];
+          }
+        }
+      }
       const result = {
         id: artist.id,
         artistName: artist.artistname,
@@ -82,7 +101,9 @@ const GET = async ({ request, locals }) => {
         latitude: artist.latitude,
         longitude: artist.longitude,
         activities,
-        genres
+        genres,
+        socialTopics,
+        clubPolitics: artist.anyotherpoliticalapproach || ""
       };
       return result;
     }).filter((artist) => {

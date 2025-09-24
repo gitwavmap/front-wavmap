@@ -24,36 +24,24 @@ const filters = [
   { id: "role", label: "Role", icon: RoleBtn, options: ["DJ", "Producer", "Singer"] },
   { id: "pol", label: "Pol", icon: PolBtn, options: ["Option A", "Option B", "Option C"] },
 ];
+
+let allArtists = []; // Store all artists for filtering
 ---
 
 <div class="map-container">
-  <div id="wavmap" class="map">
+  <div class="map-wrapper">
+    <div id="wavmap" class="map"></div>
     <button class="shuffle">
       <img src={ShuffleBtn.src} alt="shuffle" />
     </button>
   </div>
     <div class="filters-container">
       <h2>{m.artist_map_title()}</h2>
-      <!-- <button class="filter">
-        <img src={CountryBtn.src} alt="Country" />
-      </button>
-      <button class="filter">
-        <img src={CityBtn.src} alt="city" />
-      </button>
-      <button class="filter">
-        <img src={StyleBtn.src} alt="Style" />
-      </button>
-      <button class="filter">
-        <img src={RoleBtn.src} alt="Role" />
-      </button>
-      <button class="filter">
-        <img src={PolBtn.src} alt="city" />
-      </button> -->
 
       {filters.map(filter => (
         <div key={filter.id} class="filter-wrapper">
-          <button 
-            class="filter" 
+          <button
+            class="filter"
             data-target={filter.id}
           >
             <img src={filter.icon.src} alt={filter.label} />
@@ -74,20 +62,47 @@ const filters = [
   // Fetch real artist data from Directus API
   async function loadApprovedArtists() {
     try {
-      const response = await fetch('/api/artists/approved');
+      console.log('🔍 Fetching artists from API...');
+      console.log('🔍 Current timestamp:', new Date().toISOString());
+      const response = await fetch('/api/artists/approved?_t=' + Date.now());
       const data = await response.json();
-      
-      if (data.success && data.artists) {
+
+      console.log('🔍 API Response:', data);
+      console.log('🔍 API Response details:');
+      console.log('  - Success:', data.success);
+      console.log('  - Count:', data.count);
+      console.log('  - Artists array:', data.artists);
+
+      if (data.artists && data.artists.length > 0) {
+        data.artists.forEach((artist, index) => {
+          console.log(`🎵 Artist ${index + 1}:`, {
+            id: artist.id,
+            name: artist.artistName,
+            city: artist.city,
+            country: artist.country,
+            lat: artist.latitude,
+            lng: artist.longitude,
+            activities: artist.activities,
+            genres: artist.genres?.slice(0, 3)
+          });
+        });
+      }
+
+      if (data.success && data.artists && data.artists.length > 0) {
+        console.log('✅ Using real artist data:', data.artists.length, 'artists');
+        console.log('🚨 DATA SOURCE: REAL API DATA');
         return data.artists;
       } else {
-        return getFallbackArtists();
+        console.log('⚠️ No artists found in database');
+        return [];
       }
     } catch (error) {
-      console.error('🗺️ Error loading artists, using fallback data:', error);
-      return getFallbackArtists();
+      console.error('🗺️ Error loading artists:', error);
+      return [];
     }
   }
 
+  // Simple filter toggle functionality
   document.querySelectorAll('.filter').forEach(btn => {
     btn.addEventListener('click', () => {
       const targetId = btn.dataset.target;
@@ -98,41 +113,6 @@ const filters = [
     });
   });
 
-  // Fallback data si l'API échoue
-  function getFallbackArtists() {
-    return [
-      {
-        id: 1,
-        artistName: "DJ Sample Paris",
-        city: "Paris",
-        country: "France",
-        latitude: 48.8566,
-        longitude: 2.3522,
-        activities: ["DJ", "Producer"],
-        genres: ["Techno", "House"]
-      },
-      {
-        id: 2,
-        artistName: "Berlin Beats",
-        city: "Berlin",
-        country: "Germany",
-        latitude: 52.5200,
-        longitude: 13.4050,
-        activities: ["DJ", "Label"],
-        genres: ["Techno", "Electronic"]
-      },
-      {
-        id: 3,
-        artistName: "Barcelona Vibes",
-        city: "Barcelona",
-        country: "Spain",
-        latitude: 41.3851,
-        longitude: 2.1734,
-        activities: ["Producer", "Collective"],
-        genres: ["Bass", "Experimental"]
-      }
-    ];
-  }
   
   // Cleanup function to properly remove existing map
   function cleanupMap() {
@@ -176,17 +156,18 @@ const filters = [
     try {
 
       const europeBounds = [
-          [ -25, 35 ], // Coin sud-ouest
-          [ 50, 70 ]   // Coin nord-est
+          [ -30, 15 ], // Coin sud-ouest (plus vers Atlantique/Afrique)
+          [ 60, 80 ]   // Coin nord-est (plus vers Sibérie/Arctique)
       ];
       
       const map = new mapboxgl.Map({
         container: 'wavmap',
         style: 'mapbox://styles/mapbox/satellite-v9',
-        center: [2.3522, 48.8566], // Centered on Paris initially
-        zoom: 12, // Show Europe level view,
-        maxBounds: europeBounds,
-        minZoom: 2,
+        center: [17.4306, 50.1681], // Centered on Europe (user selected)
+        zoom: 2, // Show extended Europe level view
+        maxBounds: europeBounds, // Removed for unlimited zoom/pan
+        minZoom: 0,
+        maxZoom: 18
       });
       
       // Store global instance
@@ -200,43 +181,293 @@ const filters = [
       
       // Load and add real artist data when map is ready
       map.on('load', async function() {
-        
+        // Log current map state
+        console.log('🗺️ Map loaded!');
+        console.log('📍 Initial center:', map.getCenter());
+        console.log('🔍 Initial zoom:', map.getZoom());
+
+        // Force center on Europe (user selected position)
+        map.setCenter([17.4306, 50.1681]);
+        map.setZoom(2);
+
+        console.log('📍 After setCenter - Center:', map.getCenter());
+        console.log('🔍 After setZoom - Zoom:', map.getZoom());
+
         // Fetch approved artists from API
         const artists = await loadApprovedArtists();
 
+        if (artists.length === 0) {
+          console.log('ℹ️ No artists to display on map');
+          return;
+        }
+
+        console.log(`🎵 Loaded ${artists.length} artists for clustering`);
+        artists.forEach((artist, i) => {
+          if (i < 3) { // Log first 3 for debugging
+            console.log(`Artist ${i + 1}:`, {
+              name: artist.artistName,
+              coords: [artist.longitude, artist.latitude],
+              city: artist.city
+            });
+          }
+        });
+
+        // Store artists globally
+        allArtists = artists;
+
+        // Convert artist data to GeoJSON format with null checks
+        const geojsonData = {
+          type: 'FeatureCollection',
+          features: artists
+            .filter(artist => artist.longitude != null && artist.latitude != null)
+            .map(artist => ({
+              type: 'Feature',
+              geometry: {
+                type: 'Point',
+                coordinates: [
+                  parseFloat(artist.longitude) || 0,
+                  parseFloat(artist.latitude) || 0
+                ]
+              },
+              properties: {
+                id: artist.id || '',
+                artistName: artist.artistName || 'Unknown Artist',
+                city: artist.city || 'Unknown City',
+                country: artist.country || 'Unknown Country',
+                activities: Array.isArray(artist.activities) ? artist.activities.join(', ') : '',
+                genres: Array.isArray(artist.genres) ? artist.genres.join(', ') : ''
+              }
+            }))
+        };
+
+        // Add cluster source
+        console.log('🗺️ Adding points source with', geojsonData.features.length, 'features');
         map.addSource('points', {
           type: 'geojson',
-          data: artists, // Remplacez par votre source de données
+          data: geojsonData,
           cluster: true,
           clusterMaxZoom: 14,
           clusterRadius: 50
         });
-        
-        artists.forEach(artist => {
-          // Create lightweight popup (optimized version)
-          const popup = new mapboxgl.Popup({ offset: 25 })
-            .setHTML(`
-              <div class="artist-popup">
-                <h3>${artist.artistName}</h3>
-                <p><strong>${artist.city}, ${artist.country}</strong></p>
-                <p><strong>Activities:</strong> ${artist.activities.join(', ')}</p>
-                <p><strong>Genres:</strong> ${artist.genres.slice(0, 3).join(', ')}${artist.genres.length > 3 ? '...' : ''}</p>
-                <div class="popup-actions">
-                  <a href="/artist/${artist.id}" class="view-profile-btn">👤 Voir le profil</a>
-                </div>
-              </div>
-            `);
-          
-          // Create a marker with coordinates from database
-          new mapboxgl.Marker({
-            color: '#6366f1' // Match the site's primary color
-          })
-          .setLngLat([artist.longitude, artist.latitude])
-          .setPopup(popup)
-          .addTo(map);
+
+        // Implémentation du clustering selon le tutoriel officiel Mapbox
+        console.log('✅ Points source added, adding cluster layers');
+
+        // Ajouter des layers invisibles pour le clustering, remplacés par des marqueurs HTML
+        map.addLayer({
+          id: 'clusters',
+          type: 'circle',
+          source: 'points',
+          filter: ['has', 'point_count'],
+          paint: {
+            'circle-opacity': 0,  // Invisible
+            'circle-radius': 0    // Invisible
+          }
+        });
+
+        map.addLayer({
+          id: 'unclustered-point',
+          type: 'circle',
+          source: 'points',
+          filter: ['!', ['has', 'point_count']],
+          paint: {
+            'circle-opacity': 0,  // Invisible
+            'circle-radius': 0    // Invisible
+          }
+        });
+
+        // Système hybride : clustering Mapbox + marqueurs HTML personnalisés
+        const allMarkers = [];
+
+        function getClusterStyle(pointCount) {
+          if (pointCount >= 2 && pointCount <= 5) {
+            // Petit cluster avec gradient radial
+            return {
+              size: '30px',
+              background: 'radial-gradient(circle, #E92C0F 0%, #E9930F 100%)'
+            };
+          } else if (pointCount >= 6 && pointCount <= 20) {
+            // Cluster moyen
+            return {
+              size: '40px',
+              background: 'radial-gradient(circle, #E92C0F 0%, #E9930F 50%, #3E44E6 100%)'
+            };
+          } else {
+            // Gros cluster
+            return {
+              size: '50px',
+              background: 'radial-gradient(circle, #E92C0F 0%, #E9930F 30%, #3E44E6 80%, #8FD116 100%)'
+            };
+          }
+        }
+
+        function addCustomMarkers() {
+          // Supprimer tous les marqueurs existants
+          allMarkers.forEach(marker => marker.remove());
+          allMarkers.length = 0;
+
+          // Obtenir les features de clustering via queryRenderedFeatures
+          const features = map.queryRenderedFeatures({ layers: ['clusters', 'unclustered-point'] });
+
+          // Si pas de features de clustering, utiliser directement les données artists
+          if (features.length === 0) {
+            artists.forEach(artist => {
+              if (artist.longitude != null && artist.latitude != null) {
+                const coordinates = [parseFloat(artist.longitude), parseFloat(artist.latitude)];
+
+                // Créer un rond rouge simple
+                const markerElement = document.createElement('div');
+                markerElement.className = 'red-marker';
+                markerElement.style.width = '16px';
+                markerElement.style.height = '16px';
+                markerElement.style.backgroundColor = '#E92C0F';
+                markerElement.style.borderRadius = '50%';
+                markerElement.style.cursor = 'pointer';
+                markerElement.style.boxShadow = '0 2px 4px rgba(0,0,0,0.3)';
+
+                // Créer le marqueur
+                const marker = new mapboxgl.Marker(markerElement)
+                  .setLngLat(coordinates)
+                  .addTo(map);
+
+                // Ajouter l'événement click pour popup
+                markerElement.addEventListener('click', () => {
+                  new mapboxgl.Popup()
+                    .setLngLat(coordinates)
+                    .setHTML(`
+                      <div class="artist-popup">
+                        <h3>${artist.artistName || 'Unknown Artist'}</h3>
+                        <p><strong>${artist.city || 'Unknown City'}, ${artist.country || 'Unknown Country'}</strong></p>
+                        <p><strong>Activities:</strong> ${Array.isArray(artist.activities) ? artist.activities.join(', ') : ''}</p>
+                        <p><strong>Genres:</strong> ${Array.isArray(artist.genres) ? artist.genres.join(', ') : ''}</p>
+                        <div class="popup-actions">
+                          <a href="/artist/${artist.id}" class="view-profile-btn">👤 Voir le profil</a>
+                        </div>
+                      </div>
+                    `)
+                    .addTo(map);
+                });
+
+                allMarkers.push(marker);
+              }
+            });
+          } else {
+            // Utiliser les features de clustering
+            features.forEach(feature => {
+              const coordinates = feature.geometry.coordinates;
+              const properties = feature.properties;
+
+              if (properties.cluster) {
+                // C'est un cluster - utiliser getClusterStyle
+                const pointCount = properties.point_count;
+                const clusterStyle = getClusterStyle(pointCount);
+
+                const clusterElement = document.createElement('div');
+                clusterElement.className = 'custom-cluster';
+                clusterElement.style.width = clusterStyle.size;
+                clusterElement.style.height = clusterStyle.size;
+                clusterElement.style.background = clusterStyle.background;
+                clusterElement.style.borderRadius = '50%';
+                clusterElement.style.cursor = 'pointer';
+                clusterElement.style.position = 'relative';
+                clusterElement.style.display = 'flex';
+                clusterElement.style.alignItems = 'center';
+                clusterElement.style.justifyContent = 'center';
+                clusterElement.style.boxShadow = '0 3px 6px rgba(0,0,0,0.3)';
+
+                // Ajouter le nombre de points
+                const countLabel = document.createElement('div');
+                countLabel.textContent = pointCount;
+                countLabel.style.color = '#FFFFFF';
+                countLabel.style.fontWeight = 'bold';
+                countLabel.style.fontSize = '14px';
+                countLabel.style.textShadow = '1px 1px 2px rgba(0,0,0,0.8)';
+                clusterElement.appendChild(countLabel);
+
+                // Créer le marqueur
+                const marker = new mapboxgl.Marker(clusterElement)
+                  .setLngLat(coordinates)
+                  .addTo(map);
+
+                // Ajouter l'événement click pour zoomer
+                clusterElement.addEventListener('click', () => {
+                  const clusterId = properties.cluster_id;
+                  map.getSource('points').getClusterExpansionZoom(clusterId, (err, zoom) => {
+                    if (err) return;
+                    map.easeTo({
+                      center: coordinates,
+                      zoom: zoom
+                    });
+                  });
+                });
+
+                allMarkers.push(marker);
+
+              } else {
+                // C'est un point individuel
+                const markerElement = document.createElement('div');
+                markerElement.className = 'red-marker';
+                markerElement.style.width = '16px';
+                markerElement.style.height = '16px';
+                markerElement.style.backgroundColor = '#E92C0F';
+                markerElement.style.borderRadius = '50%';
+                markerElement.style.cursor = 'pointer';
+                markerElement.style.boxShadow = '0 2px 4px rgba(0,0,0,0.3)';
+
+                // Créer le marqueur
+                const marker = new mapboxgl.Marker(markerElement)
+                  .setLngLat(coordinates)
+                  .addTo(map);
+
+                // Ajouter l'événement click pour popup
+                markerElement.addEventListener('click', () => {
+                  new mapboxgl.Popup()
+                    .setLngLat(coordinates)
+                    .setHTML(`
+                      <div class="artist-popup">
+                        <h3>${properties.artistName}</h3>
+                        <p><strong>${properties.city}, ${properties.country}</strong></p>
+                        <p><strong>Activities:</strong> ${properties.activities}</p>
+                        <p><strong>Genres:</strong> ${properties.genres}</p>
+                        <div class="popup-actions">
+                          <a href="/artist/${properties.id}" class="view-profile-btn">👤 Voir le profil</a>
+                        </div>
+                      </div>
+                    `)
+                    .addTo(map);
+                });
+
+                allMarkers.push(marker);
+              }
+            });
+          }
+
+          console.log(`🎯 Ajouté ${allMarkers.length} marqueurs (${features.length} features détectées)`);
+        }
+
+        // Ajouter les marqueurs initialement
+        addCustomMarkers();
+
+        // Mettre à jour les marqueurs lors des changements
+        map.on('data', (e) => {
+          if (e.sourceId === 'points' && e.isSourceLoaded) {
+            addCustomMarkers();
+          }
+        });
+
+        map.on('zoomend', addCustomMarkers);
+        map.on('moveend', addCustomMarkers);
+
+        // Add click handler to get coordinates easily
+        map.on('click', function(e) {
+          const coords = e.lngLat;
+          console.log('🎯 Clicked coordinates:');
+          console.log(`   Longitude: ${coords.lng.toFixed(4)}`);
+          console.log(`   Latitude: ${coords.lat.toFixed(4)}`);
+          console.log(`   Array format: [${coords.lng.toFixed(4)}, ${coords.lat.toFixed(4)}]`);
         });
       });
-      
+
       map.on('error', function(e) {
         console.error('🗺️ Mapbox error:', e);
       });
@@ -272,16 +503,6 @@ const filters = [
     initializeMap();
   }
   
-  // TODO: In the future, fetch real artist data from Directus
-  // async function loadArtistLocations() {
-  //   try {
-  //     const response = await fetch('/api/artists/locations');
-  //     const artists = await response.json();
-  //     // Add markers for real artists
-  //   } catch (error) {
-  //     console.error('Error loading artist locations:', error);
-  //   }
-  // }
 </script>
 
 <style>
@@ -324,22 +545,56 @@ const filters = [
     height: 50px;
   }
 
-  .map {
+  .filter-wrapper {
+    position: relative;
+  }
+
+  .filter-options.hidden {
+    display: none;
+  }
+
+  .map-wrapper {
     max-width: 70%;
     flex: 1;
+    position: relative;
+  }
+
+  .map {
+    width: 100%;
     height: 600px;
     overflow: hidden;
+  }
 
-    filter: 
-      grayscale(100%) 
-      contrast(100%) 
-      saturate(220%) 
+  /* Appliquer le filtre uniquement sur les tuiles de la carte, pas sur les marqueurs */
+  .map :global(.mapboxgl-canvas-container canvas) {
+    filter:
+      grayscale(100%)
+      contrast(100%)
+      saturate(220%)
       brightness(220%)
       hue-rotate(180deg);
   }
 
   .map .mapboxgl-ctrl {
     filter: none;
+  }
+
+  /* Style pour les marqueurs rouges - plus besoin de protection de filtre */
+  .map :global(.red-marker) {
+    transition: transform 0.2s ease;
+  }
+
+  .map :global(.red-marker:hover) {
+    transform: scale(1.3);
+  }
+
+  /* Style pour les clusters avec gradient */
+  .map :global(.custom-cluster) {
+    transition: transform 0.2s ease;
+  }
+
+  .map :global(.custom-cluster:hover) {
+    transform: scale(1.1);
   }
 
   /* Custom popup styles */

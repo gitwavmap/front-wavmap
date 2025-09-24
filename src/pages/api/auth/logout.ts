@@ -8,8 +8,12 @@ export const GET: APIRoute = async ({ redirect, cookies }) => {
     console.error('Logout error:', error);
   }
   
-  // Clear the session token cookie
+  // Clear both session and refresh token cookies
   cookies.delete('directus_session_token', {
+    path: '/'
+  });
+
+  cookies.delete('directus_refresh_token', {
     path: '/'
   });
   

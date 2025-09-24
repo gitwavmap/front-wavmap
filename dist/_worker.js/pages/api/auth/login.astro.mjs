@@ -1,5 +1,5 @@
 globalThis.process ??= {}; globalThis.process.env ??= {};
-import { a as createDirectusClient } from '../../../chunks/directus_BjEWHH71.mjs';
+import { a as createDirectusClient } from '../../../chunks/directus_CRJ8d9Pu.mjs';
 export { renderers } from '../../../renderers.mjs';
 
 const POST = async ({ request, cookies, redirect, locals }) => {
@@ -20,9 +20,17 @@ const POST = async ({ request, cookies, redirect, locals }) => {
       cookies.set("directus_session_token", response.access_token, {
         httpOnly: true,
         secure: true,
-        // Only secure in production
         sameSite: "lax",
-        // More permissive for development
+        path: "/",
+        maxAge: 60 * 60 * 24 * 7
+        // 7 days
+      });
+    }
+    if (response.refresh_token) {
+      cookies.set("directus_refresh_token", response.refresh_token, {
+        httpOnly: true,
+        secure: true,
+        sameSite: "lax",
         path: "/",
         maxAge: 60 * 60 * 24 * 7
         // 7 days
@@ -30,9 +38,30 @@ const POST = async ({ request, cookies, redirect, locals }) => {
     }
   } catch (error) {
     console.error("Login error:", error);
-    const message = error?.errors?.[0]?.message || error?.message || "Login failed";
-    return new Response(JSON.stringify({ error: message }), {
-      status: 400,
+    const directusError = error?.errors?.[0];
+    const errorCode = directusError?.extensions?.code;
+    const errorMessage = directusError?.message || error?.message;
+    let userMessage = "Login failed. Please try again.";
+    if (errorCode === "INVALID_CREDENTIALS" || errorMessage?.includes("Invalid user credentials")) {
+      userMessage = "Email or password is incorrect. Please check your credentials and try again.";
+    } else if (errorCode === "TOKEN_EXPIRED") {
+      userMessage = "Your session has expired. Please log in again.";
+    } else if (errorCode === "INVALID_TOKEN") {
+      userMessage = "Authentication token is invalid. Please log in again.";
+    } else if (errorCode === "INVALID_IP") {
+      userMessage = "Your IP address is not authorized for this account.";
+    } else if (errorCode === "INVALID_OTP") {
+      userMessage = "The two-factor authentication code is incorrect.";
+    } else if (error?.response?.status === 401) {
+      userMessage = "Email or password is incorrect. Please check your credentials and try again.";
+    } else if (error?.response?.status === 403) {
+      userMessage = "Access denied. Your account may be inactive or suspended.";
+    }
+    return new Response(JSON.stringify({
+      error: userMessage,
+      code: errorCode || "UNKNOWN_ERROR"
+    }), {
+      status: error?.response?.status || 400,
       headers: { "Content-Type": "application/json" }
     });
   }

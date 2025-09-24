@@ -1,6 +1,6 @@
 globalThis.process ??= {}; globalThis.process.env ??= {};
-import { U as Ut } from '../../../chunks/index_B9RZUytk.mjs';
-import { c as createTokenClient } from '../../../chunks/directus_BjEWHH71.mjs';
+import { U as Ut } from '../../../chunks/index_Dhdmj7aT.mjs';
+import { c as createTokenClient } from '../../../chunks/directus_CRJ8d9Pu.mjs';
 import { c as citiesData } from '../../../chunks/european-cities_CmJr617f.mjs';
 export { renderers } from '../../../renderers.mjs';
 
@@ -49,14 +49,20 @@ function transformFormData(formData) {
   let finalLongitude = formData.longitude || null;
   let finalCityId = formData.cityId || "";
   if (!finalLatitude || !finalLongitude || isNaN(finalLatitude) || isNaN(finalLongitude)) {
+    console.log(`🔍 Missing coordinates for: ${formData.city}, ${formData.country}`);
+    console.log(`📍 Received cityId: ${formData.cityId}, lat: ${formData.latitude}, lng: ${formData.longitude}`);
     const serverCoords = findCityCoordinates(formData.city, formData.country);
     if (serverCoords) {
+      console.log(`✅ Server found coordinates:`, serverCoords);
       finalLatitude = serverCoords.latitude;
       finalLongitude = serverCoords.longitude;
       finalCityId = serverCoords.cityId || "";
     } else {
       console.warn(`⚠️ No coordinates found for: ${formData.city}, ${formData.country}`);
+      console.warn(`Available cities in database:`, citiesData.filter((c) => c.country === formData.country).map((c) => c.name));
     }
+  } else {
+    console.log(`✅ Using client coordinates: ${finalLatitude}, ${finalLongitude}, cityId: ${finalCityId}`);
   }
   return {
     artistname: formData.artistName,
