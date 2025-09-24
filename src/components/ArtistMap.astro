@@ -331,18 +331,19 @@ let allArtists = []; // Store all artists for filtering
     
     try {
 
+      // Extended Europe bounds including full Scandinavia
       const europeBounds = [
-          [ -30, 15 ], // Coin sud-ouest (plus vers Atlantique/Afrique)
-          [ 60, 80 ]   // Coin nord-est (plus vers Sibérie/Arctique)
+          [ -35, 30 ], // Sud-ouest : Inclut l'Atlantique et l'Afrique du Nord
+          [ 60, 80 ]   // Nord-est : Inclut complètement la Scandinavie et l'Arctique
       ];
-      
+
       const map = new mapboxgl.Map({
         container: 'wavmap',
         style: 'mapbox://styles/mapbox/satellite-v9',
-        center: [17.4306, 50.1681], // Centered on Europe (user selected)
-        zoom: 2, // Show extended Europe level view
-        maxBounds: europeBounds, // Removed for unlimited zoom/pan
-        minZoom: 0,
+        center: [10, 54], // Center adjusted for extended Europe
+        zoom: 3.5, // Better initial zoom for extended area
+        maxBounds: europeBounds,
+        minZoom: 2,
         maxZoom: 18
       });
       
@@ -362,9 +363,9 @@ let allArtists = []; // Store all artists for filtering
         console.log('📍 Initial center:', map.getCenter());
         console.log('🔍 Initial zoom:', map.getZoom());
 
-        // Force center on Europe (user selected position)
-        map.setCenter([17.4306, 50.1681]);
-        map.setZoom(2);
+        // Force center on extended Europe
+        map.setCenter([10, 54]);
+        map.setZoom(3.5);
 
         console.log('📍 After setCenter - Center:', map.getCenter());
         console.log('🔍 After setZoom - Zoom:', map.getZoom());

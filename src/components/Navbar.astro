@@ -74,12 +74,20 @@ const currentPath = Astro.url.pathname;
     </div>
   </div>
 
- <button id="join-community-btn" class="community-button">
-    <div class="community-content">
-      Join the community
-      <img src={Logo.src} alt="'logo" />
+ <div class="community-dropdown-container">
+    <button id="join-community-btn" class="community-button">
+      <div class="community-content">
+        <span class="join-text">Join the community</span>
+        <img class="close-icon hidden" src="/src/assets/images/close_btn.svg" alt="Close" />
+        <img class="logo-icon" src={Logo.src} alt="logo" />
+      </div>
+    </button>
+
+    <!-- Dropdown Form -->
+    <div id="community-dropdown" class="community-dropdown hidden">
+      <ArtistFormModal user={user} isAuthenticated={!!user} />
     </div>
-  </button></nav>
+  </div></nav>
 
 <style>
   /* Structure globale */
@@ -89,7 +97,24 @@ const currentPath = Astro.url.pathname;
     align-items: center;
     gap: 1rem;
     margin: 0 1rem;
-    border-bottom: solid 2px black;
+    position: relative;
+    height: 80px;
+  }
+
+  .navbar::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: black;
+    transition: right 0.3s ease;
+  }
+
+  .navbar.dropdown-open::after {
+    right: 30%;
+    margin-right: 1rem;
   }
 
   /* Partie GAUCHE */
@@ -249,10 +274,120 @@ const currentPath = Astro.url.pathname;
   img {
     height: 50px;
   }
+
+  /* Community Dropdown */
+  .community-dropdown-container {
+    position: relative;
+    width: 30%;
+    height: inherit;
+  }
+
+  .community-dropdown-container .community-button {
+    width: 100% !important;
+    height: 100% !important;
+    min-width: auto !important;
+    max-width: none !important;
+    box-sizing: border-box;
+  }
+
+  .community-dropdown-container .community-content {
+    width: 100%;
+    height: 100%;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 1rem !important;
+  }
+
+  .community-dropdown-container .community-content img {
+    vertical-align: middle;
+    pointer-events: none;
+  }
+
+  .community-dropdown-container .logo-icon {
+    height: 50px;
+    width: auto;
+  }
+
+  .community-dropdown-container .close-icon {
+    height: 40px;
+    width: auto;
+  }
+
+  .community-dropdown-container .hidden {
+    display: none;
+  }
+
+  .community-dropdown-container.dropdown-state .join-text,
+  .community-dropdown-container.dropdown-state .logo-icon {
+    display: none;
+  }
+
+  .community-dropdown-container.dropdown-state .close-icon {
+    display: inline;
+  }
+
+  .community-dropdown {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    width: 100%;
+    background: linear-gradient(to right, #E9930F, #3E44E6, #8FD116);
+    border: none;
+    border-radius: 0;
+    z-index: 1000;
+    height: calc(100vh - 80px);
+    max-height: 100vh;
+    overflow-y: auto;
+  }
+
+  .community-dropdown.hidden {
+    display: none;
+  }
+
+  /* Responsive */
+  @media (max-width: 768px) {
+    .navbar {
+      height: 60px;
+      margin: 0;
+    }
+
+    .navbar.dropdown-open .nav-left,
+    .navbar.dropdown-open .nav-center,
+    .navbar.dropdown-open .nav-right {
+      display: none;
+    }
+
+    .navbar.dropdown-open .community-dropdown-container {
+      width: 100%;
+      display: flex;
+      justify-content: center;
+    }
+
+    .nav-left {
+      padding: 0;
+    }
+
+    .community-dropdown {
+      position: fixed;
+      top: 60px;
+      left: 0;
+      right: 0;
+      width: 100vw;
+      height: calc(100vh - 60px);
+      z-index: 9999;
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    .community-dropdown-container {
+      width: auto;
+      position: static;
+    }
+  }
 </style>
 
-<!-- Artist Form Modal -->
-<ArtistFormModal user={user} isAuthenticated={!!user} />
 
 <script define:vars={{ currentPage }}>
   // Function to update navigation based on current page
@@ -307,9 +442,73 @@ const currentPath = Astro.url.pathname;
   
   // Listen for authSuccess event
   window.addEventListener('authSuccess', showLogoutButton);
-  
+
+  // Community Dropdown Logic
+  function initCommunityDropdown() {
+    const joinBtn = document.getElementById('join-community-btn');
+    const dropdown = document.getElementById('community-dropdown');
+    const dropdownContainer = document.querySelector('.community-dropdown-container');
+    const navbar = document.querySelector('.navbar');
+
+    if (!joinBtn || !dropdown || !dropdownContainer || !navbar) return;
+
+    let isOpen = false;
+
+    function openDropdown() {
+      dropdown.classList.remove('hidden');
+      navbar.classList.add('dropdown-open');
+      dropdownContainer.classList.add('dropdown-state');
+      // Change button style
+      joinBtn.style.background = 'linear-gradient(to right, #E9930F, #3E44E6, #8FD116)';
+      joinBtn.style.color = 'white';
+      isOpen = true;
+    }
+
+    function closeDropdown() {
+      dropdown.classList.add('hidden');
+      navbar.classList.remove('dropdown-open');
+      dropdownContainer.classList.remove('dropdown-state');
+      // Reset button style
+      joinBtn.style.background = 'white';
+      joinBtn.style.color = 'black';
+      isOpen = false;
+    }
+
+    function toggleDropdown() {
+      if (isOpen) {
+        closeDropdown();
+      } else {
+        openDropdown();
+      }
+    }
+
+    // Button click handler
+    joinBtn.addEventListener('click', toggleDropdown);
+
+    // Close when clicking outside
+    document.addEventListener('click', function(e) {
+      if (!e.target.closest('.community-dropdown-container')) {
+        closeDropdown();
+      }
+    });
+
+    // Close on escape key
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape' && isOpen) {
+        closeDropdown();
+      }
+    });
+  }
+
+  // Initialize dropdown
+  document.addEventListener('DOMContentLoaded', function() {
+    initNavigation();
+    initCommunityDropdown();
+  });
+
   // Fallback for immediate execution
   if (document.readyState !== 'loading') {
     initNavigation();
+    initCommunityDropdown();
   }
 </script>
