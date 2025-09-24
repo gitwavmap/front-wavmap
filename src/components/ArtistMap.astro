@@ -8,11 +8,10 @@ import CountryBtn from '../assets/images/country.svg';
 import PolBtn from '../assets/images/pol.svg';
 import RoleBtn from '../assets/images/role.svg';
 import StyleBtn from '../assets/images/style.svg';
-
-import Geopoint from '../assets/images/geopoint.svg';
-import Cluster1 from '../assets/images/cluster_1.svg';
-import Cluster2 from '../assets/images/cluster_2.svg';
-import Cluster3 from '../assets/images/cluster_3.svg';
+import BackBtn from '../assets/images/close_btn.svg';
+import BackBtnBg from '../assets/images/close_bg.svg';
+import HoverLink from '../components/HoverLink.astro';
+import Separator from '../assets/images/separator.svg';
 
 // Get Mapbox token from environment variables
 const mapboxToken = MAPBOX_ACCESS_TOKEN;
@@ -36,25 +35,80 @@ let allArtists = []; // Store all artists for filtering
     </button>
   </div>
     <div class="filters-container">
-      <h2>{m.artist_map_title()}</h2>
+      <!-- Filters Content (shown by default) -->
+      <div id="filters-content" class="filters-content">
+        <h2>{m.artist_map_title()}</h2>
 
-      {filters.map(filter => (
-        <div key={filter.id} class="filter-wrapper">
-          <button
-            class="filter"
-            data-target={filter.id}
-          >
-            <img src={filter.icon.src} alt={filter.label} />
-          </button>
+        {filters.map(filter => (
+          <div key={filter.id} class="filter-wrapper">
+            <button
+              class="filter"
+              data-target={filter.id}
+            >
+              <img src={filter.icon.src} alt={filter.label} />
+            </button>
 
-          <!-- Ligne d'options cachée par défaut -->
-          <div id={filter.id} class="filter-options hidden mt-2 flex flex-wrap gap-2">
-            {filter.options.map(opt => (
-              <span>{opt}</span>
-            ))}
+            <!-- Ligne d'options cachée par défaut -->
+            <div id={filter.id} class="filter-options hidden mt-2 flex flex-wrap gap-2">
+              {filter.options.map(opt => (
+                <span>{opt}</span>
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <!-- Artist Detail Content (hidden by default) -->
+      <div id="artist-content" class="artist-content hidden">
+        <div style={{backgroundColor: "white", padding: "1rem", height: "calc(100% - 2rem)", margin: "1rem", boxSizing: "border-box", overflowY: "auto"}}>
+          
+          <div id="close-artist-panel" class="close-hover-btn">
+            <img src={BackBtn.src} alt="Close" class="close-btn-normal" />
+            <img src={BackBtnBg.src} alt="Close" class="close-btn-hover" />
+          </div>
+          <!-- Artist Photo -->
+          <div class="artist-photo-container">
+            <img id="artist-photo" class="artist-photo" src="" alt="Artist Photo" />
+          </div>
+
+          <!-- Artist Name -->
+          <h2 id="artist-name" class="artist-name">Artist Name</h2>
+
+          <!-- Location -->
+          <h3 id="artist-location" class="artist-location">CITY - COUNTRY</h3>
+
+          <!-- Bio -->
+          <div class="artist-bio">
+            <p id="artist-bio">Artist bio will appear here...</p>
+          </div>
+
+          <!-- Decorative line -->
+          <div class="separator-line">
+            <img src={Separator.src} alt="Separator" />
+          </div>
+
+          <!-- Social Media Links -->
+          <div class="social-media-links">
+            <span id="youtube-link" class="social-link">YT</span>
+            <span class="separator">|</span>
+            <span id="instagram-link" class="social-link">IN</span>
+            <span class="separator">|</span>
+            <span id="soundcloud-link" class="social-link">SC</span>
+          </div>
+
+          <!-- Decorative line -->
+          <div class="separator-line separator-bottom">
+            <img src={Separator.src} alt="Separator" />
+          </div>
+
+          <!-- All Tags on single line -->
+          <div class="tags-line">
+            <div id="all-tags" class="tags-inline">
+              <!-- Tags will be populated dynamically -->
+            </div>
           </div>
         </div>
-      ))}
+      </div>
     </div>
 </div>
 
@@ -102,16 +156,138 @@ let allArtists = []; // Store all artists for filtering
     }
   }
 
-  // Simple filter toggle functionality
-  document.querySelectorAll('.filter').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const targetId = btn.dataset.target;
-      const el = document.getElementById(targetId);
-      if (el) {
-        el.classList.toggle('hidden');
-      }
+
+  // Functions to toggle between filters and artist content
+  function showArtistDetail(artist) {
+    const filtersContent = document.getElementById('filters-content');
+    const artistContent = document.getElementById('artist-content');
+
+    if (!filtersContent || !artistContent) return;
+
+    // Hide filters, show artist details
+    filtersContent.classList.add('hidden');
+    artistContent.classList.remove('hidden');
+
+    // Populate artist details
+    document.getElementById('artist-name').textContent = artist.artistName || 'Unknown Artist';
+    document.getElementById('artist-location').textContent =
+      `${(artist.city || 'Unknown City').toUpperCase()} - ${(artist.country || 'Unknown Country').toUpperCase()}`;
+
+    // Set artist photo
+    const artistPhoto = document.getElementById('artist-photo');
+    if (artist.photo || artist.image) {
+      artistPhoto.src = artist.photo || artist.image;
+      artistPhoto.style.display = 'block';
+    } else {
+      artistPhoto.style.display = 'none';
+    }
+
+    // Set bio
+    document.getElementById('artist-bio').textContent = artist.bio || 'No bio available.';
+
+    // Handle social media links
+    const youtubeLink = document.getElementById('youtube-link');
+    const instagramLink = document.getElementById('instagram-link');
+    const soundcloudLink = document.getElementById('soundcloud-link');
+
+    // YouTube link
+    if (artist.youtube) {
+      youtubeLink.onclick = () => window.open(artist.youtube, '_blank');
+      youtubeLink.style.color = '#000';
+      youtubeLink.style.cursor = 'pointer';
+      youtubeLink.classList.remove('disabled');
+    } else {
+      youtubeLink.style.color = '#ccc';
+      youtubeLink.style.cursor = 'default';
+      youtubeLink.onclick = null;
+      youtubeLink.classList.add('disabled');
+    }
+
+    // Instagram link
+    if (artist.instagram) {
+      instagramLink.onclick = () => window.open(artist.instagram, '_blank');
+      instagramLink.style.color = '#000';
+      instagramLink.style.cursor = 'pointer';
+      instagramLink.classList.remove('disabled');
+    } else {
+      instagramLink.style.color = '#ccc';
+      instagramLink.style.cursor = 'default';
+      instagramLink.onclick = null;
+      instagramLink.classList.add('disabled');
+    }
+
+    // SoundCloud link
+    if (artist.soundcloud) {
+      soundcloudLink.onclick = () => window.open(artist.soundcloud, '_blank');
+      soundcloudLink.style.color = '#000';
+      soundcloudLink.style.cursor = 'pointer';
+      soundcloudLink.classList.remove('disabled');
+    } else {
+      soundcloudLink.style.color = '#ccc';
+      soundcloudLink.style.cursor = 'default';
+      soundcloudLink.onclick = null;
+      soundcloudLink.classList.add('disabled');
+    }
+
+    // Populate ALL tags on single line
+    const allTagsContainer = document.getElementById('all-tags');
+    const allTags = [];
+
+    // Add activities first
+    if (artist.activities && Array.isArray(artist.activities)) {
+      allTags.push(...artist.activities);
+    }
+
+    // Add genres after
+    if (artist.genres && Array.isArray(artist.genres)) {
+      allTags.push(...artist.genres);
+    }
+
+    if (allTags.length > 0) {
+      const tagsHTML = allTags.map((tag, index) =>
+        index < allTags.length - 1
+          ? `<span class="tag-inline">${tag}</span><span class="tag-separator">|</span>`
+          : `<span class="tag-inline">${tag}</span>`
+      ).join('');
+      allTagsContainer.innerHTML = tagsHTML;
+    }
+  }
+
+  function showFiltersContent() {
+    const filtersContent = document.getElementById('filters-content');
+    const artistContent = document.getElementById('artist-content');
+
+    if (!filtersContent || !artistContent) return;
+
+    // Show filters, hide artist details
+    filtersContent.classList.remove('hidden');
+    artistContent.classList.add('hidden');
+  }
+
+  // Add event listeners when DOM is loaded
+  document.addEventListener('DOMContentLoaded', () => {
+    // Close button event listener
+    const closeBtn = document.getElementById('close-artist-panel');
+    if (closeBtn) {
+      closeBtn.addEventListener('click', showFiltersContent);
+    }
+
+    // Filter toggle functionality
+    document.querySelectorAll('.filter').forEach(btn => {
+      btn.addEventListener('click', () => {
+        console.log('Filter clicked:', btn.dataset.target); // Debug
+        const targetId = btn.dataset.target;
+        const el = document.getElementById(targetId);
+        console.log('Target element:', el); // Debug
+        if (el) {
+          el.classList.toggle('hidden');
+          console.log('Toggled hidden class on:', targetId); // Debug
+        }
+      });
     });
+
   });
+
 
   
   // Cleanup function to properly remove existing map
@@ -280,13 +456,13 @@ let allArtists = []; // Store all artists for filtering
         const allMarkers = [];
 
         function getClusterStyle(pointCount) {
-          if (pointCount >= 2 && pointCount <= 5) {
+          if (pointCount > 2 && pointCount <= 3) {
             // Petit cluster avec gradient radial
             return {
               size: '30px',
               background: 'radial-gradient(circle, #E92C0F 0%, #E9930F 100%)'
             };
-          } else if (pointCount >= 6 && pointCount <= 20) {
+          } else if (pointCount >= 4 && pointCount <= 5) {
             // Cluster moyen
             return {
               size: '40px',
@@ -325,28 +501,14 @@ let allArtists = []; // Store all artists for filtering
                 markerElement.style.cursor = 'pointer';
                 markerElement.style.boxShadow = '0 2px 4px rgba(0,0,0,0.3)';
 
-                // Créer le marqueur
+                // Add click event to show artist in filters container
+                markerElement.addEventListener('click', () => {
+                  showArtistDetail(artist);
+                });
+
                 const marker = new mapboxgl.Marker(markerElement)
                   .setLngLat(coordinates)
                   .addTo(map);
-
-                // Ajouter l'événement click pour popup
-                markerElement.addEventListener('click', () => {
-                  new mapboxgl.Popup()
-                    .setLngLat(coordinates)
-                    .setHTML(`
-                      <div class="artist-popup">
-                        <h3>${artist.artistName || 'Unknown Artist'}</h3>
-                        <p><strong>${artist.city || 'Unknown City'}, ${artist.country || 'Unknown Country'}</strong></p>
-                        <p><strong>Activities:</strong> ${Array.isArray(artist.activities) ? artist.activities.join(', ') : ''}</p>
-                        <p><strong>Genres:</strong> ${Array.isArray(artist.genres) ? artist.genres.join(', ') : ''}</p>
-                        <div class="popup-actions">
-                          <a href="/artist/${artist.id}" class="view-profile-btn">👤 Voir le profil</a>
-                        </div>
-                      </div>
-                    `)
-                    .addTo(map);
-                });
 
                 allMarkers.push(marker);
               }
@@ -390,7 +552,8 @@ let allArtists = []; // Store all artists for filtering
                   .addTo(map);
 
                 // Ajouter l'événement click pour zoomer
-                clusterElement.addEventListener('click', () => {
+                clusterElement.addEventListener('click', (e) => {
+                  e.stopPropagation();
                   const clusterId = properties.cluster_id;
                   map.getSource('points').getClusterExpansionZoom(clusterId, (err, zoom) => {
                     if (err) return;
@@ -414,28 +577,23 @@ let allArtists = []; // Store all artists for filtering
                 markerElement.style.cursor = 'pointer';
                 markerElement.style.boxShadow = '0 2px 4px rgba(0,0,0,0.3)';
 
-                // Créer le marqueur
+                // Add click event to show artist in filters container
+                markerElement.addEventListener('click', () => {
+                  // Convert properties back to artist object format
+                  const artistData = {
+                    id: properties.id,
+                    artistName: properties.artistName,
+                    city: properties.city,
+                    country: properties.country,
+                    activities: properties.activities ? properties.activities.split(', ') : [],
+                    genres: properties.genres ? properties.genres.split(', ') : []
+                  };
+                  showArtistDetail(artistData);
+                });
+
                 const marker = new mapboxgl.Marker(markerElement)
                   .setLngLat(coordinates)
                   .addTo(map);
-
-                // Ajouter l'événement click pour popup
-                markerElement.addEventListener('click', () => {
-                  new mapboxgl.Popup()
-                    .setLngLat(coordinates)
-                    .setHTML(`
-                      <div class="artist-popup">
-                        <h3>${properties.artistName}</h3>
-                        <p><strong>${properties.city}, ${properties.country}</strong></p>
-                        <p><strong>Activities:</strong> ${properties.activities}</p>
-                        <p><strong>Genres:</strong> ${properties.genres}</p>
-                        <div class="popup-actions">
-                          <a href="/artist/${properties.id}" class="view-profile-btn">👤 Voir le profil</a>
-                        </div>
-                      </div>
-                    `)
-                    .addTo(map);
-                });
 
                 allMarkers.push(marker);
               }
@@ -511,8 +669,154 @@ let allArtists = []; // Store all artists for filtering
     margin: 0 auto;
     display: flex;
     color: black;
-    gap: 2rem;
-    padding: 1rem
+    padding: 1rem;
+    height: calc(100vh - var(--navbar-height, 80px));
+    box-sizing: border-box;
+  }
+
+  .artist-content {
+    height: 100%;
+    width: 100%;
+    background: linear-gradient(
+        to right, /* Direction changée vers la droite */
+        #8FD116,
+        #3E44E6 50%,
+        #E9930F 80%,
+        #E92C0F 100%
+      );
+  }
+
+  /* Artist photo */
+  .artist-photo-container {
+    display: flex;
+    justify-content: center;
+    margin: 1.5rem 0;
+  }
+
+  .artist-photo {
+    border: 2px solid black;
+    clip-path: polygon(
+      20% 0,
+      100% 0,
+      100% 40%,
+      80% 100%,
+      0 100%,
+      0% 60%
+    );
+    height: 200px;
+    width: 280px;
+    object-fit: cover;
+  }
+
+  /* Artist name */
+  .artist-name {
+    font-size: 24px;
+    font-weight: 900;
+    text-transform: uppercase;
+  }
+
+  /* Artist location */
+  .artist-location {
+    font-size: 1.2rem;
+    font-weight: 800;
+    text-align: center;
+    margin: 0 0 1.5rem 0;
+    color: #000;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  /* Artist bio */
+  .artist-bio {
+    margin: 1.5rem 0;
+    text-align: justify;
+    line-height: 1.6;
+  }
+
+  .artist-bio p {
+    margin: 0;
+    font-size: 0.95rem;
+    color: #000;
+    font-weight: 700;
+  }
+
+  /* Separator line */
+  .separator-line {
+    margin: 2rem 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .separator-line img {
+    width: 100%;
+    height: auto;
+    max-width: 400px;
+  }
+
+  .separator-bottom img {
+    transform: rotate(180deg);
+  }
+
+  /* Social media links */
+  .social-media-links {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 2rem 0;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #000;
+    letter-spacing: 2px;
+  }
+
+  .social-link {
+    cursor: pointer;
+    transition: color 0.2s ease;
+  }
+
+  .social-link:hover:not(.disabled) {
+    color: #000;
+  }
+
+  .social-link.disabled {
+    color: #ccc !important;
+    cursor: default !important;
+    opacity: 0.5;
+  }
+
+  .separator {
+    margin: 0 1rem;
+    font-size: 1.2rem;
+  }
+
+  /* Tags lines */
+  .tags-line {
+    margin: 1rem 0;
+    text-align: center;
+  }
+
+  .tags-inline {
+    display: inline-flex;
+    align-items: center;
+    flex-wrap: wrap;
+    justify-content: center;
+    font-weight: 700;
+    gap: 6px;
+  }
+
+  .tag-inline {
+    font-size: 0.9rem;
+    color: #000;
+    padding: 0;
+    margin: 0;
+  }
+
+  .tag-separator {
+    margin: 0 0.5rem;
+    font-size: 0.9rem;
+    color: #000;
+    font-weight: 900;
   }
 
   .filters-container {
@@ -521,6 +825,242 @@ let allArtists = []; // Store all artists for filtering
     gap: 1rem;
     text-align: left;
     align-items: flex-start;
+    width: 30%;
+    flex-shrink: 0;
+  }
+
+  .filters-content {
+    padding-left: 2rem;
+  }
+
+  /* Close hover button */
+  .close-hover-btn {
+    position: relative;
+    cursor: pointer;
+    margin: 0 auto 1rem auto;
+    width: fit-content;
+    display: flex;
+    justify-content: center;
+  }
+
+  .close-btn-normal,
+  .close-btn-hover {
+    height: 30px;
+    width: auto;
+    display: block;
+  }
+
+  .close-btn-normal {
+    transition: opacity 0.2s ease;
+  }
+
+  .close-btn-hover {
+    position: absolute;
+    top: 0;
+    left: 0;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+  }
+
+  .close-hover-btn:hover .close-btn-normal {
+    opacity: 0;
+  }
+
+  .close-hover-btn:hover .close-btn-hover {
+    opacity: 1;
+  }
+
+  .artist-header {
+    gap: 1rem;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .artist-header h2 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #1f2937;
+    margin: 0.5rem 0 0.5rem 0;
+  }
+
+  .artist-info {
+    margin-bottom: 1.5rem;
+  }
+
+  .info-section {
+    margin-bottom: 1.25rem;
+  }
+
+  .info-section h3 {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #374151;
+    margin: 0 0 0.5rem 0;
+  }
+
+  .info-section p {
+    font-size: 0.9rem;
+    color: #6b7280;
+    margin: 0;
+    line-height: 1.5;
+  }
+
+  .social-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .social-links a {
+    display: inline-block;
+    padding: 0.375rem 0.75rem;
+    background: #f3f4f6;
+    color: #4b5563;
+    text-decoration: none;
+    border-radius: 0.375rem;
+    font-size: 0.8rem;
+    font-weight: 500;
+    transition: all 0.2s ease;
+  }
+
+  .social-links a:hover {
+    background: #6366f1;
+    color: white;
+    transform: translateY(-1px);
+  }
+
+  .artist-actions {
+    padding-top: 1rem;
+    border-top: 1px solid #e5e7eb;
+    text-align: center;
+  }
+
+  .view-profile-btn {
+    display: inline-block;
+    background: linear-gradient(135deg, #6366f1, #8b5cf6);
+    color: white;
+    text-decoration: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 0.5rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+    transition: all 0.2s ease;
+  }
+
+  .view-profile-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(99, 102, 241, 0.3);
+  }
+
+  .close-panel-btn {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    width: 32px;
+    height: 32px;
+    border: none;
+    background: rgba(0, 0, 0, 0.1);
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    color: #666;
+    transition: all 0.2s ease;
+    z-index: 11;
+  }
+
+  .close-panel-btn:hover {
+    background: rgba(0, 0, 0, 0.2);
+    color: #000;
+  }
+
+  .artist-detail {
+    padding: 2rem;
+    padding-top: 3rem;
+  }
+
+  .artist-header {
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid #e5e7eb;
+  }
+
+  .artist-header h2 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #1f2937;
+    margin: 0 0 0.5rem 0;
+  }
+
+  .artist-info {
+    margin-bottom: 1.5rem;
+  }
+
+  .info-section {
+    margin-bottom: 1.25rem;
+  }
+
+  .info-section h3 {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #374151;
+    margin: 0 0 0.5rem 0;
+  }
+
+  .info-section p {
+    font-size: 0.9rem;
+    color: #6b7280;
+    margin: 0;
+    line-height: 1.5;
+  }
+
+  .social-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .social-links a {
+    display: inline-block;
+    padding: 0.375rem 0.75rem;
+    background: #f3f4f6;
+    color: #4b5563;
+    text-decoration: none;
+    border-radius: 0.375rem;
+    font-size: 0.8rem;
+    font-weight: 500;
+    transition: all 0.2s ease;
+  }
+
+  .social-links a:hover {
+    background: #6366f1;
+    color: white;
+    transform: translateY(-1px);
+  }
+
+  .artist-actions {
+    padding-top: 1rem;
+    border-top: 1px solid #e5e7eb;
+    text-align: center;
+  }
+
+  :global(.artist-detail .view-profile-btn) {
+    display: inline-block;
+    background: linear-gradient(135deg, #6366f1, #8b5cf6);
+    color: white;
+    text-decoration: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 0.5rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+    transition: all 0.2s ease;
+  }
+
+  :global(.artist-detail .view-profile-btn:hover) {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(99, 102, 241, 0.3);
   }
 
   .map-container h2 {
@@ -554,14 +1094,14 @@ let allArtists = []; // Store all artists for filtering
   }
 
   .map-wrapper {
-    max-width: 70%;
     flex: 1;
     position: relative;
+    min-width: 0;
   }
 
   .map {
     width: 100%;
-    height: 600px;
+    height: 100%;
     overflow: hidden;
   }
 
