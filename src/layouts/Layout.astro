@@ -52,12 +52,14 @@ const isAuthenticated = !!user;
 			      try {
 			        const response = await originalFetch(url, options);
 
-			        // Only intercept our own API calls, not external services
+			        // Only intercept our own API calls, not external services or auth endpoints
 			        const shouldIntercept = response.status === 401 &&
 			          typeof url === 'string' &&
 			          url.includes('/api/') &&
 			          !url.includes('mapbox') &&
 			          !url.includes('tiles') &&
+			          !url.includes('/api/auth/login') &&
+			          !url.includes('/api/auth/register') &&
 			          (url.startsWith('/') || url.includes(window.location.origin));
 
 			        if (shouldIntercept) {
