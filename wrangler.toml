@@ -1,0 +1,16 @@
+# Configuration pour Cloudflare Pages Functions
+name = "wavmap"
+compatibility_date = "2024-07-24"
+compatibility_flags = ["nodejs_compat"]
+pages_build_output_dir = "dist"
+
+# Variables d'environnement (aussi définies dans Pages dashboard)
+[vars]
+DIRECTUS_URL = "https://directus-production-1f5c.up.railway.app/"
+PUBLIC_DIRECTUS_URL = "https://directus-production-1f5c.up.railway.app/"
+MAPBOX_ACCESS_TOKEN= "pk.eyJ1Ijoid2F2bWFwIiwiYSI6ImNtY2huc3I1ajB4ZzcybXF4cWEzdXlkbG4ifQ.Szzm5T0oYElXQwPq6GO4Sw"
+
+# KV namespace pour les sessions (doit être créé dans Cloudflare dashboard)
+[[kv_namespaces]]
+binding = "SESSION"
+id = "77bd09935b474c7bade2c8f9e28d17bb"

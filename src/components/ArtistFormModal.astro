@@ -1,0 +1,324 @@
+---
+import ArtistForm from './ArtistForm.astro';
+import AuthModalForm from './AuthModalForm.astro';
+import * as m from '../paraglide/messages.js';
+
+// Get authentication state from Layout props
+const { user, isAuthenticated } = Astro.props;
+---
+
+<!-- Modal Backdrop -->
+<div
+  id="artist-modal"
+  class="fixed inset-0 z-50 hidden items-center justify-center p-4 modal-backdrop"
+  transition:persist="artist-modal"
+>
+  <!-- Modal Container -->
+  <div class="modal-container">
+    <!-- Header avec divider style blog -->
+    <div class="modal-header">
+      <div class="modal-divider-container">
+        <div class="modal-divider"></div>
+        <div class="modal-count">
+          <span>001</span>
+        </div>
+      </div>
+      <h2 class="modal-title">{m.join_community()}</h2>
+
+      <!-- Close Button avec style map -->
+      <button
+        id="close-modal-btn"
+        class="modal-close-btn"
+        aria-label="Close modal"
+      >
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"></path>
+        </svg>
+      </button>
+    </div>
+
+    <!-- Modal Content -->
+    <div class="modal-content">
+      <!-- Auth Form (shown when not logged in) -->
+      <div id="auth-section" class={isAuthenticated ? "hidden" : ""}>
+        <div class="auth-intro">
+          <p>Connectez-vous pour rejoindre la communauté underground</p>
+        </div>
+        <AuthModalForm />
+      </div>
+
+      <!-- Artist Form (shown when logged in) -->
+      <div id="artist-section" class={isAuthenticated ? "" : "hidden"}>
+        <ArtistForm />
+      </div>
+    </div>
+  </div>
+</div>
+
+<script define:vars={{ isAuthenticated }}>
+  function initModal() {
+    const modal = document.getElementById('artist-modal');
+    const closeBtn = document.getElementById('close-modal-btn');
+    const joinBtns = document.querySelectorAll('#join-community-btn');
+    const authSection = document.getElementById('auth-section');
+    const artistSection = document.getElementById('artist-section');
+
+    if (!modal) return;
+
+    // Function to open modal (no need to check auth state - it's already set server-side)
+    function openModal() {
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+      document.body.style.overflow = 'hidden';
+    }
+
+    // Function to close modal
+    function closeModal() {
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+      document.body.style.overflow = 'auto';
+    }
+
+    // Function to switch to artist form after successful auth
+    function switchToArtistForm() {
+      authSection.classList.add('hidden');
+      artistSection.classList.remove('hidden');
+    }
+
+    // Add event listeners to all join community buttons
+    joinBtns.forEach(btn => {
+      btn.addEventListener('click', openModal);
+    });
+
+    // Close modal when clicking close button
+    closeBtn?.addEventListener('click', closeModal);
+
+    // Close modal when clicking backdrop
+    modal.addEventListener('click', function(e) {
+      if (e.target === modal) {
+        closeModal();
+      }
+    });
+
+    // Close modal on Escape key
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape' && !modal.classList.contains('hidden')) {
+        closeModal();
+      }
+    });
+
+    // Listen for successful authentication (when user logs in via modal)
+    window.addEventListener('authSuccess', switchToArtistForm);
+
+    // Listen for authentication expiration
+    window.addEventListener('authExpired', function(event) {
+      // If the artist form is showing, switch back to auth form
+      if (!artistSection.classList.contains('hidden')) {
+        authSection.classList.remove('hidden');
+        artistSection.classList.add('hidden');
+
+        // Show a user-friendly message
+        const authError = authSection.querySelector('#login-error, #register-error');
+        if (authError) {
+          authError.textContent = event.detail.message || 'Your session has expired. Please log in again.';
+          authError.classList.remove('hidden');
+        }
+      }
+    });
+
+    // Override the form success callback to close modal
+    const originalAlert = window.alert;
+    window.alert = function(message) {
+      if (message.includes('✅') || message.includes('success')) {
+        closeModal();
+        originalAlert(message);
+      } else {
+        originalAlert(message);
+      }
+    };
+  }
+
+  // Initialize modal when DOM is loaded
+  document.addEventListener('DOMContentLoaded', initModal);
+
+  // Also initialize immediately in case DOM is already loaded
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initModal);
+  } else {
+    initModal();
+  }
+</script>
+
+<style>
+  .modal-backdrop {
+    background: rgba(164, 164, 164, 0.95);
+    backdrop-filter: blur(8px);
+    transition: opacity 0.3s ease;
+  }
+
+  .modal-container {
+    background: white;
+    max-width: 900px;
+    width: 100%;
+    max-height: 90vh;
+    overflow: hidden;
+    position: relative;
+    border: 3px solid black;
+    box-shadow: 8px 8px 0px rgba(0, 0, 0, 0.8);
+    display: flex;
+    flex-direction: column;
+  }
+
+  .modal-header {
+    background: #A4A4A4;
+    padding: 1.5rem;
+    border-bottom: 3px solid black;
+    position: relative;
+    flex-shrink: 0;
+  }
+
+  .modal-divider-container {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1rem;
+    position: relative;
+  }
+
+  .modal-divider {
+    width: 100%;
+    height: 3px;
+    background-color: black;
+  }
+
+  .modal-count {
+    background: black;
+    color: white;
+    padding: 0.25rem 0.75rem;
+    font-weight: 700;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    min-width: 60px;
+    text-align: center;
+    flex-shrink: 0;
+  }
+
+  .modal-title {
+    font-size: 1.75rem;
+    font-weight: 900;
+    color: black;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin: 0;
+  }
+
+  .modal-close-btn {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    background: black;
+    color: white;
+    border: none;
+    width: 2.5rem;
+    height: 2.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .modal-close-btn:hover {
+    background: white;
+    color: black;
+    transform: rotate(90deg);
+  }
+
+  .modal-content {
+    padding: 2rem;
+    background: white;
+    overflow-y: auto;
+    flex-grow: 1;
+  }
+
+  .auth-intro {
+    text-align: center;
+    margin-bottom: 2rem;
+    padding: 1rem;
+    background: #f8f9fa;
+    border-left: 4px solid black;
+    position: relative;
+  }
+
+  .auth-intro::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 0;
+    height: 0;
+    border-left: 20px solid transparent;
+    border-right: 20px solid black;
+    border-bottom: 20px solid transparent;
+  }
+
+  .auth-intro p {
+    color: black;
+    font-weight: 500;
+    text-transform: uppercase;
+    font-size: 0.9rem;
+    letter-spacing: 0.5px;
+    margin: 0;
+  }
+
+  /* Custom scrollbar for modal content */
+  .modal-content::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  .modal-content::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+  }
+
+  .modal-content::-webkit-scrollbar-thumb {
+    background: #A4A4A4;
+    border-radius: 4px;
+  }
+
+  .modal-content::-webkit-scrollbar-thumb:hover {
+    background: #8a8a8a;
+  }
+
+  /* Responsive */
+  @media (max-width: 768px) {
+    .modal-container {
+      max-width: 95%;
+      margin: 1rem;
+      max-height: 95vh;
+    }
+
+    .modal-header {
+      padding: 1rem;
+    }
+
+    .modal-content {
+      padding: 1rem;
+    }
+
+    .modal-title {
+      font-size: 1.25rem;
+    }
+
+    .modal-close-btn {
+      width: 2rem;
+      height: 2rem;
+    }
+
+    .modal-close-btn svg {
+      width: 1rem;
+      height: 1rem;
+    }
+  }
+</style>

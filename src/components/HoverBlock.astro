@@ -1,0 +1,103 @@
+---
+// src/components/HoverBlock.astro
+export interface Props {
+  defaultText: string;
+  hoverText: string;
+  className?: string;
+}
+
+const {
+  defaultText,
+  hoverText,
+  className = ""
+} = Astro.props;
+---
+
+<div class={`hover-block ${className}`}>
+  <div class="content-wrapper">
+    <span class="default-text">{defaultText}</span>
+    <span class="hover-text">{hoverText}</span>
+  </div>
+  
+  <style>
+    .hover-block {
+      padding: 2rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      min-height: 100px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .content-wrapper {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .default-text {
+      text-transform: uppercase;
+    }
+
+    .default-text, .hover-text {
+      transition: all 0.5s ease;
+      position: absolute;
+      width: 100%;
+      text-align: center;
+      font-size: 20px;
+      font-weight: 900;
+    }
+
+    .hover-text {
+      opacity: 0;
+      transform: translateX(-100%); /* Part de la gauche maintenant */
+    }
+
+    /* Animation du dégradé de gauche à droite */
+    .hover-block::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%; /* Commence à gauche */
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(
+        to right, /* Direction changée vers la droite */
+        #8FD116,
+        #3E44E6 50%,
+        #E9930F 80%
+      );
+      transition: transform 0.5s ease;
+      z-index: 0;
+    }
+
+    .hover-block:hover::after {
+      transform: translateX(100%); /* Se déplace vers la droite */
+    }
+
+    .hover-block:hover .default-text {
+      opacity: 0;
+      transform: translateX(100%); /* Part vers la droite */
+    }
+
+    .hover-block:hover .hover-text {
+      opacity: 1;
+      transform: translateX(0); /* Arrive au centre */
+    }
+
+    /* S'assurer que le texte est parfaitement centré */
+    .default-text, .hover-text {
+      z-index: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0;
+    }
+  </style>
+</div>
