@@ -156,3 +156,28 @@ const { user, isAuthenticated } = Astro.props;
     }
   }
 </style>
+
+<script>
+  function handleAuthSuccess() {
+    const authSection = document.getElementById('auth-section');
+    const artistSection = document.getElementById('artist-section');
+
+    if (authSection && artistSection) {
+      authSection.classList.add('hidden');
+      artistSection.classList.remove('hidden');
+    }
+  }
+
+  // Listen for auth success event
+  window.addEventListener('authSuccess', handleAuthSuccess);
+
+  // Initialize on DOM loaded
+  document.addEventListener('DOMContentLoaded', () => {
+    window.addEventListener('authSuccess', handleAuthSuccess);
+  });
+
+  // Handle case where script loads after DOM
+  if (document.readyState !== 'loading') {
+    window.addEventListener('authSuccess', handleAuthSuccess);
+  }
+</script>

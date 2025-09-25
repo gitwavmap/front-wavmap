@@ -33,103 +33,445 @@ const currentLang = getLocale();
     <CityCountryPicker />
 
     <div class="form-group">
-      <label for="activities">{m.activities()} *</label>
-      <select id="activities" name="activities" required>
-        <option value="">Select an activity</option>
-        <option value="dj">{m.dj()}</option>
-        <option value="producer">{m.producer()}</option>
-        <option value="curator">{m.curator()}</option>
-        <option value="promoter">{m.promoter()}</option>
-        <option value="label">{m.label()}</option>
-        <option value="bookingagency">{m.booking_agency()}</option>
-        <option value="collective">{m.collective()}</option>
-        <option value="radio">{m.radio()}</option>
-        <option value="recordstore">{m.record_store()}</option>
-        <option value="festival">{m.festival()}</option>
-        <option value="medias">{m.media()}</option>
-        <option value="other">{m.other()}</option>
-      </select>
+      <label>{m.activities()} *</label>
+      <div class="checkbox-group">
+        <label class="checkbox-item">
+          <input type="checkbox" name="activities" value="dj" />
+          <span class="checkmark"></span>
+          {m.dj()}
+        </label>
+        <label class="checkbox-item">
+          <input type="checkbox" name="activities" value="producer" />
+          <span class="checkmark"></span>
+          {m.producer()}
+        </label>
+        <label class="checkbox-item">
+          <input type="checkbox" name="activities" value="curator" />
+          <span class="checkmark"></span>
+          {m.curator()}
+        </label>
+        <label class="checkbox-item">
+          <input type="checkbox" name="activities" value="promoter" />
+          <span class="checkmark"></span>
+          {m.promoter()}
+        </label>
+        <label class="checkbox-item">
+          <input type="checkbox" name="activities" value="label" />
+          <span class="checkmark"></span>
+          {m.label()}
+        </label>
+        <label class="checkbox-item">
+          <input type="checkbox" name="activities" value="bookingagency" />
+          <span class="checkmark"></span>
+          {m.booking_agency()}
+        </label>
+        <label class="checkbox-item">
+          <input type="checkbox" name="activities" value="collective" />
+          <span class="checkmark"></span>
+          {m.collective()}
+        </label>
+        <label class="checkbox-item">
+          <input type="checkbox" name="activities" value="radio" />
+          <span class="checkmark"></span>
+          {m.radio()}
+        </label>
+        <label class="checkbox-item">
+          <input type="checkbox" name="activities" value="recordstore" />
+          <span class="checkmark"></span>
+          {m.record_store()}
+        </label>
+        <label class="checkbox-item">
+          <input type="checkbox" name="activities" value="festival" />
+          <span class="checkmark"></span>
+          {m.festival()}
+        </label>
+        <label class="checkbox-item">
+          <input type="checkbox" name="activities" value="medias" />
+          <span class="checkmark"></span>
+          {m.media()}
+        </label>
+        <label class="checkbox-item">
+          <input type="checkbox" name="activities" value="other" />
+          <span class="checkmark"></span>
+          {m.other()}
+        </label>
+      </div>
     </div>
 
     <div class="form-group">
-      <label for="genres">{m.musical_styles()} *</label>
-      <select id="genres" name="genres" required>
-        <option value="">Select a musical style</option>
-        <option value="bass">Bass</option>
-        <option value="bailefunkbresilianfunk">Baile Funk / Bresilian Funk</option>
-        <option value="breakbeat">Breakbeat</option>
-        <option value="drumandbass">Drum & Bass</option>
-        <option value="dubstep">Dubstep</option>
-        <option value="jerseyclub">Jersey Club</option>
-        <option value="garage">Garage</option>
-        <option value="breaks">Breaks</option>
-        <option value="techno">Techno</option>
-        <option value="dancehall">Dancehall</option>
-        <option value="footwork">Footwork</option>
-        <option value="grime">Grime</option>
-        <option value="jungle">Jungle</option>
-        <option value="rap">Rap</option>
-        <option value="bouyon">Bouyon</option>
-        <option value="hiphop">Hip-Hop</option>
-        <option value="shatta">Shatta</option>
-        <option value="club">Club</option>
-        <option value="baltimoreclub">Baltimore Club</option>
-        <option value="dub">Dub</option>
-        <option value="ghettotech">Ghetto Tech</option>
-        <option value="gqom">Gqom</option>
-        <option value="house">House</option>
-        <option value="trap">Trap</option>
-        <option value="afrobeats">Afrobeats</option>
-        <option value="amapiano">Amapiano</option>
-        <option value="dembow">Dembow</option>
-        <option value="ukfunky">UK Funky</option>
-        <option value="reggaeton">Reggaeton</option>
-        <option value="ghettohouse">Ghetto House</option>
-        <option value="speedgarage">Speed Garage</option>
-        <option value="afrohouse">Afro House</option>
-        <option value="batida">Batida</option>
-        <option value="experimental">Experimental</option>
-        <option value="electronic">Electronic</option>
-        <option value="ambient">Ambient</option>
-        <option value="neoperrero">Neo Perreo</option>
-        <option value="trance">Trance</option>
-        <option value="deephouse">Deep House</option>
-        <option value="dubtechno">Dub Techno</option>
-        <option value="techhouse">Tech House</option>
-        <option value="acid">Acid</option>
-        <option value="bassline">Bassline</option>
-        <option value="electro">Electro</option>
-        <option value="brokenbeat">Broken Beat</option>
-        <option value="kuduro">Kuduro</option>
-        <option value="ballroom">Ballroom</option>
-        <option value="cumbia">Cumbia</option>
-        <option value="guaracha">Guaracha</option>
-        <option value="downtempo">Downtempo</option>
-        <option value="hyperpop">Hyperpop</option>
-        <option value="dance">Dance</option>
-        <option value="drill">Drill</option>
-        <option value="gabber">Gabber</option>
-        <option value="soca">Soca</option>
-        <option value="coupedecale">Coupé-Décalé</option>
-        <option value="electronica">Electronica</option>
-        <option value="minimal">Minimal</option>
-        <option value="psytrance">Psytrance</option>
-        <option value="zouk">Zouk</option>
-        <option value="hardcore">Hardcore</option>
-        <option value="balearichouse">Balearic House</option>
-        <option value="chaabi">Chaabi</option>
-        <option value="donk">Donk</option>
-        <option value="kwaito">Kwaito</option>
-        <option value="raptorhouse">Raptor House</option>
-        <option value="singeli">Singeli</option>
-        <option value="calypso">Calypso</option>
-        <option value="miamibass">Miami Bass</option>
-        <option value="harddrum">Hard Drum</option>
-        <option value="juke">Juke</option>
-        <option value="bubbling">Bubbling</option>
-        <option value="latinclub">Latin Club</option>
-        <option value="rai">Rai</option>
-      </select>
+      <label>{m.musical_styles()} *</label>
+      <div class="checkbox-group">
+        <label class="checkbox-item">
+          <input type="checkbox" name="genres" value="bass" />
+          <span class="checkmark"></span>
+          Bass
+        </label>
+        <label class="checkbox-item">
+          <input type="checkbox" name="genres" value="bailefunkbresilianfunk" />
+          <span class="checkmark"></span>
+          Baile Funk / Bresilian Funk
+        </label>
+        <label class="checkbox-item">
+          <input type="checkbox" name="genres" value="breakbeat" />
+          <span class="checkmark"></span>
+          Breakbeat
+        </label>
+        <label class="checkbox-item">
+          <input type="checkbox" name="genres" value="drumandbass" />
+          <span class="checkmark"></span>
+          Drum & Bass
+        </label>
+        <label class="checkbox-item">
+          <input type="checkbox" name="genres" value="dubstep" />
+          <span class="checkmark"></span>
+          Dubstep
+        </label>
+        <label class="checkbox-item">
+          <input type="checkbox" name="genres" value="jerseyclub" />
+          <span class="checkmark"></span>
+          Jersey Club
+        </label>
+        <label class="checkbox-item">
+          <input type="checkbox" name="genres" value="garage" />
+          <span class="checkmark"></span>
+          Garage
+        </label>
+        <label class="checkbox-item">
+          <input type="checkbox" name="genres" value="breaks" />
+          <span class="checkmark"></span>
+          Breaks
+        </label>
+        <label class="checkbox-item">
+          <input type="checkbox" name="genres" value="techno" />
+          <span class="checkmark"></span>
+          Techno
+        </label>
+        <label class="checkbox-item">
+          <input type="checkbox" name="genres" value="dancehall" />
+          <span class="checkmark"></span>
+          Dancehall
+        </label>
+        <label class="checkbox-item">
+          <input type="checkbox" name="genres" value="footwork" />
+          <span class="checkmark"></span>
+          Footwork
+        </label>
+        <label class="checkbox-item">
+          <input type="checkbox" name="genres" value="grime" />
+          <span class="checkmark"></span>
+          Grime
+        </label>
+        <label class="checkbox-item">
+          <input type="checkbox" name="genres" value="jungle" />
+          <span class="checkmark"></span>
+          Jungle
+        </label>
+        <label class="checkbox-item">
+          <input type="checkbox" name="genres" value="rap" />
+          <span class="checkmark"></span>
+          Rap
+        </label>
+        <label class="checkbox-item">
+          <input type="checkbox" name="genres" value="bouyon" />
+          <span class="checkmark"></span>
+          Bouyon
+        </label>
+        <label class="checkbox-item">
+          <input type="checkbox" name="genres" value="hiphop" />
+          <span class="checkmark"></span>
+          Hip-Hop
+        </label>
+        <label class="checkbox-item">
+          <input type="checkbox" name="genres" value="shatta" />
+          <span class="checkmark"></span>
+          Shatta
+        </label>
+        <label class="checkbox-item">
+          <input type="checkbox" name="genres" value="club" />
+          <span class="checkmark"></span>
+          Club
+        </label>
+        <label class="checkbox-item">
+          <input type="checkbox" name="genres" value="baltimoreclub" />
+          <span class="checkmark"></span>
+          Baltimore Club
+        </label>
+        <label class="checkbox-item">
+          <input type="checkbox" name="genres" value="dub" />
+          <span class="checkmark"></span>
+          Dub
+        </label>
+        <label class="checkbox-item">
+          <input type="checkbox" name="genres" value="ghettotech" />
+          <span class="checkmark"></span>
+          Ghetto Tech
+        </label>
+        <label class="checkbox-item">
+          <input type="checkbox" name="genres" value="gqom" />
+          <span class="checkmark"></span>
+          Gqom
+        </label>
+        <label class="checkbox-item">
+          <input type="checkbox" name="genres" value="house" />
+          <span class="checkmark"></span>
+          House
+        </label>
+        <label class="checkbox-item">
+          <input type="checkbox" name="genres" value="trap" />
+          <span class="checkmark"></span>
+          Trap
+        </label>
+        <label class="checkbox-item">
+          <input type="checkbox" name="genres" value="afrobeats" />
+          <span class="checkmark"></span>
+          Afrobeats
+        </label>
+        <label class="checkbox-item">
+          <input type="checkbox" name="genres" value="amapiano" />
+          <span class="checkmark"></span>
+          Amapiano
+        </label>
+        <label class="checkbox-item">
+          <input type="checkbox" name="genres" value="dembow" />
+          <span class="checkmark"></span>
+          Dembow
+        </label>
+        <label class="checkbox-item">
+          <input type="checkbox" name="genres" value="ukfunky" />
+          <span class="checkmark"></span>
+          UK Funky
+        </label>
+        <label class="checkbox-item">
+          <input type="checkbox" name="genres" value="reggaeton" />
+          <span class="checkmark"></span>
+          Reggaeton
+        </label>
+        <label class="checkbox-item">
+          <input type="checkbox" name="genres" value="ghettohouse" />
+          <span class="checkmark"></span>
+          Ghetto House
+        </label>
+        <label class="checkbox-item">
+          <input type="checkbox" name="genres" value="speedgarage" />
+          <span class="checkmark"></span>
+          Speed Garage
+        </label>
+        <label class="checkbox-item">
+          <input type="checkbox" name="genres" value="afrohouse" />
+          <span class="checkmark"></span>
+          Afro House
+        </label>
+        <label class="checkbox-item">
+          <input type="checkbox" name="genres" value="batida" />
+          <span class="checkmark"></span>
+          Batida
+        </label>
+        <label class="checkbox-item">
+          <input type="checkbox" name="genres" value="experimental" />
+          <span class="checkmark"></span>
+          Experimental
+        </label>
+        <label class="checkbox-item">
+          <input type="checkbox" name="genres" value="electronic" />
+          <span class="checkmark"></span>
+          Electronic
+        </label>
+        <label class="checkbox-item">
+          <input type="checkbox" name="genres" value="ambient" />
+          <span class="checkmark"></span>
+          Ambient
+        </label>
+        <label class="checkbox-item">
+          <input type="checkbox" name="genres" value="neoperrero" />
+          <span class="checkmark"></span>
+          Neo Perreo
+        </label>
+        <label class="checkbox-item">
+          <input type="checkbox" name="genres" value="trance" />
+          <span class="checkmark"></span>
+          Trance
+        </label>
+        <label class="checkbox-item">
+          <input type="checkbox" name="genres" value="deephouse" />
+          <span class="checkmark"></span>
+          Deep House
+        </label>
+        <label class="checkbox-item">
+          <input type="checkbox" name="genres" value="dubtechno" />
+          <span class="checkmark"></span>
+          Dub Techno
+        </label>
+        <label class="checkbox-item">
+          <input type="checkbox" name="genres" value="techhouse" />
+          <span class="checkmark"></span>
+          Tech House
+        </label>
+        <label class="checkbox-item">
+          <input type="checkbox" name="genres" value="acid" />
+          <span class="checkmark"></span>
+          Acid
+        </label>
+        <label class="checkbox-item">
+          <input type="checkbox" name="genres" value="bassline" />
+          <span class="checkmark"></span>
+          Bassline
+        </label>
+        <label class="checkbox-item">
+          <input type="checkbox" name="genres" value="electro" />
+          <span class="checkmark"></span>
+          Electro
+        </label>
+        <label class="checkbox-item">
+          <input type="checkbox" name="genres" value="brokenbeat" />
+          <span class="checkmark"></span>
+          Broken Beat
+        </label>
+        <label class="checkbox-item">
+          <input type="checkbox" name="genres" value="kuduro" />
+          <span class="checkmark"></span>
+          Kuduro
+        </label>
+        <label class="checkbox-item">
+          <input type="checkbox" name="genres" value="ballroom" />
+          <span class="checkmark"></span>
+          Ballroom
+        </label>
+        <label class="checkbox-item">
+          <input type="checkbox" name="genres" value="cumbia" />
+          <span class="checkmark"></span>
+          Cumbia
+        </label>
+        <label class="checkbox-item">
+          <input type="checkbox" name="genres" value="guaracha" />
+          <span class="checkmark"></span>
+          Guaracha
+        </label>
+        <label class="checkbox-item">
+          <input type="checkbox" name="genres" value="downtempo" />
+          <span class="checkmark"></span>
+          Downtempo
+        </label>
+        <label class="checkbox-item">
+          <input type="checkbox" name="genres" value="hyperpop" />
+          <span class="checkmark"></span>
+          Hyperpop
+        </label>
+        <label class="checkbox-item">
+          <input type="checkbox" name="genres" value="dance" />
+          <span class="checkmark"></span>
+          Dance
+        </label>
+        <label class="checkbox-item">
+          <input type="checkbox" name="genres" value="drill" />
+          <span class="checkmark"></span>
+          Drill
+        </label>
+        <label class="checkbox-item">
+          <input type="checkbox" name="genres" value="gabber" />
+          <span class="checkmark"></span>
+          Gabber
+        </label>
+        <label class="checkbox-item">
+          <input type="checkbox" name="genres" value="soca" />
+          <span class="checkmark"></span>
+          Soca
+        </label>
+        <label class="checkbox-item">
+          <input type="checkbox" name="genres" value="coupedecale" />
+          <span class="checkmark"></span>
+          Coupé-Décalé
+        </label>
+        <label class="checkbox-item">
+          <input type="checkbox" name="genres" value="electronica" />
+          <span class="checkmark"></span>
+          Electronica
+        </label>
+        <label class="checkbox-item">
+          <input type="checkbox" name="genres" value="minimal" />
+          <span class="checkmark"></span>
+          Minimal
+        </label>
+        <label class="checkbox-item">
+          <input type="checkbox" name="genres" value="psytrance" />
+          <span class="checkmark"></span>
+          Psytrance
+        </label>
+        <label class="checkbox-item">
+          <input type="checkbox" name="genres" value="zouk" />
+          <span class="checkmark"></span>
+          Zouk
+        </label>
+        <label class="checkbox-item">
+          <input type="checkbox" name="genres" value="hardcore" />
+          <span class="checkmark"></span>
+          Hardcore
+        </label>
+        <label class="checkbox-item">
+          <input type="checkbox" name="genres" value="balearichouse" />
+          <span class="checkmark"></span>
+          Balearic House
+        </label>
+        <label class="checkbox-item">
+          <input type="checkbox" name="genres" value="chaabi" />
+          <span class="checkmark"></span>
+          Chaabi
+        </label>
+        <label class="checkbox-item">
+          <input type="checkbox" name="genres" value="donk" />
+          <span class="checkmark"></span>
+          Donk
+        </label>
+        <label class="checkbox-item">
+          <input type="checkbox" name="genres" value="kwaito" />
+          <span class="checkmark"></span>
+          Kwaito
+        </label>
+        <label class="checkbox-item">
+          <input type="checkbox" name="genres" value="raptorhouse" />
+          <span class="checkmark"></span>
+          Raptor House
+        </label>
+        <label class="checkbox-item">
+          <input type="checkbox" name="genres" value="singeli" />
+          <span class="checkmark"></span>
+          Singeli
+        </label>
+        <label class="checkbox-item">
+          <input type="checkbox" name="genres" value="calypso" />
+          <span class="checkmark"></span>
+          Calypso
+        </label>
+        <label class="checkbox-item">
+          <input type="checkbox" name="genres" value="miamibass" />
+          <span class="checkmark"></span>
+          Miami Bass
+        </label>
+        <label class="checkbox-item">
+          <input type="checkbox" name="genres" value="harddrum" />
+          <span class="checkmark"></span>
+          Hard Drum
+        </label>
+        <label class="checkbox-item">
+          <input type="checkbox" name="genres" value="juke" />
+          <span class="checkmark"></span>
+          Juke
+        </label>
+        <label class="checkbox-item">
+          <input type="checkbox" name="genres" value="bubbling" />
+          <span class="checkmark"></span>
+          Bubbling
+        </label>
+        <label class="checkbox-item">
+          <input type="checkbox" name="genres" value="latinclub" />
+          <span class="checkmark"></span>
+          Latin Club
+        </label>
+        <label class="checkbox-item">
+          <input type="checkbox" name="genres" value="rai" />
+          <span class="checkmark"></span>
+          Rai
+        </label>
+      </div>
     </div>
 
     <div class="form-group">
@@ -154,22 +496,57 @@ const currentLang = getLocale();
     </div>
 
     <div class="form-group">
-      <label for="social-political">{m.social_political()} {m.social_political_optional()}</label>
+      <label>{m.social_political()} {m.social_political_optional()}</label>
       <p class="form-help-text">
         {m.social_political_help()}
       </p>
-      <select id="social-political" name="socialPolitical">
-        <option value="">Select a social/political subject (optional)</option>
-        <option value="queerrights">{m.queer_rights()}</option>
-        <option value="flintarepresentation">{m.flinta_representation()}</option>
-        <option value="genderequality">{m.gender_equality()}</option>
-        <option value="anti-racism">{m.anti_racism()}</option>
-        <option value="decolonialism">{m.decolonialism()}</option>
-        <option value="acccessibilityforpeoplewithdisabilities">{m.access_disabled()}</option>
-        <option value="economicequalityclasssolidarity">{m.economic_equality()}</option>
-        <option value="climatejustice">{m.climate_justice()}</option>
-        <option value="geographicmarginalization">{m.geographic_marginalization()}</option>
-      </select>
+      <div class="checkbox-group">
+        <label class="checkbox-item">
+          <input type="checkbox" name="socialPolitical" value="queerrights" />
+          <span class="checkmark"></span>
+          {m.queer_rights()}
+        </label>
+        <label class="checkbox-item">
+          <input type="checkbox" name="socialPolitical" value="flintarepresentation" />
+          <span class="checkmark"></span>
+          {m.flinta_representation()}
+        </label>
+        <label class="checkbox-item">
+          <input type="checkbox" name="socialPolitical" value="genderequality" />
+          <span class="checkmark"></span>
+          {m.gender_equality()}
+        </label>
+        <label class="checkbox-item">
+          <input type="checkbox" name="socialPolitical" value="anti-racism" />
+          <span class="checkmark"></span>
+          {m.anti_racism()}
+        </label>
+        <label class="checkbox-item">
+          <input type="checkbox" name="socialPolitical" value="decolonialism" />
+          <span class="checkmark"></span>
+          {m.decolonialism()}
+        </label>
+        <label class="checkbox-item">
+          <input type="checkbox" name="socialPolitical" value="acccessibilityforpeoplewithdisabilities" />
+          <span class="checkmark"></span>
+          {m.access_disabled()}
+        </label>
+        <label class="checkbox-item">
+          <input type="checkbox" name="socialPolitical" value="economicequalityclasssolidarity" />
+          <span class="checkmark"></span>
+          {m.economic_equality()}
+        </label>
+        <label class="checkbox-item">
+          <input type="checkbox" name="socialPolitical" value="climatejustice" />
+          <span class="checkmark"></span>
+          {m.climate_justice()}
+        </label>
+        <label class="checkbox-item">
+          <input type="checkbox" name="socialPolitical" value="geographicmarginalization" />
+          <span class="checkmark"></span>
+          {m.geographic_marginalization()}
+        </label>
+      </div>
     </div>
 
     <div class="form-group">
@@ -233,15 +610,15 @@ const currentLang = getLocale();
       const originalText = submitBtn?.textContent || joinCommunity;
       
       // Check that at least one activity is selected
-      const activitiesField = document.getElementById('activities');
-      if (!activitiesField || !activitiesField.value) {
+      const activitiesChecked = form.querySelectorAll('input[name="activities"]:checked');
+      if (activitiesChecked.length === 0) {
         alert(selectActivity);
         return;
       }
 
       // Check that at least one genre is selected
-      const genresField = document.getElementById('genres');
-      if (!genresField || !genresField.value) {
+      const genresChecked = form.querySelectorAll('input[name="genres"]:checked');
+      if (genresChecked.length === 0) {
         alert(selectGenre);
         return;
       }
@@ -386,6 +763,12 @@ const currentLang = getLocale();
     font-weight: 700;
   }
 
+  select option {
+    background-color: white;
+    color: black;
+    font-weight: 700;
+  }
+
   input:focus, select:focus, textarea:focus {
     outline: none;
     border-color: black;
@@ -416,6 +799,64 @@ const currentLang = getLocale();
     display: block;
     text-align: right;
     color: black !important;
+  }
+
+  /* Checkbox styles */
+  .checkbox-group {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 0.75rem;
+    margin-top: 0.5rem;
+    max-height: 300px;
+    overflow-y: auto;
+    padding: 1rem;
+    border: 2px solid black;
+    background: rgba(255, 255, 255, 0.05);
+  }
+
+  .checkbox-item {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    padding: 0.5rem;
+    border-radius: 0.25rem;
+    transition: background-color 0.2s ease;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: white !important;
+    margin-bottom: 0 !important;
+  }
+
+  .checkbox-item:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+  }
+
+  .checkbox-item input[type="checkbox"] {
+    display: none;
+  }
+
+  .checkmark {
+    width: 20px;
+    height: 20px;
+    border: 2px solid white;
+    margin-right: 0.75rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+  }
+
+  .checkbox-item input[type="checkbox"]:checked + .checkmark {
+    background-color: white;
+    border-color: white;
+  }
+
+  .checkbox-item input[type="checkbox"]:checked + .checkmark::after {
+    content: "✓";
+    color: black;
+    font-size: 14px;
+    font-weight: 900;
   }
 
 
