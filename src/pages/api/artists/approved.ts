@@ -55,8 +55,13 @@ export const GET: APIRoute = async ({ request, locals }) => {
           'activitydomains',
           'musicalstyles',
           'socialtopics',
-          'anyotherpoliticalapproach'
-          // Champs optimisés pour la map + filtres - bio/liens dans l'API individuelle
+          'anyotherpoliticalapproach',
+          'bio',
+          'instagram',
+          'soundcloud',
+          'spotify',
+          'profile_image'
+          // Champs optimisés pour la map + filtres + détail artiste
         ],
         limit: 1000, // Limite raisonnable pour éviter les timeouts
         sort: ['-date_created'] // Plus récents en premier

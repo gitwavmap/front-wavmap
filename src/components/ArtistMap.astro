@@ -511,9 +511,17 @@ let selectedFilters = { cities: [], countries: [], styles: [], roles: [], pol: [
 
     // Set artist photo
     const artistPhoto = document.getElementById('artist-photo');
-    if (artist.photo || artist.image) {
-      artistPhoto.src = artist.photo || artist.image;
+    if (artist.profile_image) {
+      // Generate Directus asset URL
+      const directusUrl = 'https://directus-production-1f5c.up.railway.app';
+      artistPhoto.src = `${directusUrl}/assets/${artist.profile_image}`;
       artistPhoto.style.display = 'block';
+
+      // Add error handling for missing images
+      artistPhoto.onerror = function() {
+        console.log('Failed to load profile image:', artist.profile_image);
+        this.style.display = 'none';
+      };
     } else {
       artistPhoto.style.display = 'none';
     }
