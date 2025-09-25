@@ -51,15 +51,9 @@ let selectedFilters = { cities: [], countries: [], styles: [], roles: [], pol: [
 
             <!-- Ligne d'options cachée par défaut -->
             <div id={`filter-${filter.id}`} class="filter-options hidden mt-2 flex flex-wrap gap-2">
-              {filter.id === 'country' || filter.id === 'city' ? (
-                <div id={`${filter.id}-dynamic-options`} class="dynamic-filter-options flex flex-wrap gap-2">
-                  <!-- Options will be populated by JavaScript -->
-                </div>
-              ) : (
-                filter.options.map(opt => (
-                  <span class="filter-option" data-filter-type={filter.id} data-value={opt}>{opt}</span>
-                ))
-              )}
+              <div id={`${filter.id}-dynamic-options`} class="dynamic-filter-options flex flex-wrap gap-2">
+                <!-- Options will be populated dynamically by JavaScript -->
+              </div>
             </div>
           </div>
         ))}
@@ -162,37 +156,104 @@ let selectedFilters = { cities: [], countries: [], styles: [], roles: [], pol: [
     return countryMapping[countryCode] || countryCode;
   }
 
-  // Filter management variables
-  let selectedCities = [];
-  let selectedCountries = [];
+  // Filter management variables - factorized structure
+  let selectedFilters = {
+    cities: [],
+    countries: [],
+    activities: [], // roles
+    genres: [], // styles
+    socialTopics: [], // political topics (legacy)
+    political: [] // combined political topics
+  };
   let filteredArtists = [];
   let currentArtistMarkers = []; // Store current markers for filtering
 
-  // Function to populate dynamic filter options
-  function populateFilterOptions(artists) {
-    // Extract unique cities and countries
-    const cities = [...new Set(artists.map(artist => artist.city).filter(city => city && city.trim()))].sort();
-    const countryCodesList = [...new Set(artists.map(artist => artist.country).filter(country => country && country.trim()))].sort();
+  // Helper function to extract unique values from arrays in artist data
+  function extractUniqueValues(artists, field, isArray = false) {
+    const values = new Set();
 
-    // Populate country dynamic options (will show country names with codes as values)
-    const countryContainer = document.getElementById('country-dynamic-options');
-    if (countryContainer) {
-      countryContainer.innerHTML = countryCodesList.map(countryCode => {
-        const displayName = getCountryDisplayName(countryCode);
-        return `<span class="filter-option country-filter" data-filter-type="country" data-value="${countryCode}">${displayName}</span>`;
-      }).join('');
-    }
+    artists.forEach(artist => {
+      if (isArray && Array.isArray(artist[field])) {
+        artist[field].forEach(item => {
+          if (item && item.trim()) values.add(item.trim());
+        });
+      } else if (!isArray && artist[field] && artist[field].trim()) {
+        values.add(artist[field].trim());
+      }
+    });
 
-    // Populate city filter with cities
-    const cityContainer = document.getElementById('city-dynamic-options');
-    if (cityContainer) {
-      cityContainer.innerHTML = cities.map(city =>
-        `<span class="filter-option city-filter" data-filter-type="city" data-value="${city}">${city}</span>`
-      ).join('');
-    }
+    return [...values].sort();
   }
 
-  // Function to handle filter selection
+  // Special function to extract political topics from both socialTopics and clubPolitics
+  function extractPoliticalTopics(artists) {
+    const values = new Set();
+    artists.forEach(artist => {
+      // Add social topics (array)
+      if (Array.isArray(artist.socialTopics)) {
+        artist.socialTopics.forEach(topic => {
+          if (topic && topic.trim()) values.add(topic.trim());
+        });
+      }
+      // Add club politics (string)
+      if (artist.clubPolitics && artist.clubPolitics.trim()) {
+        values.add(artist.clubPolitics.trim());
+      }
+    });
+    return [...values].sort();
+  }
+
+  // Function to populate dynamic filter options - factorized
+  function populateFilterOptions(artists) {
+    // Define filter mappings - what data to extract and how to display it
+    const filterConfigs = {
+      'country': {
+        data: extractUniqueValues(artists, 'country'),
+        displayTransform: getCountryDisplayName, // Transform codes to names
+        filterType: 'country',
+        cssClass: 'country-filter'
+      },
+      'city': {
+        data: extractUniqueValues(artists, 'city'),
+        displayTransform: null, // No transformation needed
+        filterType: 'city',
+        cssClass: 'city-filter'
+      },
+      'role': {
+        data: extractUniqueValues(artists, 'activities', true), // Array field
+        displayTransform: null,
+        filterType: 'activities',
+        cssClass: 'activities-filter'
+      },
+      'style': {
+        data: extractUniqueValues(artists, 'genres', true), // Array field
+        displayTransform: null,
+        filterType: 'genres',
+        cssClass: 'genres-filter'
+      },
+      'pol': {
+        data: extractPoliticalTopics(artists), // Combined social topics and club politics
+        displayTransform: null,
+        filterType: 'political',
+        cssClass: 'political-filter'
+      }
+    };
+
+    // Populate each filter type
+    Object.entries(filterConfigs).forEach(([filterId, config]) => {
+      const container = document.getElementById(`${filterId}-dynamic-options`);
+      if (container && config.data.length > 0) {
+        container.innerHTML = config.data.map(value => {
+          const displayValue = config.displayTransform ? config.displayTransform(value) : value;
+          return `<span class="filter-option ${config.cssClass}" data-filter-type="${config.filterType}" data-value="${value}">${displayValue}</span>`;
+        }).join('');
+
+        console.log(`🏷️ Populated ${filterId} filter with ${config.data.length} options:`, config.data.slice(0, 5));
+      }
+    });
+  }
+
+  // Function to handle filter selection - factorized
   function handleFilterClick(element) {
     const filterType = element.dataset.filterType;
     const value = element.dataset.value;
@@ -200,36 +261,36 @@ let selectedFilters = { cities: [], countries: [], styles: [], roles: [], pol: [
 
     console.log('🎯 Filter clicked:', { filterType, value, isSelected });
 
-    if (filterType === 'city') {
-      if (isSelected) {
-        // Deselect
-        element.classList.remove('selected');
-        selectedCities = selectedCities.filter(city => city !== value);
-        console.log('❌ Deselected city:', value);
-      } else {
-        // Select
-        element.classList.add('selected');
-        selectedCities.push(value);
-        console.log('✅ Selected city:', value);
-      }
-    } else if (filterType === 'country') {
-      if (isSelected) {
-        // Deselect
-        element.classList.remove('selected');
-        selectedCountries = selectedCountries.filter(country => country !== value);
-        console.log('❌ Deselected country:', value);
-      } else {
-        // Select
-        element.classList.add('selected');
-        selectedCountries.push(value);
-        console.log('✅ Selected country:', value);
-      }
+    // Map filter types to selectedFilters keys
+    const filterTypeMap = {
+      'city': 'cities',
+      'country': 'countries',
+      'activities': 'activities',
+      'genres': 'genres',
+      'socialTopics': 'socialTopics',
+      'political': 'political'
+    };
+
+    const filterKey = filterTypeMap[filterType];
+    if (!filterKey) {
+      console.warn('⚠️ Unknown filter type:', filterType);
+      return;
     }
 
-    console.log('📊 Current selections:', {
-      cities: selectedCities,
-      countries: selectedCountries
-    });
+    // Toggle selection
+    if (isSelected) {
+      // Deselect
+      element.classList.remove('selected');
+      selectedFilters[filterKey] = selectedFilters[filterKey].filter(item => item !== value);
+      console.log(`❌ Deselected ${filterType}:`, value);
+    } else {
+      // Select
+      element.classList.add('selected');
+      selectedFilters[filterKey].push(value);
+      console.log(`✅ Selected ${filterType}:`, value);
+    }
+
+    console.log('📊 Current selections:', selectedFilters);
 
     // Update clear filter button visibility
     updateClearFilterButton();
@@ -238,11 +299,12 @@ let selectedFilters = { cities: [], countries: [], styles: [], roles: [], pol: [
     applyFilters();
   }
 
-  // Function to update clear filter button visibility
+  // Function to update clear filter button visibility - factorized
   function updateClearFilterButton() {
     const clearBtn = document.getElementById('clear-all-filters-global');
     if (clearBtn) {
-      if (selectedCities.length > 0 || selectedCountries.length > 0) {
+      const hasActiveFilters = Object.values(selectedFilters).some(arr => arr.length > 0);
+      if (hasActiveFilters) {
         clearBtn.classList.remove('hidden');
       } else {
         clearBtn.classList.add('hidden');
@@ -250,38 +312,68 @@ let selectedFilters = { cities: [], countries: [], styles: [], roles: [], pol: [
     }
   }
 
-  // Function to clear all filters
+  // Function to clear all filters - factorized
   function clearAllFilters() {
-    selectedCities = [];
-    selectedCountries = [];
+    // Reset all filter arrays
+    Object.keys(selectedFilters).forEach(key => {
+      selectedFilters[key] = [];
+    });
 
-    // Remove selected class from all filters
+    // Remove selected class from all filter elements
     document.querySelectorAll('.filter-option.selected').forEach(element => {
       element.classList.remove('selected');
     });
 
-    // Update clear button
+    console.log('🧹 All filters cleared');
+
+    // Update clear button visibility
     updateClearFilterButton();
 
     // Reset map to show all artists
     applyFilters();
   }
 
-  // Function to apply filters to the map
+  // Function to apply filters to the map - factorized with smart AND logic
   function applyFilters() {
-    if (selectedCities.length === 0 && selectedCountries.length === 0) {
-      // No filters, show all artists
+    const hasActiveFilters = Object.values(selectedFilters).some(arr => arr.length > 0);
+
+    if (!hasActiveFilters) {
+      // No filters active, show all artists
       filteredArtists = allArtists;
     } else {
-      // Filter artists by selected cities and/or countries
+      // Filter artists using AND logic across all active filter types
       filteredArtists = allArtists.filter(artist => {
-        const cityMatch = selectedCities.length === 0 || selectedCities.includes(artist.city);
-        const countryMatch = selectedCountries.length === 0 || selectedCountries.includes(artist.country);
+        // City filter
+        const cityMatch = selectedFilters.cities.length === 0 ||
+          selectedFilters.cities.includes(artist.city);
 
-        // Both conditions must be true (AND logic)
-        return cityMatch && countryMatch;
+        // Country filter
+        const countryMatch = selectedFilters.countries.length === 0 ||
+          selectedFilters.countries.includes(artist.country);
+
+        // Activities/Roles filter (check if artist has ANY of the selected activities)
+        const activitiesMatch = selectedFilters.activities.length === 0 ||
+          (Array.isArray(artist.activities) &&
+           artist.activities.some(activity => selectedFilters.activities.includes(activity)));
+
+        // Genres/Styles filter (check if artist has ANY of the selected genres)
+        const genresMatch = selectedFilters.genres.length === 0 ||
+          (Array.isArray(artist.genres) &&
+           artist.genres.some(genre => selectedFilters.genres.includes(genre)));
+
+        // Political filter (check if artist has ANY of the selected political topics)
+        const politicalMatch = selectedFilters.political.length === 0 ||
+          // Check both socialTopics array and clubPolitics string
+          (Array.isArray(artist.socialTopics) &&
+           artist.socialTopics.some(topic => selectedFilters.political.includes(topic))) ||
+          (artist.clubPolitics && selectedFilters.political.includes(artist.clubPolitics));
+
+        // All active filter conditions must be true (AND logic)
+        return cityMatch && countryMatch && activitiesMatch && genresMatch && politicalMatch;
       });
     }
+
+    console.log(`🔍 Filtering result: ${filteredArtists.length} of ${allArtists.length} artists match filters`);
 
     // Update map markers
     updateMapMarkers();
@@ -344,9 +436,14 @@ let selectedFilters = { cities: [], countries: [], styles: [], roles: [], pol: [
       console.log('❌ Map source "points" not found');
     }
 
+    // Build readable filter summary
     const activeFilters = [];
-    if (selectedCities.length > 0) activeFilters.push(`Cities: ${selectedCities.join(', ')}`);
-    if (selectedCountries.length > 0) activeFilters.push(`Countries: ${selectedCountries.join(', ')}`);
+    Object.entries(selectedFilters).forEach(([key, values]) => {
+      if (values.length > 0) {
+        const displayKey = key.charAt(0).toUpperCase() + key.slice(1);
+        activeFilters.push(`${displayKey}: ${values.slice(0, 3).join(', ')}${values.length > 3 ? '...' : ''}`);
+      }
+    });
 
     console.log(`🎯 Applied filters: ${activeFilters.length > 0 ? activeFilters.join(' | ') : 'None'}`);
     console.log(`📍 Showing ${filteredArtists.length} of ${allArtists.length} artists`);
