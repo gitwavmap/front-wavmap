@@ -510,16 +510,16 @@ let selectedFilters = { cities: [], countries: [], styles: [], roles: [], pol: [
       map.getSource('points').setData(geojsonData);
       console.log('✅ Map source updated successfully');
 
-      // Force refresh of custom markers after a small delay
+      // Force refresh of custom markers with minimal zoom change
       setTimeout(() => {
-        console.log('🔄 Forcing marker refresh...');
-        // Trigger the addCustomMarkers function that's already set up
+        console.log('🔄 Forcing marker refresh with minimal movement...');
+        // Use the smallest possible zoom change to trigger queryRenderedFeatures
         const currentZoom = map.getZoom();
-        map.setZoom(currentZoom + 0.001); // Tiny zoom change to trigger refresh
+        map.setZoom(currentZoom + 0.00001); // Extremely tiny zoom change
         setTimeout(() => {
           map.setZoom(currentZoom); // Reset to original zoom
-        }, 100);
-      }, 100);
+        }, 10); // Much faster reset
+      }, 50);
     } else {
       console.log('❌ Map source "points" not found');
     }
