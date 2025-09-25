@@ -575,8 +575,9 @@ const currentLang = getLocale();
         const response = await fetch('/api/artist/submit', {
           method: 'POST',
           body: formData,
+          credentials: 'include' // Important: include cookies
         });
-        
+
         const result = await response.json();
         
         if (result.success) {
