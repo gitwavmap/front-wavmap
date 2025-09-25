@@ -13,6 +13,22 @@ import BackBtnBg from '../assets/images/close_bg.svg';
 import HoverLink from '../components/HoverLink.astro';
 import Separator from '../assets/images/separator.svg';
 
+// Import SVG button backgrounds
+import Btn1 from '../assets/images/btn_1.svg';
+import Btn2 from '../assets/images/btn_2.svg';
+import Btn3 from '../assets/images/btn_3.svg';
+import Btn4 from '../assets/images/btn_4.svg';
+import Btn5 from '../assets/images/btn_5.svg';
+import Btn6 from '../assets/images/btn_6.svg';
+import Btn7 from '../assets/images/btn_7.svg';
+import Btn8 from '../assets/images/btn_8.svg';
+import Btn9 from '../assets/images/btn_9.svg';
+import Btn10 from '../assets/images/btn_10.svg';
+import Btn11 from '../assets/images/btn_11.svg';
+import Btn12 from '../assets/images/btn_12.svg';
+import Btn13 from '../assets/images/btn_13.svg';
+import Btn14 from '../assets/images/btn_14.svg';
+
 // Get Mapbox token from environment variables
 const mapboxToken = MAPBOX_ACCESS_TOKEN;
 
@@ -118,9 +134,43 @@ let selectedFilters = { cities: [], countries: [], styles: [], roles: [], pol: [
     </div>
 </div>
 
-<script define:vars={{ mapboxToken }}>
+<script define:vars={{ mapboxToken, Btn1, Btn2, Btn3, Btn4, Btn5, Btn6, Btn7, Btn8, Btn9, Btn10, Btn11, Btn12, Btn13, Btn14 }}>
   // Import cities data to get country name mapping
   let countryMapping = {};
+
+  // SVG background assets
+  const buttonBackgrounds = {
+    1: Btn1.src,
+    2: Btn2.src,
+    3: Btn3.src,
+    4: Btn4.src,
+    5: Btn5.src,
+    6: Btn6.src,
+    7: Btn7.src,
+    8: Btn8.src,
+    9: Btn9.src,
+    10: Btn10.src,
+    11: Btn11.src,
+    12: Btn12.src,
+    13: Btn13.src,
+    14: Btn14.src
+  };
+
+  // Function to determine button background size based on text length
+  function getButtonSize(text) {
+    const length = text.length;
+    if (length <= 3) return 4;        // Very short: btn_4.svg
+    if (length <= 5) return 5;        // Short: btn_5.svg
+    if (length <= 8) return 6;        // Medium-short: btn_6.svg
+    if (length <= 12) return 7;       // Medium: btn_7.svg
+    if (length <= 16) return 8;       // Medium-long: btn_8.svg
+    if (length <= 20) return 9;       // Long: btn_9.svg
+    if (length <= 24) return 10;      // Very long: btn_10.svg
+    if (length <= 28) return 11;      // Extra long: btn_11.svg
+    if (length <= 32) return 12;      // btn_12.svg
+    if (length <= 36) return 13;      // btn_13.svg
+    return 14;                        // Maximum: btn_14.svg (> 36 characters)
+  }
 
   // Initialize country mapping directly (based on european-cities.json data)
   function initCountryMapping() {
@@ -167,6 +217,7 @@ let selectedFilters = { cities: [], countries: [], styles: [], roles: [], pol: [
   };
   let filteredArtists = [];
   let currentArtistMarkers = []; // Store current markers for filtering
+
 
   // Helper function to extract unique values from arrays in artist data
   function extractUniqueValues(artists, field, isArray = false) {
@@ -245,7 +296,8 @@ let selectedFilters = { cities: [], countries: [], styles: [], roles: [], pol: [
       if (container && config.data.length > 0) {
         container.innerHTML = config.data.map(value => {
           const displayValue = config.displayTransform ? config.displayTransform(value) : value;
-          return `<span class="filter-option ${config.cssClass}" data-filter-type="${config.filterType}" data-value="${value}">${displayValue}</span>`;
+          const buttonSize = getButtonSize(displayValue);
+          return `<span class="filter-option ${config.cssClass}" data-filter-type="${config.filterType}" data-value="${value}" data-button-size="${buttonSize}">${displayValue}</span>`;
         }).join('');
 
         console.log(`🏷️ Populated ${filterId} filter with ${config.data.length} options:`, config.data.slice(0, 5));
@@ -281,11 +333,36 @@ let selectedFilters = { cities: [], countries: [], styles: [], roles: [], pol: [
     if (isSelected) {
       // Deselect
       element.classList.remove('selected');
+      element.style.backgroundImage = '';
+      element.style.opacity = '1';
       selectedFilters[filterKey] = selectedFilters[filterKey].filter(item => item !== value);
       console.log(`❌ Deselected ${filterType}:`, value);
     } else {
       // Select
       element.classList.add('selected');
+      // Apply SVG background based on button size
+      const buttonSize = element.dataset.buttonSize;
+      const backgroundUrl = buttonBackgrounds[buttonSize];
+      if (backgroundUrl) {
+        element.style.backgroundImage = `url('${backgroundUrl}')`;
+        element.style.backgroundSize = 'contain';
+        element.style.backgroundRepeat = 'no-repeat';
+        element.style.backgroundPosition = 'center';
+        element.style.opacity = '1';
+
+        // Apply size-specific dimensions
+        const sizes = {
+          1: { width: '93px', height: '93px' },
+          2: { width: '137px', height: '93px' },
+          3: { width: '181px', height: '93px' },
+          4: { width: '226px', height: '93px' },
+          5: { width: '270px', height: '93px' },
+          6: { width: '315px', height: '93px' },
+          7: { width: '360px', height: '93px' }
+        };
+
+        // Don't change width or height - keep consistent sizing
+      }
       selectedFilters[filterKey].push(value);
       console.log(`✅ Selected ${filterType}:`, value);
     }
@@ -319,9 +396,11 @@ let selectedFilters = { cities: [], countries: [], styles: [], roles: [], pol: [
       selectedFilters[key] = [];
     });
 
-    // Remove selected class from all filter elements
+    // Remove selected class from all filter elements and clear backgrounds
     document.querySelectorAll('.filter-option.selected').forEach(element => {
       element.classList.remove('selected');
+      element.style.backgroundImage = '';
+      element.style.opacity = '1';
     });
 
     console.log('🧹 All filters cleared');
@@ -632,6 +711,25 @@ let selectedFilters = { cities: [], countries: [], styles: [], roles: [], pol: [
       // Handle clear filter button click
       if (e.target.id === 'clear-all-filters-global') {
         clearAllFilters();
+      }
+    });
+
+    // Add hover effect for filter options
+    document.addEventListener('mouseover', (e) => {
+      if (e.target.classList.contains('filter-option') && !e.target.classList.contains('selected')) {
+        const buttonSize = e.target.dataset.buttonSize;
+        const backgroundUrl = buttonBackgrounds[buttonSize];
+        if (backgroundUrl) {
+          e.target.style.backgroundImage = `url('${backgroundUrl}')`;
+          e.target.style.opacity = '0.5';
+        }
+      }
+    });
+
+    document.addEventListener('mouseout', (e) => {
+      if (e.target.classList.contains('filter-option') && !e.target.classList.contains('selected')) {
+        e.target.style.backgroundImage = '';
+        e.target.style.opacity = '1';
       }
     });
 
@@ -1184,10 +1282,14 @@ let selectedFilters = { cities: [], countries: [], styles: [], roles: [], pol: [
     align-items: flex-start;
     width: 30%;
     flex-shrink: 0;
+    height: 100%;
+    overflow-y: auto;
   }
 
   .filters-content {
     padding-left: 2rem;
+    height: 100%;
+    overflow-y: auto;
   }
 
   /* Close hover button */
@@ -1444,6 +1546,7 @@ let selectedFilters = { cities: [], countries: [], styles: [], roles: [], pol: [
 
   .filter-wrapper {
     position: relative;
+    margin-bottom: 0.5rem;
   }
 
   .filter-options.hidden {
@@ -1567,40 +1670,46 @@ let selectedFilters = { cities: [], countries: [], styles: [], roles: [], pol: [
 
   /* Filter options styling */
   :global(.filter-option) {
-    display: inline-block;
-    padding: 0.375rem 0.75rem;
-    background: #f3f4f6;
-    color: #4b5563;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.375rem 1.5rem;
+    background: transparent;
+    color: black;
     text-decoration: none;
     border-radius: 0.375rem;
-    font-size: 0.8rem;
+    font-size: 16px;
     font-weight: 500;
     cursor: pointer;
     transition: all 0.2s ease;
     margin: 0.125rem;
     border: 2px solid transparent;
+    position: relative;
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    height: 38px;
+    min-height: 38px;
+    min-width: fit-content;
   }
 
   :global(.filter-option:hover) {
-    background: #e5e7eb;
-    transform: translateY(-1px);
+    /* Remove the transform to avoid size changes */
   }
 
+  /* Selected state with SVG background */
   :global(.filter-option.selected) {
-    background: #6366f1 !important;
-    color: white !important;
-    text-decoration: underline !important;
-    text-decoration-color: white !important;
-    text-decoration-thickness: 2px !important;
-    text-underline-offset: 2px !important;
-    border-color: #4f46e5 !important;
-    transform: translateY(-1px) !important;
-    box-shadow: 0 2px 4px rgba(99, 102, 241, 0.3) !important;
+    background-color: transparent !important;
+    color: black !important;
+    font-weight: 700 !important;
+    text-shadow: none !important;
+    opacity: 1 !important;
   }
+
+  /* Size-specific SVG backgrounds for selected filters */
 
   :global(.filter-option.selected:hover) {
-    background: #4f46e5 !important;
-    box-shadow: 0 4px 8px rgba(99, 102, 241, 0.4) !important;
+    filter: brightness(1.1) !important;
   }
 
   /* Clear filter button */
@@ -1631,25 +1740,21 @@ let selectedFilters = { cities: [], countries: [], styles: [], roles: [], pol: [
   /* Global Clear All Filters Button */
   .clear-all-filters-btn {
     display: inline-block;
-    padding: 0.75rem 1.5rem;
-    background: linear-gradient(135deg, #ef4444, #dc2626);
-    color: white;
+    padding: 0;
+    background: none;
+    color: red;
     border: none;
-    border-radius: 0.5rem;
     font-size: 0.9rem;
     font-weight: 600;
     cursor: pointer;
     transition: all 0.2s ease;
     margin: 1rem 0;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    box-shadow: 0 2px 4px rgba(239, 68, 68, 0.2);
+    text-decoration: underline;
   }
 
   .clear-all-filters-btn:hover {
-    background: linear-gradient(135deg, #dc2626, #b91c1c);
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(239, 68, 68, 0.3);
+    color: darkred;
+    text-decoration: underline;
   }
 
   .clear-all-filters-btn.hidden {
