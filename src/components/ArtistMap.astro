@@ -307,6 +307,15 @@ let selectedFilters = { cities: [], countries: [], styles: [], roles: [], pol: [
 
   // Function to handle filter selection - factorized
   function handleFilterClick(element) {
+    // Ensure we have valid data and the map is ready
+    if (!element || !allArtists || allArtists.length === 0) {
+      console.warn('⚠️ Filter click ignored - data not ready:', {
+        element: !!element,
+        allArtists: allArtists ? allArtists.length : 0
+      });
+      return;
+    }
+
     const filterType = element.dataset.filterType;
     const value = element.dataset.value;
     const isSelected = element.classList.contains('selected');
@@ -687,61 +696,204 @@ let selectedFilters = { cities: [], countries: [], styles: [], roles: [], pol: [
     artistContent.classList.add('hidden');
   }
 
-  // Add event listeners when DOM is loaded
-  document.addEventListener('DOMContentLoaded', () => {
-    // Close button event listener
-    const closeBtn = document.getElementById('close-artist-panel');
-    if (closeBtn) {
-      closeBtn.addEventListener('click', showFiltersContent);
+  // Centralized Event Manager - follows Astro best practices
+  class EventManager {
+    constructor() {
+      this.initialized = false;
+      this.hoverTimeout = null;
+      this.eventHandlers = new Map();
     }
 
-    // Filter toggle functionality
-    document.querySelectorAll('.filter').forEach(btn => {
-      btn.addEventListener('click', () => {
-        console.log('Filter clicked:', btn.dataset.target); // Debug
-        const targetId = btn.dataset.target;
-        const el = document.getElementById(targetId);
-        console.log('Target element:', el); // Debug
-        if (el) {
-          el.classList.toggle('hidden');
-          console.log('Toggled hidden class on:', targetId); // Debug
+    init() {
+      if (this.initialized) {
+        console.log('🎯 EventManager already initialized');
+        return;
+      }
+
+      console.log('🎯 Initializing EventManager...');
+      this.attachDelegatedEvents();
+      this.attachDirectEvents();
+      this.initialized = true;
+      console.log('✅ EventManager initialized successfully');
+    }
+
+    cleanup() {
+      console.log('🧹 Cleaning up EventManager...');
+      // Remove all event handlers
+      this.eventHandlers.forEach((handler, key) => {
+        const [element, event] = key.split('|');
+        if (element === 'document') {
+          document.removeEventListener(event, handler);
         }
       });
-    });
+      this.eventHandlers.clear();
+      this.initialized = false;
+    }
 
-    // Add event listeners for filter options (delegated event handling)
-    document.addEventListener('click', (e) => {
-      // Handle filter option clicks
-      if (e.target.classList.contains('filter-option')) {
-        handleFilterClick(e.target);
-      }
+    attachDelegatedEvents() {
+      // Use document-level delegation as per best practices
+      const delegatedClickHandler = (e) => {
+        console.log('🔍 Click detected on:', e.target, 'Classes:', e.target.className);
 
-      // Handle clear filter button click
-      if (e.target.id === 'clear-all-filters-global') {
-        clearAllFilters();
-      }
-    });
-
-    // Add hover effect for filter options
-    document.addEventListener('mouseover', (e) => {
-      if (e.target.classList.contains('filter-option') && !e.target.classList.contains('selected')) {
-        const buttonSize = e.target.dataset.buttonSize;
-        const backgroundUrl = buttonBackgrounds[buttonSize];
-        if (backgroundUrl) {
-          e.target.style.backgroundImage = `url('${backgroundUrl}')`;
-          e.target.style.opacity = '0.5';
+        // Filter button toggles - check both target and closest for img inside button
+        if (e.target.matches('.filter') || e.target.closest('.filter')) {
+          console.log('🎯 Filter toggle button detected');
+          this.handleFilterToggle(e);
+          return;
         }
-      }
-    });
 
-    document.addEventListener('mouseout', (e) => {
-      if (e.target.classList.contains('filter-option') && !e.target.classList.contains('selected')) {
-        e.target.style.backgroundImage = '';
-        e.target.style.opacity = '1';
-      }
-    });
+        // Filter option clicks - use .closest() for better reliability
+        const filterOption = e.target.closest('.filter-option');
+        if (filterOption) {
+          e.preventDefault();
+          e.stopPropagation();
+          console.log('🎯 Filter option clicked via delegation:', filterOption);
+          this.handleFilterOptionClick(filterOption);
+          return;
+        }
 
-  });
+        // Clear all filters button
+        if (e.target.id === 'clear-all-filters-global' || e.target.closest('#clear-all-filters-global')) {
+          e.preventDefault();
+          e.stopPropagation();
+          console.log('🧹 Clear all filters clicked');
+          clearAllFilters();
+          return;
+        }
+
+        // Close artist panel
+        if (e.target.closest('#close-artist-panel')) {
+          console.log('❌ Close artist panel clicked');
+          showFiltersContent();
+          return;
+        }
+
+        console.log('🔍 Click not handled by any filter');
+      };
+
+      // Hover effects for filter options
+      const delegatedMouseoverHandler = (e) => {
+        const filterOption = e.target.closest('.filter-option');
+        if (filterOption && !filterOption.classList.contains('selected')) {
+          clearTimeout(this.hoverTimeout);
+          this.hoverTimeout = setTimeout(() => {
+            this.applyHoverEffect(filterOption);
+          }, 50);
+        }
+      };
+
+      const delegatedMouseoutHandler = (e) => {
+        const filterOption = e.target.closest('.filter-option');
+        if (filterOption && !filterOption.classList.contains('selected')) {
+          clearTimeout(this.hoverTimeout);
+          this.removeHoverEffect(filterOption);
+        }
+      };
+
+      // Attach delegated events
+      document.addEventListener('click', delegatedClickHandler);
+      document.addEventListener('mouseover', delegatedMouseoverHandler);
+      document.addEventListener('mouseout', delegatedMouseoutHandler);
+
+      // Store handlers for cleanup
+      this.eventHandlers.set('document|click', delegatedClickHandler);
+      this.eventHandlers.set('document|mouseover', delegatedMouseoverHandler);
+      this.eventHandlers.set('document|mouseout', delegatedMouseoutHandler);
+
+      console.log('✅ Delegated events attached');
+    }
+
+    attachDirectEvents() {
+      // Direct events for elements that exist at initialization
+      console.log('✅ Direct events would go here if needed');
+    }
+
+    handleFilterToggle(e) {
+      // Find the filter button (could be the target or parent if clicking on img)
+      const filterButton = e.target.matches('.filter') ? e.target : e.target.closest('.filter');
+
+      if (!filterButton) {
+        console.warn('⚠️ Filter button not found');
+        return;
+      }
+
+      const targetId = filterButton.dataset.target;
+      console.log('🎯 Filter toggle clicked, target ID:', targetId);
+
+      if (!targetId) {
+        console.warn('⚠️ No target ID found on filter button');
+        return;
+      }
+
+      const el = document.getElementById(targetId);
+      if (el) {
+        el.classList.toggle('hidden');
+        console.log('✅ Toggled hidden class on:', targetId, 'Hidden:', el.classList.contains('hidden'));
+      } else {
+        console.warn('⚠️ Target element not found:', targetId);
+      }
+    }
+
+    handleFilterOptionClick(element) {
+      // Ensure we have valid data before processing
+      if (!element || !allArtists || allArtists.length === 0) {
+        console.warn('⚠️ Filter click ignored - data not ready:', {
+          element: !!element,
+          allArtists: allArtists ? allArtists.length : 0
+        });
+        return;
+      }
+
+      handleFilterClick(element);
+    }
+
+    applyHoverEffect(element) {
+      const buttonSize = element.dataset.buttonSize;
+      const backgroundUrl = buttonBackgrounds[buttonSize];
+      if (backgroundUrl) {
+        element.style.backgroundImage = `url('${backgroundUrl}')`;
+        element.style.opacity = '0.5';
+      }
+    }
+
+    removeHoverEffect(element) {
+      element.style.backgroundImage = '';
+      element.style.opacity = '1';
+    }
+  }
+
+  // Global event manager instance
+  let eventManager = null;
+
+  // Initialize event manager
+  function initializeEvents() {
+    console.log('🎯 initializeEvents called, current eventManager:', eventManager);
+
+    if (!eventManager) {
+      console.log('🎯 Creating new EventManager...');
+      eventManager = new EventManager();
+    }
+
+    console.log('🎯 Calling eventManager.init()...');
+    eventManager.init();
+
+    // Test if events are actually working
+    setTimeout(() => {
+      console.log('🧪 Testing click delegation after 2 seconds...');
+      const testFilters = document.querySelectorAll('.filter');
+      console.log('🧪 Found filter buttons:', testFilters.length);
+      testFilters.forEach((filter, index) => {
+        console.log(`🧪 Filter ${index}:`, filter, 'data-target:', filter.dataset.target);
+      });
+    }, 2000);
+  }
+
+  // Cleanup events
+  function cleanupEvents() {
+    if (eventManager) {
+      eventManager.cleanup();
+    }
+  }
 
 
   
@@ -853,6 +1005,9 @@ let selectedFilters = { cities: [], countries: [], styles: [], roles: [], pol: [
 
         // Populate dynamic filter options
         populateFilterOptions(artists);
+
+        // Log that filter options are ready
+        console.log('✅ Filter options populated and ready for interaction');
 
         // Convert artist data to GeoJSON format with null checks
         const geojsonData = {
@@ -1098,30 +1253,107 @@ let selectedFilters = { cities: [], countries: [], styles: [], roles: [], pol: [
     }
   }
   
-  // Cleanup before page swap (View Transitions)
-  document.addEventListener('astro:before-swap', () => {
+  // Permanent event delegation - cannot be overridden
+  let permanentEventsAttached = false;
+
+  function attachPermanentEvents() {
+    if (permanentEventsAttached) {
+      console.log('🔒 Permanent events already attached');
+      return;
+    }
+
+    console.log('🔒 Attaching PERMANENT event delegation...');
+
+    // Single permanent event listener that cannot be overridden
+    document.addEventListener('click', function permanentClickHandler(e) {
+      console.log('🔒 PERMANENT click handler triggered:', e.target);
+
+      // Filter toggle buttons
+      const filterButton = e.target.closest('.filter');
+      if (filterButton) {
+        console.log('🔒 PERMANENT filter toggle:', filterButton.dataset.target);
+        const targetId = filterButton.dataset.target;
+        const el = document.getElementById(targetId);
+        if (el) {
+          el.classList.toggle('hidden');
+          console.log('🔒 Toggled', targetId, 'hidden:', el.classList.contains('hidden'));
+        }
+        return;
+      }
+
+      // Filter options
+      const filterOption = e.target.closest('.filter-option');
+      if (filterOption && allArtists && allArtists.length > 0) {
+        console.log('🔒 PERMANENT filter option:', filterOption);
+        e.preventDefault();
+        e.stopPropagation();
+        handleFilterClick(filterOption);
+        return;
+      }
+
+      // Clear all filters
+      if (e.target.id === 'clear-all-filters-global' || e.target.closest('#clear-all-filters-global')) {
+        console.log('🔒 PERMANENT clear filters');
+        clearAllFilters();
+        return;
+      }
+
+      // Close artist panel
+      if (e.target.closest('#close-artist-panel')) {
+        console.log('🔒 PERMANENT close artist panel');
+        showFiltersContent();
+        return;
+      }
+
+    }, true); // Use capture phase to ensure it runs first
+
+    permanentEventsAttached = true;
+    console.log('✅ PERMANENT events attached and locked');
+  }
+
+  // Main application initialization - simplified approach
+  function initializeApp() {
+    console.log('🚀 Initializing application...');
+
+    // ONLY attach permanent events - everything else is secondary
+    attachPermanentEvents();
+
+    // Then initialize map
+    initializeMap().catch(error => {
+      console.error('🗺️ Map initialization failed:', error);
+    });
+  }
+
+  // Cleanup function for proper resource management
+  function cleanupApp() {
+    console.log('🧹 Cleaning up application...');
+    cleanupEvents();
     cleanupMap();
-  });
-  
-  // Reinitialize after page swap (View Transitions)  
-  document.addEventListener('astro:after-swap', () => {
-    // Small delay to ensure DOM is ready
-    setTimeout(initializeMap, 50);
-  });
-  
-  // Initialize map on page load (View Transitions)
-  document.addEventListener('astro:page-load', () => {
-    setTimeout(initializeMap, 50);
-  });
-  
-  // Initialize on DOM content loaded (first load)
-  document.addEventListener('DOMContentLoaded', () => {
-    initializeMap();
-  });
-  
-  // Fallback for immediate execution
-  if (document.readyState !== 'loading') {
-    initializeMap();
+  }
+
+  // IMMEDIATE attachment of permanent events - before everything else
+  attachPermanentEvents();
+
+  // Astro lifecycle management - proper order for SSR + View Transitions
+
+  // Initial load
+  document.addEventListener('DOMContentLoaded', initializeApp);
+
+  // Astro page load (includes first load and View Transitions)
+  document.addEventListener('astro:page-load', initializeApp);
+
+  // Before page transition - cleanup (but keep permanent events)
+  document.addEventListener('astro:before-swap', cleanupApp);
+
+  // After page transition - reinitialize
+  document.addEventListener('astro:after-swap', initializeApp);
+
+  // Fallback for immediate execution if DOM is already ready
+  if (document.readyState === 'loading') {
+    // DOM not ready yet, event listeners will handle it
+  } else {
+    // DOM is already ready, initialize immediately
+    setTimeout(initializeApp, 10);
   }
   
 </script>
