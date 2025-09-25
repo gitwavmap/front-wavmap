@@ -10,7 +10,6 @@ import * as m from '../paraglide/messages.js';
 
   <!-- Login Form -->
   <div id="login-form" class="auth-form-section active">
-    <h2 class="form-title">{m.login()}</h2>
     <div id="login-error" class="error-message hidden"></div>
     
     <form id="auth-login-form" method="POST" action="/api/auth/login" class="space-y-4">
@@ -44,7 +43,6 @@ import * as m from '../paraglide/messages.js';
 
   <!-- Register Form -->
   <div id="register-form" class="auth-form-section">
-    <h2 class="form-title">{m.register()}</h2>
     <div id="register-error" class="error-message hidden"></div>
     
     <form id="auth-register-form" method="POST" action="/api/auth/register" class="space-y-4">
@@ -352,22 +350,28 @@ import * as m from '../paraglide/messages.js';
   .form-input {
     width: 100%;
     padding: 1rem;
-    border: 3px solid black;
-    background: white;
+    border: 2px solid black;
+    background: transparent;
     font-size: 1rem;
     transition: all 0.2s;
-    font-weight: 500;
+    font-weight: 700;
+    color: white;
   }
 
   .form-input:focus {
     outline: none;
-    background: #f8f9fa;
+    background: transparent;
     box-shadow: 4px 4px 0px rgba(0, 0, 0, 0.3);
     transform: translateX(-2px) translateY(-2px);
   }
 
   .form-input:hover {
     box-shadow: 2px 2px 0px rgba(0, 0, 0, 0.2);
+  }
+
+  .form-input::placeholder {
+    color: rgba(255, 255, 255, 0.7);
+    font-weight: 700;
   }
 
   .btn {
