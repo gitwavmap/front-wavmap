@@ -510,8 +510,16 @@ let selectedFilters = { cities: [], countries: [], styles: [], roles: [], pol: [
       map.getSource('points').setData(geojsonData);
       console.log('✅ Map source updated successfully');
 
-      // Native Mapbox layers update automatically - no manual refresh needed!
-      console.log('✅ Map source updated - native layers will refresh automatically');
+      // Force refresh of custom markers with minimal zoom change
+      setTimeout(() => {
+        console.log('🔄 Forcing marker refresh with minimal movement...');
+        // Use the smallest possible zoom change to trigger queryRenderedFeatures
+        const currentZoom = map.getZoom();
+        map.setZoom(currentZoom + 0.00001); // Extremely tiny zoom change
+        setTimeout(() => {
+          map.setZoom(currentZoom); // Reset to original zoom
+        }, 10); // Much faster reset
+      }, 50);
     } else {
       console.log('❌ Map source "points" not found');
     }
@@ -1039,64 +1047,26 @@ let selectedFilters = { cities: [], countries: [], styles: [], roles: [], pol: [
         // Implémentation du clustering selon le tutoriel officiel Mapbox
         console.log('✅ Points source added, adding cluster layers');
 
-        // Native Mapbox layers for smooth performance (like official example)
+        // Ajouter des layers invisibles pour le clustering, remplacés par des marqueurs HTML
         map.addLayer({
           id: 'clusters',
           type: 'circle',
           source: 'points',
           filter: ['has', 'point_count'],
           paint: {
-            // Multi-step gradient for different cluster sizes
-            'circle-color': [
-              'step',
-              ['get', 'point_count'],
-              '#E92C0F',     // Small clusters (2-3 points)
-              4, '#E9930F',  // Medium clusters (4-10 points)
-              10, '#3E44E6', // Large clusters (10-20 points)
-              20, '#8FD116'  // Very large clusters (20+ points)
-            ],
-            'circle-radius': [
-              'step',
-              ['get', 'point_count'],
-              15,  // Small clusters: 15px
-              4, 20,   // Medium clusters: 20px
-              10, 25,  // Large clusters: 25px
-              20, 30   // Very large clusters: 30px
-            ],
-            'circle-stroke-width': 2,
-            'circle-stroke-color': '#ffffff'
+            'circle-opacity': 0,  // Invisible
+            'circle-radius': 0    // Invisible
           }
         });
 
-        // Cluster count labels
-        map.addLayer({
-          id: 'cluster-count',
-          type: 'symbol',
-          source: 'points',
-          filter: ['has', 'point_count'],
-          layout: {
-            'text-field': '{point_count_abbreviated}',
-            'text-font': ['DIN Offc Pro Medium', 'Arial Unicode MS Bold'],
-            'text-size': 12
-          },
-          paint: {
-            'text-color': '#ffffff',
-            'text-halo-color': '#000000',
-            'text-halo-width': 1
-          }
-        });
-
-        // Individual points
         map.addLayer({
           id: 'unclustered-point',
           type: 'circle',
           source: 'points',
           filter: ['!', ['has', 'point_count']],
           paint: {
-            'circle-color': '#E92C0F',
-            'circle-radius': 8,
-            'circle-stroke-width': 2,
-            'circle-stroke-color': '#ffffff'
+            'circle-opacity': 0,  // Invisible
+            'circle-radius': 0    // Invisible
           }
         });
 
@@ -1371,56 +1341,41 @@ let selectedFilters = { cities: [], countries: [], styles: [], roles: [], pol: [
           console.log(`🎯 Ajouté ${allMarkers.length} marqueurs (${features.length} features détectées)`);
         }
 
-        // Native Mapbox interactions for smooth performance
-        console.log('🗺️ Setting up native Mapbox interactions...');
+        // Force initial render then add markers
+        console.log('🗺️ Forcing initial map render...');
 
-        // Click on clusters to zoom in
-        map.on('click', 'clusters', (e) => {
-          const features = map.queryRenderedFeatures(e.point, {
-            layers: ['clusters']
-          });
-          const clusterId = features[0].properties.cluster_id;
-          map.getSource('points').getClusterExpansionZoom(clusterId, (err, zoom) => {
-            if (err) return;
-            map.easeTo({
-              center: features[0].geometry.coordinates,
-              zoom: zoom
-            });
-          });
+        // Immediately try to generate manual clusters
+        console.log('🚀 Generating immediate clusters...');
+        generateManualClusters();
+
+        // Wait for the map to fully render before adding markers
+        map.once('idle', () => {
+          console.log('🗺️ Map is idle, updating with proper clusters...');
+          addCustomMarkers();
         });
 
-        // Click on individual points to show artist details
-        map.on('click', 'unclustered-point', (e) => {
-          const coordinates = e.features[0].geometry.coordinates.slice();
-          const properties = e.features[0].properties;
+        // Alternative: Force render with a small delay
+        setTimeout(() => {
+          console.log('🗺️ Adding markers after timeout...');
+          addCustomMarkers();
+        }, 200);
 
-          // Find the full artist data
-          const artistData = allArtists.find(artist =>
-            artist.id === properties.id ||
-            (artist.artistName === properties.artistName &&
-             artist.city === properties.city)
-          );
+        // Additional: Force a re-render after source is loaded
+        setTimeout(() => {
+          console.log('🗺️ Final marker update after 1 second...');
+          addCustomMarkers();
+        }, 1000);
 
-          if (artistData) {
-            showArtistDetail(artistData);
+        // Mettre à jour les marqueurs lors des changements
+        map.on('data', (e) => {
+          if (e.sourceId === 'points' && e.isSourceLoaded) {
+            console.log('🗺️ Points data loaded, updating markers...');
+            addCustomMarkers();
           }
         });
 
-        // Change cursor to pointer when hovering over clusters/points
-        map.on('mouseenter', 'clusters', () => {
-          map.getCanvas().style.cursor = 'pointer';
-        });
-        map.on('mouseleave', 'clusters', () => {
-          map.getCanvas().style.cursor = '';
-        });
-        map.on('mouseenter', 'unclustered-point', () => {
-          map.getCanvas().style.cursor = 'pointer';
-        });
-        map.on('mouseleave', 'unclustered-point', () => {
-          map.getCanvas().style.cursor = '';
-        });
-
-        console.log('✅ Native Mapbox layers and interactions ready!');
+        map.on('zoomend', addCustomMarkers);
+        map.on('moveend', addCustomMarkers);
 
         // Add click handler to get coordinates easily
         map.on('click', function(e) {
