@@ -17,14 +17,15 @@ import Separator from '../assets/images/separator.svg';
 const mapboxToken = MAPBOX_ACCESS_TOKEN;
 
 const filters = [
-  { id: "country", label: "Country", icon: CountryBtn, options: ["France", "USA", "Germany", "Japan"] },
-  { id: "city", label: "City", icon: CityBtn, options: ["Paris", "Berlin", "Tokyo", "NYC"] },
+  { id: "country", label: "Country", icon: CountryBtn, options: [] }, // Populated dynamically
+  { id: "city", label: "City", icon: CityBtn, options: [] }, // Populated dynamically
   { id: "style", label: "Style", icon: StyleBtn, options: ["Jazz", "HipHop", "Techno"] },
   { id: "role", label: "Role", icon: RoleBtn, options: ["DJ", "Producer", "Singer"] },
   { id: "pol", label: "Pol", icon: PolBtn, options: ["Option A", "Option B", "Option C"] },
 ];
 
 let allArtists = []; // Store all artists for filtering
+let selectedFilters = { cities: [], countries: [], styles: [], roles: [], pol: [] }; // Track selected filters
 ---
 
 <div class="map-container">
@@ -43,19 +44,30 @@ let allArtists = []; // Store all artists for filtering
           <div key={filter.id} class="filter-wrapper">
             <button
               class="filter"
-              data-target={filter.id}
+              data-target={`filter-${filter.id}`}
             >
               <img src={filter.icon.src} alt={filter.label} />
             </button>
 
             <!-- Ligne d'options cachée par défaut -->
-            <div id={filter.id} class="filter-options hidden mt-2 flex flex-wrap gap-2">
-              {filter.options.map(opt => (
-                <span>{opt}</span>
-              ))}
+            <div id={`filter-${filter.id}`} class="filter-options hidden mt-2 flex flex-wrap gap-2">
+              {filter.id === 'country' || filter.id === 'city' ? (
+                <div id={`${filter.id}-dynamic-options`} class="dynamic-filter-options flex flex-wrap gap-2">
+                  <!-- Options will be populated by JavaScript -->
+                </div>
+              ) : (
+                filter.options.map(opt => (
+                  <span class="filter-option" data-filter-type={filter.id} data-value={opt}>{opt}</span>
+                ))
+              )}
             </div>
           </div>
         ))}
+
+        <!-- Global Clear All Filters Button -->
+        <button id="clear-all-filters-global" class="clear-all-filters-btn hidden">
+          Clear All Filters
+        </button>
       </div>
 
       <!-- Artist Detail Content (hidden by default) -->
@@ -113,6 +125,233 @@ let allArtists = []; // Store all artists for filtering
 </div>
 
 <script define:vars={{ mapboxToken }}>
+  // Import cities data to get country name mapping
+  let countryMapping = {};
+
+  // Initialize country mapping directly (based on european-cities.json data)
+  function initCountryMapping() {
+    countryMapping = {
+      'AT': 'Austria',
+      'BE': 'Belgium',
+      'CH': 'Switzerland',
+      'CZ': 'Czech Republic',
+      'DE': 'Germany',
+      'DK': 'Denmark',
+      'ES': 'Spain',
+      'FI': 'Finland',
+      'FR': 'France',
+      'GB': 'United Kingdom',
+      'GR': 'Greece',
+      'HU': 'Hungary',
+      'IE': 'Ireland',
+      'IT': 'Italy',
+      'NL': 'Netherlands',
+      'NO': 'Norway',
+      'PL': 'Poland',
+      'PT': 'Portugal',
+      'RO': 'Romania',
+      'SE': 'Sweden'
+    };
+
+    console.log('🗺️ Initialized country mapping:', countryMapping);
+    return countryMapping;
+  }
+
+  // Function to get country display name from country code
+  function getCountryDisplayName(countryCode) {
+    return countryMapping[countryCode] || countryCode;
+  }
+
+  // Filter management variables
+  let selectedCities = [];
+  let selectedCountries = [];
+  let filteredArtists = [];
+  let currentArtistMarkers = []; // Store current markers for filtering
+
+  // Function to populate dynamic filter options
+  function populateFilterOptions(artists) {
+    // Extract unique cities and countries
+    const cities = [...new Set(artists.map(artist => artist.city).filter(city => city && city.trim()))].sort();
+    const countryCodesList = [...new Set(artists.map(artist => artist.country).filter(country => country && country.trim()))].sort();
+
+    // Populate country dynamic options (will show country names with codes as values)
+    const countryContainer = document.getElementById('country-dynamic-options');
+    if (countryContainer) {
+      countryContainer.innerHTML = countryCodesList.map(countryCode => {
+        const displayName = getCountryDisplayName(countryCode);
+        return `<span class="filter-option country-filter" data-filter-type="country" data-value="${countryCode}">${displayName}</span>`;
+      }).join('');
+    }
+
+    // Populate city filter with cities
+    const cityContainer = document.getElementById('city-dynamic-options');
+    if (cityContainer) {
+      cityContainer.innerHTML = cities.map(city =>
+        `<span class="filter-option city-filter" data-filter-type="city" data-value="${city}">${city}</span>`
+      ).join('');
+    }
+  }
+
+  // Function to handle filter selection
+  function handleFilterClick(element) {
+    const filterType = element.dataset.filterType;
+    const value = element.dataset.value;
+    const isSelected = element.classList.contains('selected');
+
+    console.log('🎯 Filter clicked:', { filterType, value, isSelected });
+
+    if (filterType === 'city') {
+      if (isSelected) {
+        // Deselect
+        element.classList.remove('selected');
+        selectedCities = selectedCities.filter(city => city !== value);
+        console.log('❌ Deselected city:', value);
+      } else {
+        // Select
+        element.classList.add('selected');
+        selectedCities.push(value);
+        console.log('✅ Selected city:', value);
+      }
+    } else if (filterType === 'country') {
+      if (isSelected) {
+        // Deselect
+        element.classList.remove('selected');
+        selectedCountries = selectedCountries.filter(country => country !== value);
+        console.log('❌ Deselected country:', value);
+      } else {
+        // Select
+        element.classList.add('selected');
+        selectedCountries.push(value);
+        console.log('✅ Selected country:', value);
+      }
+    }
+
+    console.log('📊 Current selections:', {
+      cities: selectedCities,
+      countries: selectedCountries
+    });
+
+    // Update clear filter button visibility
+    updateClearFilterButton();
+
+    // Apply filters to map
+    applyFilters();
+  }
+
+  // Function to update clear filter button visibility
+  function updateClearFilterButton() {
+    const clearBtn = document.getElementById('clear-all-filters-global');
+    if (clearBtn) {
+      if (selectedCities.length > 0 || selectedCountries.length > 0) {
+        clearBtn.classList.remove('hidden');
+      } else {
+        clearBtn.classList.add('hidden');
+      }
+    }
+  }
+
+  // Function to clear all filters
+  function clearAllFilters() {
+    selectedCities = [];
+    selectedCountries = [];
+
+    // Remove selected class from all filters
+    document.querySelectorAll('.filter-option.selected').forEach(element => {
+      element.classList.remove('selected');
+    });
+
+    // Update clear button
+    updateClearFilterButton();
+
+    // Reset map to show all artists
+    applyFilters();
+  }
+
+  // Function to apply filters to the map
+  function applyFilters() {
+    if (selectedCities.length === 0 && selectedCountries.length === 0) {
+      // No filters, show all artists
+      filteredArtists = allArtists;
+    } else {
+      // Filter artists by selected cities and/or countries
+      filteredArtists = allArtists.filter(artist => {
+        const cityMatch = selectedCities.length === 0 || selectedCities.includes(artist.city);
+        const countryMatch = selectedCountries.length === 0 || selectedCountries.includes(artist.country);
+
+        // Both conditions must be true (AND logic)
+        return cityMatch && countryMatch;
+      });
+    }
+
+    // Update map markers
+    updateMapMarkers();
+  }
+
+  // Function to update map markers based on filtered artists
+  function updateMapMarkers() {
+    if (!window.wavmapInstance) {
+      console.log('⚠️ Map instance not available');
+      return;
+    }
+
+    const map = window.wavmapInstance;
+
+    console.log('🗺️ Updating map with filtered artists:', filteredArtists.length);
+
+    // Update the map source data with filtered artists
+    const geojsonData = {
+      type: 'FeatureCollection',
+      features: filteredArtists
+        .filter(artist => artist.longitude != null && artist.latitude != null)
+        .map(artist => ({
+          type: 'Feature',
+          geometry: {
+            type: 'Point',
+            coordinates: [
+              parseFloat(artist.longitude) || 0,
+              parseFloat(artist.latitude) || 0
+            ]
+          },
+          properties: {
+            id: artist.id || '',
+            artistName: artist.artistName || 'Unknown Artist',
+            city: artist.city || 'Unknown City',
+            country: artist.country || 'Unknown Country',
+            activities: Array.isArray(artist.activities) ? artist.activities.join(', ') : '',
+            genres: Array.isArray(artist.genres) ? artist.genres.join(', ') : ''
+          }
+        }))
+    };
+
+    console.log('📍 GeoJSON features count:', geojsonData.features.length);
+
+    // Update map source
+    if (map.getSource('points')) {
+      map.getSource('points').setData(geojsonData);
+      console.log('✅ Map source updated successfully');
+
+      // Force refresh of custom markers after a small delay
+      setTimeout(() => {
+        console.log('🔄 Forcing marker refresh...');
+        // Trigger the addCustomMarkers function that's already set up
+        const currentZoom = map.getZoom();
+        map.setZoom(currentZoom + 0.001); // Tiny zoom change to trigger refresh
+        setTimeout(() => {
+          map.setZoom(currentZoom); // Reset to original zoom
+        }, 100);
+      }, 100);
+    } else {
+      console.log('❌ Map source "points" not found');
+    }
+
+    const activeFilters = [];
+    if (selectedCities.length > 0) activeFilters.push(`Cities: ${selectedCities.join(', ')}`);
+    if (selectedCountries.length > 0) activeFilters.push(`Countries: ${selectedCountries.join(', ')}`);
+
+    console.log(`🎯 Applied filters: ${activeFilters.length > 0 ? activeFilters.join(' | ') : 'None'}`);
+    console.log(`📍 Showing ${filteredArtists.length} of ${allArtists.length} artists`);
+  }
+
   // Fetch real artist data from Directus API
   async function loadApprovedArtists() {
     try {
@@ -286,6 +525,19 @@ let allArtists = []; // Store all artists for filtering
       });
     });
 
+    // Add event listeners for filter options (delegated event handling)
+    document.addEventListener('click', (e) => {
+      // Handle filter option clicks
+      if (e.target.classList.contains('filter-option')) {
+        handleFilterClick(e.target);
+      }
+
+      // Handle clear filter button click
+      if (e.target.id === 'clear-all-filters-global') {
+        clearAllFilters();
+      }
+    });
+
   });
 
 
@@ -391,6 +643,13 @@ let allArtists = []; // Store all artists for filtering
 
         // Store artists globally
         allArtists = artists;
+        filteredArtists = artists; // Initialize filtered artists
+
+        // Initialize country mapping first, then populate filter options
+        initCountryMapping();
+
+        // Populate dynamic filter options
+        populateFilterOptions(artists);
 
         // Convert artist data to GeoJSON format with null checks
         const geojsonData = {
@@ -486,9 +745,9 @@ let allArtists = []; // Store all artists for filtering
           // Obtenir les features de clustering via queryRenderedFeatures
           const features = map.queryRenderedFeatures({ layers: ['clusters', 'unclustered-point'] });
 
-          // Si pas de features de clustering, utiliser directement les données artists
+          // Si pas de features de clustering, utiliser directement les données filtrées
           if (features.length === 0) {
-            artists.forEach(artist => {
+            filteredArtists.forEach(artist => {
               if (artist.longitude != null && artist.latitude != null) {
                 const coordinates = [parseFloat(artist.longitude), parseFloat(artist.latitude)];
 
@@ -1209,6 +1468,108 @@ let allArtists = []; // Store all artists for filtering
     box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
   }
 
+  /* Filter options styling */
+  :global(.filter-option) {
+    display: inline-block;
+    padding: 0.375rem 0.75rem;
+    background: #f3f4f6;
+    color: #4b5563;
+    text-decoration: none;
+    border-radius: 0.375rem;
+    font-size: 0.8rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    margin: 0.125rem;
+    border: 2px solid transparent;
+  }
+
+  :global(.filter-option:hover) {
+    background: #e5e7eb;
+    transform: translateY(-1px);
+  }
+
+  :global(.filter-option.selected) {
+    background: #6366f1 !important;
+    color: white !important;
+    text-decoration: underline !important;
+    text-decoration-color: white !important;
+    text-decoration-thickness: 2px !important;
+    text-underline-offset: 2px !important;
+    border-color: #4f46e5 !important;
+    transform: translateY(-1px) !important;
+    box-shadow: 0 2px 4px rgba(99, 102, 241, 0.3) !important;
+  }
+
+  :global(.filter-option.selected:hover) {
+    background: #4f46e5 !important;
+    box-shadow: 0 4px 8px rgba(99, 102, 241, 0.4) !important;
+  }
+
+  /* Clear filter button */
+  .clear-filter-btn {
+    display: inline-block;
+    padding: 0.5rem 1rem;
+    background: #ef4444;
+    color: white;
+    border: none;
+    border-radius: 0.375rem;
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    margin: 0.25rem 0;
+  }
+
+  .clear-filter-btn:hover {
+    background: #dc2626;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(239, 68, 68, 0.3);
+  }
+
+  .clear-filter-btn.hidden {
+    display: none;
+  }
+
+  /* Global Clear All Filters Button */
+  .clear-all-filters-btn {
+    display: inline-block;
+    padding: 0.75rem 1.5rem;
+    background: linear-gradient(135deg, #ef4444, #dc2626);
+    color: white;
+    border: none;
+    border-radius: 0.5rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    margin: 1rem 0;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    box-shadow: 0 2px 4px rgba(239, 68, 68, 0.2);
+  }
+
+  .clear-all-filters-btn:hover {
+    background: linear-gradient(135deg, #dc2626, #b91c1c);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(239, 68, 68, 0.3);
+  }
+
+  .clear-all-filters-btn.hidden {
+    display: none;
+  }
+
+  /* Dynamic filter options container */
+  .dynamic-filter-options {
+    width: 100%;
+  }
+
+  /* City filter specific styling */
+  .city-filter {
+    min-width: 60px;
+    text-align: center;
+  }
+
   /* Responsive */
   @media (max-width: 768px) {
     .map-container {
@@ -1218,6 +1579,16 @@ let allArtists = []; // Store all artists for filtering
 
     .map {
       height: 400px;
+    }
+
+    .filter-option {
+      font-size: 0.7rem;
+      padding: 0.25rem 0.5rem;
+    }
+
+    .clear-filter-btn {
+      font-size: 0.7rem;
+      padding: 0.375rem 0.75rem;
     }
   }
 </style>
