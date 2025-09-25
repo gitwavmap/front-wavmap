@@ -1073,6 +1073,110 @@ let selectedFilters = { cities: [], countries: [], styles: [], roles: [], pol: [
         // Système hybride : clustering Mapbox + marqueurs HTML personnalisés
         const allMarkers = [];
 
+        // Manual clustering function for initial render
+        function generateManualClusters() {
+          console.log('🔧 Generating manual clusters...');
+
+          // Simple distance-based clustering
+          const clustered = [];
+          const clusterRadius = 80; // pixels
+          const processed = new Set();
+
+          filteredArtists.forEach((artist, index) => {
+            if (processed.has(index) || artist.longitude == null || artist.latitude == null) return;
+
+            const artistCoords = [parseFloat(artist.longitude), parseFloat(artist.latitude)];
+            const cluster = {
+              coordinates: artistCoords,
+              artists: [artist],
+              indices: [index]
+            };
+
+            // Find nearby artists for clustering
+            filteredArtists.forEach((otherArtist, otherIndex) => {
+              if (otherIndex === index || processed.has(otherIndex)) return;
+              if (otherArtist.longitude == null || otherArtist.latitude == null) return;
+
+              const otherCoords = [parseFloat(otherArtist.longitude), parseFloat(otherArtist.latitude)];
+
+              // Calculate pixel distance approximation
+              const lngDiff = Math.abs(artistCoords[0] - otherCoords[0]) * Math.cos(artistCoords[1] * Math.PI / 180);
+              const latDiff = Math.abs(artistCoords[1] - otherCoords[1]);
+              const pixelDistance = Math.sqrt(lngDiff * lngDiff + latDiff * latDiff) * 100000; // rough conversion
+
+              if (pixelDistance < clusterRadius) {
+                cluster.artists.push(otherArtist);
+                cluster.indices.push(otherIndex);
+                processed.add(otherIndex);
+              }
+            });
+
+            processed.add(index);
+            clustered.push(cluster);
+          });
+
+          console.log('🔧 Generated', clustered.length, 'manual clusters');
+
+          // Create markers for each cluster
+          clustered.forEach(cluster => {
+            if (cluster.artists.length === 1) {
+              // Single point
+              const artist = cluster.artists[0];
+              const markerElement = document.createElement('div');
+              markerElement.className = 'red-marker';
+              markerElement.style.width = '16px';
+              markerElement.style.height = '16px';
+              markerElement.style.backgroundColor = '#E92C0F';
+              markerElement.style.borderRadius = '50%';
+              markerElement.style.cursor = 'pointer';
+              markerElement.style.boxShadow = '0 2px 4px rgba(0,0,0,0.3)';
+
+              markerElement.addEventListener('click', () => {
+                showArtistDetail(artist);
+              });
+
+              const marker = new mapboxgl.Marker(markerElement)
+                .setLngLat(cluster.coordinates)
+                .addTo(map);
+
+              allMarkers.push(marker);
+            } else {
+              // Cluster
+              const pointCount = cluster.artists.length;
+              const clusterStyle = getClusterStyle(pointCount);
+
+              const clusterElement = document.createElement('div');
+              clusterElement.className = 'custom-cluster';
+              clusterElement.style.width = clusterStyle.size;
+              clusterElement.style.height = clusterStyle.size;
+              clusterElement.style.background = clusterStyle.background;
+              clusterElement.style.borderRadius = '50%';
+              clusterElement.style.cursor = 'pointer';
+              clusterElement.style.position = 'relative';
+              clusterElement.style.display = 'flex';
+              clusterElement.style.alignItems = 'center';
+              clusterElement.style.justifyContent = 'center';
+              clusterElement.style.boxShadow = '0 3px 6px rgba(0,0,0,0.3)';
+
+              const countLabel = document.createElement('div');
+              countLabel.textContent = pointCount;
+              countLabel.style.color = '#FFFFFF';
+              countLabel.style.fontWeight = 'bold';
+              countLabel.style.fontSize = '14px';
+              countLabel.style.textShadow = '1px 1px 2px rgba(0,0,0,0.8)';
+              clusterElement.appendChild(countLabel);
+
+              const marker = new mapboxgl.Marker(clusterElement)
+                .setLngLat(cluster.coordinates)
+                .addTo(map);
+
+              allMarkers.push(marker);
+            }
+          });
+
+          console.log('✅ Manual clusters generated:', allMarkers.length, 'markers');
+        }
+
         function getClusterStyle(pointCount) {
           if (pointCount > 2 && pointCount <= 3) {
             // Petit cluster avec gradient radial
@@ -1100,37 +1204,53 @@ let selectedFilters = { cities: [], countries: [], styles: [], roles: [], pol: [
           allMarkers.forEach(marker => marker.remove());
           allMarkers.length = 0;
 
+          console.log('🔄 Adding custom markers...');
+
           // Obtenir les features de clustering via queryRenderedFeatures
           const features = map.queryRenderedFeatures({ layers: ['clusters', 'unclustered-point'] });
+          console.log('🔍 QueryRenderedFeatures returned:', features.length, 'features');
 
-          // Si pas de features de clustering, utiliser directement les données filtrées
+          // Fallback: Si pas de features ou si la source n'est pas encore rendue,
+          // essayer de générer les clusters manuellement
           if (features.length === 0) {
-            filteredArtists.forEach(artist => {
-              if (artist.longitude != null && artist.latitude != null) {
-                const coordinates = [parseFloat(artist.longitude), parseFloat(artist.latitude)];
+            console.log('⚠️ No features from queryRenderedFeatures, trying manual approach...');
 
-                // Créer un rond rouge simple
-                const markerElement = document.createElement('div');
-                markerElement.className = 'red-marker';
-                markerElement.style.width = '16px';
-                markerElement.style.height = '16px';
-                markerElement.style.backgroundColor = '#E92C0F';
-                markerElement.style.borderRadius = '50%';
-                markerElement.style.cursor = 'pointer';
-                markerElement.style.boxShadow = '0 2px 4px rgba(0,0,0,0.3)';
+            // Try to get clusters directly from the source
+            const source = map.getSource('points');
+            if (source && source._data) {
+              console.log('📊 Using source data directly...');
+              // Generate clusters manually for initial render
+              generateManualClusters();
+            } else {
+              console.log('📍 Showing individual points as fallback...');
+              // Show individual points as fallback
+              filteredArtists.forEach(artist => {
+                if (artist.longitude != null && artist.latitude != null) {
+                  const coordinates = [parseFloat(artist.longitude), parseFloat(artist.latitude)];
 
-                // Add click event to show artist in filters container
-                markerElement.addEventListener('click', () => {
-                  showArtistDetail(artist);
-                });
+                  // Créer un rond rouge simple
+                  const markerElement = document.createElement('div');
+                  markerElement.className = 'red-marker';
+                  markerElement.style.width = '16px';
+                  markerElement.style.height = '16px';
+                  markerElement.style.backgroundColor = '#E92C0F';
+                  markerElement.style.borderRadius = '50%';
+                  markerElement.style.cursor = 'pointer';
+                  markerElement.style.boxShadow = '0 2px 4px rgba(0,0,0,0.3)';
 
-                const marker = new mapboxgl.Marker(markerElement)
-                  .setLngLat(coordinates)
-                  .addTo(map);
+                  // Add click event to show artist in filters container
+                  markerElement.addEventListener('click', () => {
+                    showArtistDetail(artist);
+                  });
 
-                allMarkers.push(marker);
-              }
-            });
+                  const marker = new mapboxgl.Marker(markerElement)
+                    .setLngLat(coordinates)
+                    .addTo(map);
+
+                  allMarkers.push(marker);
+                }
+              });
+            }
           } else {
             // Utiliser les features de clustering
             features.forEach(feature => {
@@ -1221,12 +1341,35 @@ let selectedFilters = { cities: [], countries: [], styles: [], roles: [], pol: [
           console.log(`🎯 Ajouté ${allMarkers.length} marqueurs (${features.length} features détectées)`);
         }
 
-        // Ajouter les marqueurs initialement
-        addCustomMarkers();
+        // Force initial render then add markers
+        console.log('🗺️ Forcing initial map render...');
+
+        // Immediately try to generate manual clusters
+        console.log('🚀 Generating immediate clusters...');
+        generateManualClusters();
+
+        // Wait for the map to fully render before adding markers
+        map.once('idle', () => {
+          console.log('🗺️ Map is idle, updating with proper clusters...');
+          addCustomMarkers();
+        });
+
+        // Alternative: Force render with a small delay
+        setTimeout(() => {
+          console.log('🗺️ Adding markers after timeout...');
+          addCustomMarkers();
+        }, 200);
+
+        // Additional: Force a re-render after source is loaded
+        setTimeout(() => {
+          console.log('🗺️ Final marker update after 1 second...');
+          addCustomMarkers();
+        }, 1000);
 
         // Mettre à jour les marqueurs lors des changements
         map.on('data', (e) => {
           if (e.sourceId === 'points' && e.isSourceLoaded) {
+            console.log('🗺️ Points data loaded, updating markers...');
             addCustomMarkers();
           }
         });
