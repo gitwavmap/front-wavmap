@@ -204,6 +204,36 @@ let selectedFilters = { cities: [], countries: [], styles: [], roles: [], pol: [
     return countryMapping[countryCode] || countryCode;
   }
 
+  // Mapping for social topics values to display labels
+  function getSocialTopicLabel(value) {
+    const socialTopicsLabels = {
+      'queerrights': 'Queer Rights',
+      'flintarepresentation': 'FLINTA Representation',
+      'genderequality': 'Gender Equality',
+      'anti-racism': 'Anti-Racism',
+      'decolonialism': 'Decolonialism',
+      'acccessibilityforpeoplewithdisabilities': 'Accessibility For People With Disabilities',
+      'economicequalityclasssolidarity': 'Economic Equality & Class Solidarity',
+      'climatejustice': 'Climate Justice',
+      'geographicmarginalization': 'Geographic Marginalization'
+    };
+
+    // Return mapped label if exists, otherwise format the value automatically
+    if (socialTopicsLabels[value]) {
+      return socialTopicsLabels[value];
+    }
+
+    // Fallback formatting for club politics or other free text
+    return value
+      .replace(/([a-z])([A-Z])/g, '$1 $2') // camelCase to spaces
+      .replace(/[_-]/g, ' ') // underscores/dashes to spaces
+      .split(' ')
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+      .join(' ')
+      .replace(/\s+/g, ' ')
+      .trim();
+  }
+
   // Filter management variables - factorized structure
   let selectedFilters = {
     cities: [],
@@ -282,7 +312,7 @@ let selectedFilters = { cities: [], countries: [], styles: [], roles: [], pol: [
       },
       'pol': {
         data: extractPoliticalTopics(artists), // Combined social topics and club politics
-        displayTransform: null,
+        displayTransform: getSocialTopicLabel, // Transform values to readable labels
         filterType: 'political',
         cssClass: 'political-filter'
       }
