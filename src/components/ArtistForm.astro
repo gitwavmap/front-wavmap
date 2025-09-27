@@ -2,6 +2,7 @@
 import * as m from '../paraglide/messages.js';
 import { getLocale } from '../paraglide/runtime.js';
 import CityCountryPicker from './CityCountryPicker.astro';
+import SendFlat from '../assets/images/send_flat.svg';
 
 const currentLang = getLocale();
 ---
@@ -562,7 +563,7 @@ const currentLang = getLocale();
     </div>
 
     <button type="submit" class="submit-btn">
-      <img src="/src/assets/images/send_flat.svg" alt="Submit" />
+      <img src={SendFlat.src} alt="Submit" />
     </button>
   </form>
 </div>
@@ -671,6 +672,14 @@ const currentLang = getLocale();
           body: formData,
           credentials: 'include' // Important: include cookies
         });
+
+        if (!response) {
+          throw new Error('No response received from server');
+        }
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
 
         const result = await response.json();
         

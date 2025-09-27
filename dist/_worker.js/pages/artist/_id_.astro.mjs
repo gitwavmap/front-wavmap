@@ -1,8 +1,8 @@
 globalThis.process ??= {}; globalThis.process.env ??= {};
 /* empty css                                    */
-import { c as createComponent, d as createAstro, m as maybeRenderHead, e as addAttribute, a as renderTemplate, r as renderComponent } from '../../chunks/astro/server_DT6E8k0k.mjs';
-import { $ as $$Layout } from '../../chunks/Layout_DZ88bLxA.mjs';
-import { $ as $$Navbar } from '../../chunks/Navbar_CW1GVZKe.mjs';
+import { c as createComponent, b as createAstro, m as maybeRenderHead, e as addAttribute, a as renderTemplate, r as renderComponent } from '../../chunks/astro/server_BB4k16uX.mjs';
+import { $ as $$Layout } from '../../chunks/Layout_BcchWcrG.mjs';
+import { $ as $$Navbar } from '../../chunks/Navbar_DaCj0JSg.mjs';
 /* empty css                                   */
 export { renderers } from '../../renderers.mjs';
 
@@ -16,7 +16,7 @@ const $$HoverBlock = createComponent(($$result, $$props, $$slots) => {
     className = ""
   } = Astro2.props;
   return renderTemplate`${maybeRenderHead()}<div${addAttribute(`hover-block ${className}`, "class")} data-astro-cid-kk5pogzo> <div class="content-wrapper" data-astro-cid-kk5pogzo> <span class="default-text" data-astro-cid-kk5pogzo>${defaultText}</span> <span class="hover-text" data-astro-cid-kk5pogzo>${hoverText}</span> </div>  </div>`;
-}, "/home/glm/wavmap/src/components/HoverBlock.astro", void 0);
+}, "/home/glm/front-wavmap/src/components/HoverBlock.astro", void 0);
 
 const $$Astro = createAstro();
 const prerender = false;
@@ -171,9 +171,9 @@ const $$id = createComponent(async ($$result, $$props, $$slots) => {
 
       </div>
     </main> --> </div> ` })} `;
-}, "/home/glm/wavmap/src/pages/artist/[id].astro", void 0);
+}, "/home/glm/front-wavmap/src/pages/artist/[id].astro", void 0);
 
-const $$file = "/home/glm/wavmap/src/pages/artist/[id].astro";
+const $$file = "/home/glm/front-wavmap/src/pages/artist/[id].astro";
 const $$url = "/artist/[id]";
 
 const _page = /*#__PURE__*/Object.freeze(/*#__PURE__*/Object.defineProperty({

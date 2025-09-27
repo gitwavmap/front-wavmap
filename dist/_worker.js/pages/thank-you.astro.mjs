@@ -1,7 +1,7 @@
 globalThis.process ??= {}; globalThis.process.env ??= {};
 /* empty css                                 */
-import { c as createComponent, r as renderComponent, a as renderTemplate, m as maybeRenderHead } from '../chunks/astro/server_DT6E8k0k.mjs';
-import { $ as $$Layout } from '../chunks/Layout_DZ88bLxA.mjs';
+import { c as createComponent, r as renderComponent, a as renderTemplate, m as maybeRenderHead } from '../chunks/astro/server_BB4k16uX.mjs';
+import { $ as $$Layout } from '../chunks/Layout_BcchWcrG.mjs';
 /* empty css                                     */
 export { renderers } from '../renderers.mjs';
 
@@ -20,9 +20,9 @@ EN SAVOIR PLUS
 </a> </div> <!-- Social sharing --> <div class="social-section" data-astro-cid-reykoxrt> <div class="social-divider" data-astro-cid-reykoxrt></div> <p class="social-text" data-astro-cid-reykoxrt>
 PARTAGEZ WAVMAP AVEC VOS AMIS ARTISTES !
 </p> <div class="social-links" data-astro-cid-reykoxrt></div> </div> </div> </div> </main> ` })} `;
-}, "/home/glm/wavmap/src/pages/thank-you.astro", void 0);
+}, "/home/glm/front-wavmap/src/pages/thank-you.astro", void 0);
 
-const $$file = "/home/glm/wavmap/src/pages/thank-you.astro";
+const $$file = "/home/glm/front-wavmap/src/pages/thank-you.astro";
 const $$url = "/thank-you";
 
 const _page = /*#__PURE__*/Object.freeze(/*#__PURE__*/Object.defineProperty({

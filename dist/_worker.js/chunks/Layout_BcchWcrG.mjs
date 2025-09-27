@@ -1,5 +1,5 @@
 globalThis.process ??= {}; globalThis.process.env ??= {};
-import { c as createComponent, d as createAstro, e as addAttribute, b as renderScript, a as renderTemplate, r as renderComponent, g as renderHead, h as renderSlot } from './astro/server_DT6E8k0k.mjs';
+import { c as createComponent, b as createAstro, e as addAttribute, d as renderScript, a as renderTemplate, r as renderComponent, g as renderHead, h as renderSlot } from './astro/server_BB4k16uX.mjs';
 /* empty css                         */
 import { g as getLocale } from './runtime_DSWkPTzG.mjs';
 
@@ -46,8 +46,8 @@ const $$ClientRouter = createComponent(($$result, $$props, $$slots) => {
   const Astro2 = $$result.createAstro($$Astro$1, $$props, $$slots);
   Astro2.self = $$ClientRouter;
   const { fallback = "animate" } = Astro2.props;
-  return renderTemplate`<meta name="astro-view-transitions-enabled" content="true"><meta name="astro-view-transitions-fallback"${addAttribute(fallback, "content")}>${renderScript($$result, "/home/glm/wavmap/node_modules/astro/components/ClientRouter.astro?astro&type=script&index=0&lang.ts")}`;
-}, "/home/glm/wavmap/node_modules/astro/components/ClientRouter.astro", void 0);
+  return renderTemplate`<meta name="astro-view-transitions-enabled" content="true"><meta name="astro-view-transitions-fallback"${addAttribute(fallback, "content")}>${renderScript($$result, "/home/glm/front-wavmap/node_modules/astro/components/ClientRouter.astro?astro&type=script&index=0&lang.ts")}`;
+}, "/home/glm/front-wavmap/node_modules/astro/components/ClientRouter.astro", void 0);
 
 const $$Astro = createAstro();
 const $$Layout = createComponent(async ($$result, $$props, $$slots) => {
@@ -55,7 +55,7 @@ const $$Layout = createComponent(async ($$result, $$props, $$slots) => {
   Astro2.self = $$Layout;
   const { title = dashboard(), description = "Manage your content easily" } = Astro2.props;
   Astro2.locals.user;
-  return renderTemplate`<html${addAttribute(getLocale(), "lang")}> <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><link rel="icon" type="image/svg+xml" href="/favicon.svg"><meta name="generator"${addAttribute(Astro2.generator, "content")}><meta name="description"${addAttribute(description, "content")}><title>${title}</title><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">${renderComponent($$result, "ViewTransitions", $$ClientRouter, {})}${renderHead()}</head> <body class="min-h-screen bg-gray-50 font-sans antialiased"> ${renderSlot($$result, $$slots["default"])} <!-- Auth Interceptor - Gère automatiquement le refresh des tokens --> ${renderScript($$result, "/home/glm/wavmap/src/layouts/Layout.astro?astro&type=script&index=0&lang.ts")} </body> </html>`;
-}, "/home/glm/wavmap/src/layouts/Layout.astro", void 0);
+  return renderTemplate`<html${addAttribute(getLocale(), "lang")}> <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><link rel="icon" type="image/svg+xml" href="/favicon.svg"><meta name="generator"${addAttribute(Astro2.generator, "content")}><meta name="description"${addAttribute(description, "content")}><title>${title}</title><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">${renderComponent($$result, "ViewTransitions", $$ClientRouter, {})}${renderHead()}</head> <body class="min-h-screen bg-gray-50 font-sans antialiased"> ${renderSlot($$result, $$slots["default"])} <!-- Auth Interceptor - Gère automatiquement le refresh des tokens --> ${renderScript($$result, "/home/glm/front-wavmap/src/layouts/Layout.astro?astro&type=script&index=0&lang.ts")} </body> </html>`;
+}, "/home/glm/front-wavmap/src/layouts/Layout.astro", void 0);
 
 export { $$Layout as $ };

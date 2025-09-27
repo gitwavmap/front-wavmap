@@ -1,9 +1,9 @@
 globalThis.process ??= {}; globalThis.process.env ??= {};
 /* empty css                                 */
-import { c as createComponent, d as createAstro, a as renderTemplate, f as defineScriptVars, r as renderComponent, m as maybeRenderHead, e as addAttribute } from '../chunks/astro/server_DT6E8k0k.mjs';
-import { $ as $$Layout } from '../chunks/Layout_DZ88bLxA.mjs';
-import { c as createSvgComponent, $ as $$Navbar } from '../chunks/Navbar_CW1GVZKe.mjs';
-import { $ as $$Footer } from '../chunks/Footer_CqfJwBpE.mjs';
+import { c as createComponent, b as createAstro, a as renderTemplate, f as defineScriptVars, r as renderComponent, m as maybeRenderHead, e as addAttribute } from '../chunks/astro/server_BB4k16uX.mjs';
+import { $ as $$Layout } from '../chunks/Layout_BcchWcrG.mjs';
+import { c as createSvgComponent, $ as $$Navbar } from '../chunks/Navbar_DaCj0JSg.mjs';
+import { $ as $$Footer } from '../chunks/Footer_eMv4206w.mjs';
 /* empty css                                */
 export { renderers } from '../renderers.mjs';
 
@@ -37,9 +37,9 @@ We're working on bringing you the latest stories and insights from the undergrou
 </p> </div>` : renderTemplate`<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8" id="articles-grid" data-astro-cid-ijnerlr2> ${articles.map((article) => renderTemplate`<article class="" data-astro-cid-ijnerlr2> ${article.imageUrl && renderTemplate`<div class="aspect-video " data-astro-cid-ijnerlr2> <img${addAttribute(article.imageUrl, "src")}${addAttribute(article.title, "alt")} class="w-full h-full object-cover" data-astro-cid-ijnerlr2> </div>`} <div class="article" data-astro-cid-ijnerlr2> <div class="divider-container" data-astro-cid-ijnerlr2> <div class="divider" data-astro-cid-ijnerlr2></div> <div class="count" data-astro-cid-ijnerlr2> <img${addAttribute(CountImg.src, "src")} alt="" data-astro-cid-ijnerlr2> <p data-astro-cid-ijnerlr2>001</p> </div> </div> <h2 class="text-xl font-semibold"${addAttribute({ color: "black" }, "style")} data-astro-cid-ijnerlr2> <a${addAttribute(`/blog/${article.slug}`, "href")} class="hover:text-primary-600 transition-colors" data-astro-cid-ijnerlr2> ${article.title} </a> </h2> <p class="text-gray-600 mb-4 line-clamp-3" data-astro-cid-ijnerlr2> ${article.excerpt || "No preview available"} </p>  </div> </article>`)} </div>`} </div> <!-- Load More Button --> ${hasMore && !error && renderTemplate`<div class="text-center mt-12" data-astro-cid-ijnerlr2> <button id="load-more-btn" class="bg-primary-600 text-white px-8 py-3 rounded-lg font-medium hover:bg-primary-700 transition-colors" data-astro-cid-ijnerlr2>
 Load More Articles
 </button> </div>`} <!-- Loading indicator --> <div id="loading-indicator" class="hidden text-center mt-12" data-astro-cid-ijnerlr2> <div class="inline-flex items-center space-x-2" data-astro-cid-ijnerlr2> <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-primary-600" data-astro-cid-ijnerlr2></div> <span class="text-gray-600" data-astro-cid-ijnerlr2>Loading articles...</span> </div> </div> </div> </main> ${renderComponent($$result2, "Footer", $$Footer, { "data-astro-cid-ijnerlr2": true })} </div> ` }), defineScriptVars({ hasMore }));
-}, "/home/glm/wavmap/src/pages/blog.astro", void 0);
+}, "/home/glm/front-wavmap/src/pages/blog.astro", void 0);
 
-const $$file = "/home/glm/wavmap/src/pages/blog.astro";
+const $$file = "/home/glm/front-wavmap/src/pages/blog.astro";
 const $$url = "/blog";
 
 const _page = /*#__PURE__*/Object.freeze(/*#__PURE__*/Object.defineProperty({

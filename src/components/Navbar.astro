@@ -9,6 +9,7 @@ import About from '../assets/images/about_button.svg';
 import AboutFlat from '../assets/images/about_flat.svg';
 import HoverLink from './HoverLink.astro';
 import Logo from '../assets/images/logo.svg';
+import CloseBtn from '../assets/images/close_btn.svg';
 
 interface Props {
   currentPage: 'map' | 'blog' | 'about';
@@ -78,7 +79,7 @@ const currentPath = Astro.url.pathname;
     <button id="join-community-btn" class="community-button">
       <div class="community-content">
         <span class="join-text">Join the community</span>
-        <img class="close-icon hidden" src="/src/assets/images/close_btn.svg" alt="Close" />
+        <img class="close-icon hidden" src={CloseBtn.src} alt="Close" />
         <img class="logo-icon" src={Logo.src} alt="logo" />
       </div>
     </button>
