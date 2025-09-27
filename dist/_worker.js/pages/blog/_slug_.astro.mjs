@@ -2,9 +2,9 @@ globalThis.process ??= {}; globalThis.process.env ??= {};
 /* empty css                                    */
 import { c as createComponent, b as createAstro, r as renderComponent, a as renderTemplate, m as maybeRenderHead, e as addAttribute } from '../../chunks/astro/server_BB4k16uX.mjs';
 import { $ as $$Layout } from '../../chunks/Layout_BcchWcrG.mjs';
-import { $ as $$Navbar, a as $$HoverLink, B as BackBtn } from '../../chunks/Navbar_DaCj0JSg.mjs';
+import { $ as $$Navbar, a as $$HoverLink, B as BackBtn } from '../../chunks/Navbar_Ca0wihMI.mjs';
 import { l as le, j as ju, L as Ls } from '../../chunks/index_Dhdmj7aT.mjs';
-import { B as BackBtnBg } from '../../chunks/close_bg_BGGhX-of.mjs';
+import { B as BackBtnBg } from '../../chunks/close_bg_v8C_QptB.mjs';
 /* empty css                                     */
 export { renderers } from '../../renderers.mjs';
 

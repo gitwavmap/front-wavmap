@@ -4,8 +4,8 @@ import * as m from '../paraglide/messages.js';
 
 <div class="auth-modal-container">
   <div class="auth-toggle-buttons">
-    <button id="login-tab" class="tab-button active">{m.login()}</button>
-    <button id="register-tab" class="tab-button">{m.register()}</button>
+    <button id="login-tab" class="tab-button active">{m.login({}, { locale: 'en' })}</button>
+    <button id="register-tab" class="tab-button">{m.register({}, { locale: 'en' })}</button>
   </div>
 
   <!-- Login Form -->
@@ -14,7 +14,7 @@ import * as m from '../paraglide/messages.js';
     
     <form id="auth-login-form" method="POST" action="/api/auth/login" class="space-y-4">
       <div class="form-group">
-        <label for="login-email" class="form-label">{m.email()}</label>
+        <label for="login-email" class="form-label">{m.email({}, { locale: 'en' })}</label>
         <input
           type="email"
           id="login-email"
@@ -25,7 +25,7 @@ import * as m from '../paraglide/messages.js';
       </div>
 
       <div class="form-group">
-        <label for="login-password" class="form-label">{m.password()}</label>
+        <label for="login-password" class="form-label">{m.password({}, { locale: 'en' })}</label>
         <input
           type="password"
           id="login-password"
@@ -36,7 +36,7 @@ import * as m from '../paraglide/messages.js';
       </div>
 
       <button type="submit" class="btn btn-primary btn-lg w-full" id="login-submit">
-        {m.login()}
+        {m.login({}, { locale: 'en' })}
       </button>
     </form>
   </div>
@@ -48,7 +48,7 @@ import * as m from '../paraglide/messages.js';
     <form id="auth-register-form" method="POST" action="/api/auth/register" class="space-y-4">
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div class="form-group">
-          <label for="register-firstName" class="form-label">{m.first_name()}</label>
+          <label for="register-firstName" class="form-label">{m.first_name({}, { locale: 'en' })}</label>
           <input
             type="text"
             id="register-firstName"
@@ -59,7 +59,7 @@ import * as m from '../paraglide/messages.js';
         </div>
 
         <div class="form-group">
-          <label for="register-lastName" class="form-label">{m.last_name()}</label>
+          <label for="register-lastName" class="form-label">{m.last_name({}, { locale: 'en' })}</label>
           <input
             type="text"
             id="register-lastName"
@@ -71,7 +71,7 @@ import * as m from '../paraglide/messages.js';
       </div>
 
       <div class="form-group">
-        <label for="register-email" class="form-label">{m.email()}</label>
+        <label for="register-email" class="form-label">{m.email({}, { locale: 'en' })}</label>
         <input
           type="email"
           id="register-email"
@@ -82,7 +82,7 @@ import * as m from '../paraglide/messages.js';
       </div>
 
       <div class="form-group">
-        <label for="register-password" class="form-label">{m.password()}</label>
+        <label for="register-password" class="form-label">{m.password({}, { locale: 'en' })}</label>
         <input
           type="password"
           id="register-password"
@@ -93,17 +93,17 @@ import * as m from '../paraglide/messages.js';
       </div>
 
       <button type="submit" class="btn btn-primary btn-lg w-full" id="register-submit">
-        {m.register()}
+        {m.register({}, { locale: 'en' })}
       </button>
     </form>
   </div>
 </div>
 
 <script define:vars={{ 
-  signingIn: m.signing_in(), 
-  signingUp: m.signing_up(), 
-  errorOccurred: m.error_occurred(), 
-  networkError: m.network_error() 
+  signingIn: m.signing_in({}, { locale: 'en' }), 
+  signingUp: m.signing_up({}, { locale: 'en' }), 
+  errorOccurred: m.error_occurred({}, { locale: 'en' }), 
+  networkError: m.network_error({}, { locale: 'en' }) 
 }}>
   function initAuthModal() {
     const loginTab = document.getElementById('login-tab');

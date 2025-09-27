@@ -11,22 +11,22 @@ const currentLang = getLocale();
   
   <form class="artist-form" id="artist-signup-form">
     <div class="form-group">
-      <label for="artist-name">{m.artist_name()} *</label>
+      <label for="artist-name">{m.artist_name({}, { locale: 'en' })} *</label>
       <input type="text" id="artist-name" name="artistName" required>
     </div>
 
     <div class="form-group">
-      <label for="real-name">{m.real_name()}</label>
+      <label for="real-name">{m.real_name({}, { locale: 'en' })}</label>
       <input type="text" id="real-name" name="realName">
     </div>
 
     <div class="form-group">
-      <label for="pronouns">{m.pronouns()}</label>
-      <input type="text" id="pronouns" name="pronouns" placeholder={m.pronouns_placeholder()}>
+      <label for="pronouns">{m.pronouns({}, { locale: 'en' })}</label>
+      <input type="text" id="pronouns" name="pronouns" placeholder={m.pronouns_placeholder({}, { locale: 'en' })}>
     </div>
 
     <div class="form-group">
-      <label for="email">{m.email()} *</label>
+      <label for="email">{m.email({}, { locale: 'en' })} *</label>
       <input type="email" id="email" name="email" required>
     </div>
 
@@ -34,73 +34,73 @@ const currentLang = getLocale();
     <CityCountryPicker />
 
     <div class="form-group">
-      <label>{m.activities()} *</label>
+      <label>{m.activities({}, { locale: 'en' })} *</label>
       <div class="checkbox-group">
         <label class="checkbox-item">
           <input type="checkbox" name="activities" value="dj" />
           <span class="checkmark"></span>
-          {m.dj()}
+          {m.dj({}, { locale: 'en' })}
         </label>
         <label class="checkbox-item">
           <input type="checkbox" name="activities" value="producer" />
           <span class="checkmark"></span>
-          {m.producer()}
+          {m.producer({}, { locale: 'en' })}
         </label>
         <label class="checkbox-item">
           <input type="checkbox" name="activities" value="curator" />
           <span class="checkmark"></span>
-          {m.curator()}
+          {m.curator({}, { locale: 'en' })}
         </label>
         <label class="checkbox-item">
           <input type="checkbox" name="activities" value="promoter" />
           <span class="checkmark"></span>
-          {m.promoter()}
+          {m.promoter({}, { locale: 'en' })}
         </label>
         <label class="checkbox-item">
           <input type="checkbox" name="activities" value="label" />
           <span class="checkmark"></span>
-          {m.label()}
+          {m.label({}, { locale: 'en' })}
         </label>
         <label class="checkbox-item">
           <input type="checkbox" name="activities" value="bookingagency" />
           <span class="checkmark"></span>
-          {m.booking_agency()}
+          {m.booking_agency({}, { locale: 'en' })}
         </label>
         <label class="checkbox-item">
           <input type="checkbox" name="activities" value="collective" />
           <span class="checkmark"></span>
-          {m.collective()}
+          {m.collective({}, { locale: 'en' })}
         </label>
         <label class="checkbox-item">
           <input type="checkbox" name="activities" value="radio" />
           <span class="checkmark"></span>
-          {m.radio()}
+          {m.radio({}, { locale: 'en' })}
         </label>
         <label class="checkbox-item">
           <input type="checkbox" name="activities" value="recordstore" />
           <span class="checkmark"></span>
-          {m.record_store()}
+          {m.record_store({}, { locale: 'en' })}
         </label>
         <label class="checkbox-item">
           <input type="checkbox" name="activities" value="festival" />
           <span class="checkmark"></span>
-          {m.festival()}
+          {m.festival({}, { locale: 'en' })}
         </label>
         <label class="checkbox-item">
           <input type="checkbox" name="activities" value="medias" />
           <span class="checkmark"></span>
-          {m.media()}
+          {m.media({}, { locale: 'en' })}
         </label>
         <label class="checkbox-item">
           <input type="checkbox" name="activities" value="other" />
           <span class="checkmark"></span>
-          {m.other()}
+          {m.other({}, { locale: 'en' })}
         </label>
       </div>
     </div>
 
     <div class="form-group">
-      <label>{m.musical_styles()} *</label>
+      <label>{m.musical_styles({}, { locale: 'en' })} *</label>
       <div class="checkbox-group">
         <label class="checkbox-item">
           <input type="checkbox" name="genres" value="bass" />
@@ -491,75 +491,75 @@ const currentLang = getLocale();
     </div>
 
     <div class="form-group">
-      <label for="bio">{m.bio()} ({m.bio_max()})</label>
-      <textarea id="bio" name="bio" rows="4" maxlength="250" placeholder={m.bio_placeholder()} onInput="updateCharCount('bio', 'bio-count', 250)"></textarea>
-      <small class="char-count" id="bio-count">0/250 {m.characters()}</small>
+      <label for="bio">{m.bio({}, { locale: 'en' })} ({m.bio_max({}, { locale: 'en' })})</label>
+      <textarea id="bio" name="bio" rows="4" maxlength="250" placeholder={m.bio_placeholder({}, { locale: 'en' })} onInput="updateCharCount('bio', 'bio-count', 250)"></textarea>
+      <small class="char-count" id="bio-count">0/250 {m.characters({}, { locale: 'en' })}</small>
     </div>
 
     <div class="form-group">
-      <label>{m.social_political()} {m.social_political_optional()}</label>
+      <label>{m.social_political({}, { locale: 'en' })} {m.social_political_optional({}, { locale: 'en' })}</label>
       <p class="form-help-text">
-        {m.social_political_help()}
+        {m.social_political_help({}, { locale: 'en' })}
       </p>
       <div class="checkbox-group">
         <label class="checkbox-item">
           <input type="checkbox" name="socialPolitical" value="queerrights" />
           <span class="checkmark"></span>
-          {m.queer_rights()}
+          {m.queer_rights({}, { locale: 'en' })}
         </label>
         <label class="checkbox-item">
           <input type="checkbox" name="socialPolitical" value="flintarepresentation" />
           <span class="checkmark"></span>
-          {m.flinta_representation()}
+          {m.flinta_representation({}, { locale: 'en' })}
         </label>
         <label class="checkbox-item">
           <input type="checkbox" name="socialPolitical" value="genderequality" />
           <span class="checkmark"></span>
-          {m.gender_equality()}
+          {m.gender_equality({}, { locale: 'en' })}
         </label>
         <label class="checkbox-item">
           <input type="checkbox" name="socialPolitical" value="anti-racism" />
           <span class="checkmark"></span>
-          {m.anti_racism()}
+          {m.anti_racism({}, { locale: 'en' })}
         </label>
         <label class="checkbox-item">
           <input type="checkbox" name="socialPolitical" value="decolonialism" />
           <span class="checkmark"></span>
-          {m.decolonialism()}
+          {m.decolonialism({}, { locale: 'en' })}
         </label>
         <label class="checkbox-item">
           <input type="checkbox" name="socialPolitical" value="acccessibilityforpeoplewithdisabilities" />
           <span class="checkmark"></span>
-          {m.access_disabled()}
+          {m.access_disabled({}, { locale: 'en' })}
         </label>
         <label class="checkbox-item">
           <input type="checkbox" name="socialPolitical" value="economicequalityclasssolidarity" />
           <span class="checkmark"></span>
-          {m.economic_equality()}
+          {m.economic_equality({}, { locale: 'en' })}
         </label>
         <label class="checkbox-item">
           <input type="checkbox" name="socialPolitical" value="climatejustice" />
           <span class="checkmark"></span>
-          {m.climate_justice()}
+          {m.climate_justice({}, { locale: 'en' })}
         </label>
         <label class="checkbox-item">
           <input type="checkbox" name="socialPolitical" value="geographicmarginalization" />
           <span class="checkmark"></span>
-          {m.geographic_marginalization()}
+          {m.geographic_marginalization({}, { locale: 'en' })}
         </label>
       </div>
     </div>
 
     <div class="form-group">
-      <label for="themes-development">{m.themes_development()} {m.themes_development_optional()}</label>
-      <textarea id="themes-development" name="themesDevelopment" rows="4" maxlength="500" placeholder={m.themes_development_placeholder()} onInput="updateCharCount('themes-development', 'themes-count', 500)"></textarea>
-      <small class="char-count" id="themes-count">0/500 {m.characters()}</small>
+      <label for="themes-development">{m.themes_development({}, { locale: 'en' })} {m.themes_development_optional({}, { locale: 'en' })}</label>
+      <textarea id="themes-development" name="themesDevelopment" rows="4" maxlength="500" placeholder={m.themes_development_placeholder({}, { locale: 'en' })} onInput="updateCharCount('themes-development', 'themes-count', 500)"></textarea>
+      <small class="char-count" id="themes-count">0/500 {m.characters({}, { locale: 'en' })}</small>
     </div>
 
     <div class="form-group">
-      <label for="club-politics">{m.club_politics()} {m.club_politics_optional()}</label>
-      <textarea id="club-politics" name="clubPolitics" rows="4" maxlength="500" placeholder={m.club_politics_placeholder()} onInput="updateCharCount('club-politics', 'club-count', 500)"></textarea>
-      <small class="char-count" id="club-count">0/500 {m.characters()}</small>
+      <label for="club-politics">{m.club_politics({}, { locale: 'en' })} {m.club_politics_optional({}, { locale: 'en' })}</label>
+      <textarea id="club-politics" name="clubPolitics" rows="4" maxlength="500" placeholder={m.club_politics_placeholder({}, { locale: 'en' })} onInput="updateCharCount('club-politics', 'club-count', 500)"></textarea>
+      <small class="char-count" id="club-count">0/500 {m.characters({}, { locale: 'en' })}</small>
     </div>
 
     <button type="submit" class="submit-btn">
@@ -569,11 +569,11 @@ const currentLang = getLocale();
 </div>
 
 <script define:vars={{ 
-  selectActivity: m.select_activity(),
-  selectGenre: m.select_genre(),
-  submitting: m.submitting(),
-  joinCommunity: m.join_community(),
-  characters: m.characters()
+  selectActivity: m.select_activity({}, { locale: 'en' }),
+  selectGenre: m.select_genre({}, { locale: 'en' }),
+  submitting: m.submitting({}, { locale: 'en' }),
+  joinCommunity: m.join_community({}, { locale: 'en' }),
+  characters: m.characters({}, { locale: 'en' })
 }}>
   // Function to update character count
   function updateCharCount(textareaId, counterId, maxLength) {

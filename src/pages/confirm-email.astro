@@ -4,20 +4,20 @@ import * as m from '../paraglide/messages.js';
 import { PUBLIC_DIRECTUS_URL } from 'astro:env/client';
 ---
 
-<Layout title={m.emailConfirmation ? m.emailConfirmation() : 'Email Confirmation'}>
+<Layout title={m.emailConfirmation ? m.emailConfirmation({}, { locale: 'en' }) : 'Email Confirmation'}>
   <main class="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 px-4">
     <div class="max-w-md w-full">
       <div class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl p-8 border border-white/20">
         <div class="text-center">
           <h1 class="text-3xl font-bold text-gray-900 mb-6">
-            {m.emailConfirmation ? m.emailConfirmation() : 'Email Confirmation'}
+            {m.emailConfirmation ? m.emailConfirmation({}, { locale: 'en' }) : 'Email Confirmation'}
           </h1>
           
           <div id="confirmation-content">
             <div id="loading-state" class="flex flex-col items-center">
               <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mb-4"></div>
               <p class="text-gray-600">
-                {m.confirmingEmail ? m.confirmingEmail() : 'Confirming your email...'}
+                {m.confirmingEmail ? m.confirmingEmail({}, { locale: 'en' }) : 'Confirming your email...'}
               </p>
             </div>
             
@@ -28,10 +28,10 @@ import { PUBLIC_DIRECTUS_URL } from 'astro:env/client';
                 </svg>
               </div>
               <p class="text-green-600 font-semibold text-lg mb-2">
-                {m.emailConfirmed ? m.emailConfirmed() : 'Email confirmed!'}
+                {m.emailConfirmed ? m.emailConfirmed({}, { locale: 'en' }) : 'Email confirmed!'}
               </p>
               <p class="text-gray-600">
-                {m.redirectingToLogin ? m.redirectingToLogin() : 'Redirecting to login...'}
+                {m.redirectingToLogin ? m.redirectingToLogin({}, { locale: 'en' }) : 'Redirecting to login...'}
               </p>
             </div>
             
@@ -42,20 +42,20 @@ import { PUBLIC_DIRECTUS_URL } from 'astro:env/client';
                 </svg>
               </div>
               <p class="text-red-600 font-semibold text-lg mb-4" id="error-message">
-                {m.invalidOrExpiredLink ? m.invalidOrExpiredLink() : 'Invalid or expired link'}
+                {m.invalidOrExpiredLink ? m.invalidOrExpiredLink({}, { locale: 'en' }) : 'Invalid or expired link'}
               </p>
               <div class="space-y-2">
                 <a 
                   href="/register" 
                   class="block w-full bg-blue-600 text-white py-3 px-4 rounded-lg font-medium hover:bg-blue-700 transition-colors"
                 >
-                  {m.backToRegister ? m.backToRegister() : 'Back to Register'}
+                  {m.backToRegister ? m.backToRegister({}, { locale: 'en' }) : 'Back to Register'}
                 </a>
                 <button 
                   id="retry-btn"
                   class="block w-full bg-gray-100 text-gray-700 py-3 px-4 rounded-lg font-medium hover:bg-gray-200 transition-colors"
                 >
-                  {m.tryAgain ? m.tryAgain() : 'Try Again'}
+                  {m.tryAgain ? m.tryAgain({}, { locale: 'en' }) : 'Try Again'}
                 </button>
               </div>
             </div>
