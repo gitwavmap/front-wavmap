@@ -21,7 +21,7 @@ export const GET: APIRoute = async ({ url, locals }) => {
       readItems('posts', {
         fields: [
           'id',
-          'title', 
+          'title',
           'slug',
           'content',
           'excerpt',
@@ -29,7 +29,8 @@ export const GET: APIRoute = async ({ url, locals }) => {
           'status',
           'date_created',
           'date_updated',
-          'published_date'
+          'published_date',
+          'post_number'
         ],
         filter: {
           status: {

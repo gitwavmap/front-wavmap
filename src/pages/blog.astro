@@ -68,7 +68,7 @@ try {
                       <div class="divider"/>
                       <div class="count">
                         <img src={CountImg.src} alt="" />
-                        <p>001</p>
+                        <p>{article.post_number ? String(article.post_number).padStart(3, '0') : '001'}</p>
                       </div>
                     </div>
 										<h2 class="text-xl font-semibold" style={{color: "black"}}>
@@ -188,19 +188,24 @@ try {
     const excerpt = article.excerpt || 'No preview available';
     const date = new Date(article.published_date || article.date_created).toLocaleDateString();
 
+    const postNumber = article.post_number ? String(article.post_number).padStart(3, '0') : '001';
+
     articleEl.innerHTML = `
       ${featuredImage}
-      <div>
-        <h2 >
-          <a href="/blog/${article.slug}">
+      <div class="article">
+        <div class="divider-container">
+          <div class="divider"></div>
+          <div class="count">
+            <img src="/src/assets/images/count_img.svg" alt="" />
+            <p>${postNumber}</p>
+          </div>
+        </div>
+        <h2 class="text-xl font-semibold" style="color: black">
+          <a href="/blog/${article.slug}" class="hover:text-primary-600 transition-colors">
             ${article.title}
           </a>
         </h2>
-        <p class="">${excerpt}</p>
-        <div class="flex items-center justify-between text-sm text-gray-500">
-          <span>By Admin</span>
-          <time>${date}</time>
-        </div>
+        <p class="text-gray-600 mb-4 line-clamp-3">${excerpt}</p>
       </div>
     `;
 
