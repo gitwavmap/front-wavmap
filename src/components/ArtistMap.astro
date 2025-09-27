@@ -307,6 +307,8 @@ let selectedFilters = { cities: [], countries: [], styles: [], roles: [], pol: [
 
   // Function to populate dynamic filter options - factorized
   function populateFilterOptions(artists) {
+    console.log('🔧 Starting to populate filter options with', artists.length, 'artists');
+
     // Define filter mappings - what data to extract and how to display it
     const filterConfigs = {
       'country': {
@@ -344,16 +346,25 @@ let selectedFilters = { cities: [], countries: [], styles: [], roles: [], pol: [
     // Populate each filter type
     Object.entries(filterConfigs).forEach(([filterId, config]) => {
       const container = document.getElementById(`${filterId}-dynamic-options`);
+      console.log(`🔍 Looking for container: ${filterId}-dynamic-options`, container ? '✅ Found' : '❌ Not found');
+
       if (container && config.data.length > 0) {
-        container.innerHTML = config.data.map(value => {
+        const optionsHTML = config.data.map(value => {
           const displayValue = config.displayTransform ? config.displayTransform(value) : value;
           const buttonSize = getButtonSize(displayValue);
           return `<span class="filter-option ${config.cssClass}" data-filter-type="${config.filterType}" data-value="${value}" data-button-size="${buttonSize}">${displayValue}</span>`;
         }).join('');
 
+        container.innerHTML = optionsHTML;
         console.log(`🏷️ Populated ${filterId} filter with ${config.data.length} options:`, config.data.slice(0, 5));
+      } else if (!container) {
+        console.warn(`⚠️ Container not found for ${filterId}`);
+      } else if (config.data.length === 0) {
+        console.warn(`⚠️ No data for ${filterId}`);
       }
     });
+
+    console.log('✅ Filter population complete');
   }
 
   // Function to handle filter selection - factorized
@@ -1152,8 +1163,10 @@ let selectedFilters = { cities: [], countries: [], styles: [], roles: [], pol: [
         // Initialize country mapping first, then populate filter options
         initCountryMapping();
 
-        // Populate dynamic filter options
-        populateFilterOptions(artists);
+        // Populate dynamic filter options with a small delay to ensure DOM is ready
+        setTimeout(() => {
+          populateFilterOptions(artists);
+        }, 100);
 
         // Log that filter options are ready
         console.log('✅ Filter options populated and ready for interaction');
@@ -1571,7 +1584,7 @@ let selectedFilters = { cities: [], countries: [], styles: [], roles: [], pol: [
 
       // Filter options
       const filterOption = e.target.closest('.filter-option');
-      if (filterOption && allArtists && allArtists.length > 0) {
+      if (filterOption && typeof allArtists !== 'undefined' && allArtists && allArtists.length > 0) {
         console.log('🔒 PERMANENT filter option:', filterOption);
         e.preventDefault();
         e.stopPropagation();
@@ -1606,31 +1619,50 @@ let selectedFilters = { cities: [], countries: [], styles: [], roles: [], pol: [
     console.log('✅ PERMANENT events attached and locked');
   }
 
-  // Main application initialization - simplified approach
-  let appInitialized = false;
+  // Main application initialization - always fresh start
+  let isInitializing = false;
   function initializeApp() {
-    if (appInitialized) {
-      console.log('⚠️ App already initialized, skipping...');
+    console.log('🚀 Initializing application...');
+
+    // Prevent multiple simultaneous initializations
+    if (isInitializing) {
+      console.log('⏳ Already initializing, skipping...');
       return;
     }
 
-    appInitialized = true;
-    console.log('🚀 Initializing application...');
-
-    // ONLY attach permanent events - everything else is secondary
+    // Always attach permanent events (they're idempotent)
     attachPermanentEvents();
 
-    // Then initialize map
-    initializeMap().catch(error => {
+    // Always do full initialization for reliability
+    console.log('🆕 Full initialization...');
+    isInitializing = true;
+
+    initializeMap().then(() => {
+      isInitializing = false;
+      console.log('✅ Initialization complete');
+    }).catch(error => {
       console.error('🗺️ Map initialization failed:', error);
+      isInitializing = false;
     });
   }
 
-  // Cleanup function for proper resource management
+  // Full cleanup function - always clean everything for reliability
   function cleanupApp() {
-    console.log('🧹 Cleaning up application...');
+    console.log('🧹 Full cleanup - removing everything...');
+
+    // Reset all initialization flags
+    isInitializing = false;
+    permanentEventsAttached = false;
+
+    // Clear data
+    if (typeof allArtists !== 'undefined') allArtists = [];
+    if (typeof filteredArtists !== 'undefined') filteredArtists = [];
+
+    // Cleanup map and events
     cleanupEvents();
     cleanupMap();
+
+    console.log('✅ Cleanup complete');
   }
 
   // IMMEDIATE attachment of permanent events - before everything else
@@ -1644,7 +1676,7 @@ let selectedFilters = { cities: [], countries: [], styles: [], roles: [], pol: [
   // Astro page load (includes first load and View Transitions)
   document.addEventListener('astro:page-load', initializeApp);
 
-  // Before page transition - cleanup (but keep permanent events)
+  // Before page transition - full cleanup for reliability
   document.addEventListener('astro:before-swap', cleanupApp);
 
   // After page transition - reinitialize

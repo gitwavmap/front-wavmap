@@ -453,6 +453,11 @@ const currentPath = Astro.url.pathname;
 
     if (!joinBtn || !dropdown || !dropdownContainer || !navbar) return;
 
+    // Remove existing event listeners to prevent duplicates
+    joinBtn.removeEventListener('click', joinBtn._dropdownToggle);
+
+    console.log('🔄 Initializing community dropdown...');
+
     let isOpen = false;
 
     function openDropdown() {
@@ -483,7 +488,8 @@ const currentPath = Astro.url.pathname;
       }
     }
 
-    // Button click handler
+    // Button click handler - store reference for removal
+    joinBtn._dropdownToggle = toggleDropdown;
     joinBtn.addEventListener('click', toggleDropdown);
 
     // Close when clicking outside
@@ -503,6 +509,12 @@ const currentPath = Astro.url.pathname;
 
   // Initialize dropdown
   document.addEventListener('DOMContentLoaded', function() {
+    initNavigation();
+    initCommunityDropdown();
+  });
+
+  // Re-initialize on Astro page transitions
+  document.addEventListener('astro:page-load', function() {
     initNavigation();
     initCommunityDropdown();
   });
