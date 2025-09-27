@@ -609,6 +609,47 @@ let selectedFilters = { cities: [], countries: [], styles: [], roles: [], pol: [
   }
 
 
+  // Function to get random artist from filtered artists
+  function getRandomArtist() {
+    if (!filteredArtists || filteredArtists.length === 0) {
+      console.log('⚠️ No artists available for shuffle');
+      return null;
+    }
+
+    const randomIndex = Math.floor(Math.random() * filteredArtists.length);
+    const randomArtist = filteredArtists[randomIndex];
+
+    console.log('🎲 Shuffled to random artist:', randomArtist.artistName);
+    return randomArtist;
+  }
+
+  // Function to handle shuffle button click
+  function handleShuffle() {
+    const randomArtist = getRandomArtist();
+    if (!randomArtist) return;
+
+    // Center map on artist coordinates
+    if (window.wavmapInstance && randomArtist.longitude != null && randomArtist.latitude != null) {
+      const map = window.wavmapInstance;
+
+      // Fly to the artist location with a nice animation
+      map.flyTo({
+        center: [parseFloat(randomArtist.longitude), parseFloat(randomArtist.latitude)],
+        zoom: 12, // Zoom in to see the artist location clearly
+        duration: 2000, // 2 second animation
+        essential: true
+      });
+
+      // Wait for the animation to complete, then show artist detail
+      setTimeout(() => {
+        showArtistDetail(randomArtist);
+      }, 2200); // Slightly after animation ends
+    } else {
+      // If no map or coordinates, just show artist detail
+      showArtistDetail(randomArtist);
+    }
+  }
+
   // Functions to toggle between filters and artist content
   function showArtistDetail(artist) {
     const filtersContent = document.getElementById('filters-content');
@@ -793,6 +834,13 @@ let selectedFilters = { cities: [], countries: [], styles: [], roles: [], pol: [
         if (e.target.closest('#close-artist-panel')) {
           console.log('❌ Close artist panel clicked');
           showFiltersContent();
+          return;
+        }
+
+        // Shuffle button
+        if (e.target.closest('.shuffle')) {
+          console.log('🎲 Shuffle button clicked');
+          handleShuffle();
           return;
         }
 
@@ -1463,6 +1511,13 @@ let selectedFilters = { cities: [], countries: [], styles: [], roles: [], pol: [
       if (e.target.closest('#close-artist-panel')) {
         console.log('🔒 PERMANENT close artist panel');
         showFiltersContent();
+        return;
+      }
+
+      // Shuffle button
+      if (e.target.closest('.shuffle')) {
+        console.log('🔒 PERMANENT shuffle button clicked');
+        handleShuffle();
         return;
       }
 
