@@ -81,18 +81,20 @@ let selectedFilters = { cities: [], countries: [], styles: [], roles: [], pol: [
       <!-- Artist Detail Content (hidden by default) -->
       <div id="artist-content" class="artist-content hidden">
         <div style={{backgroundColor: "white", padding: "1rem", height: "calc(100% - 2rem)", margin: "1rem", boxSizing: "border-box", overflowY: "auto"}}>
-          
+
           <div id="close-artist-panel" class="close-hover-btn">
             <img src={BackBtn.src} alt="Close" class="close-btn-normal" />
             <img src={BackBtnBg.src} alt="Close" class="close-btn-hover" />
           </div>
-          <!-- Artist Photo -->
-          <div class="artist-photo-container">
-            <img id="artist-photo" class="artist-photo" src="" alt="Artist Photo" />
-          </div>
+
 
           <!-- Artist Name -->
-          <h2 id="artist-name" class="artist-name">Artist Name</h2>
+          <h2 id="artist-name-display" class="artist-name">Artist Name</h2>
+
+          <!-- Pronouns -->
+          <div id="artist-pronouns-container" class="artist-pronouns-container hidden">
+            <p id="artist-pronouns" class="artist-pronouns"></p>
+          </div>
 
           <!-- Location -->
           <h3 id="artist-location" class="artist-location">CITY - COUNTRY</h3>
@@ -109,11 +111,18 @@ let selectedFilters = { cities: [], countries: [], styles: [], roles: [], pol: [
 
           <!-- Social Media Links -->
           <div class="social-media-links">
-            <span id="youtube-link" class="social-link">YT</span>
-            <span class="separator">|</span>
             <span id="instagram-link" class="social-link">IN</span>
             <span class="separator">|</span>
             <span id="soundcloud-link" class="social-link">SC</span>
+            <span class="separator">|</span>
+            <span id="spotify-link" class="social-link">SP</span>
+          </div>
+
+          <!-- Activities & Genres Tags -->
+          <div class="tags-line">
+            <div id="all-tags" class="tags-inline">
+              <!-- Tags will be populated dynamically -->
+            </div>
           </div>
 
           <!-- Decorative line -->
@@ -121,12 +130,26 @@ let selectedFilters = { cities: [], countries: [], styles: [], roles: [], pol: [
             <img src={Separator.src} alt="Separator" />
           </div>
 
-          <!-- All Tags on single line -->
-          <div class="tags-line">
-            <div id="all-tags" class="tags-inline">
-              <!-- Tags will be populated dynamically -->
+          <!-- Social/Political Topics -->
+          <div id="social-topics-container" class="social-topics-container hidden">
+            <h4 class="section-title">Social & Political Engagement</h4>
+            <div id="social-topics" class="topics-content">
+              <!-- Social topics will be populated dynamically -->
             </div>
           </div>
+
+          <!-- Themes & Development -->
+          <div id="themes-container" class="themes-container hidden">
+            <h4 class="section-title">Themes & Development</h4>
+            <p id="themes-development-display" class="themes-content"></p>
+          </div>
+
+          <!-- Club Politics / Political Approach -->
+          <div id="club-politics-container" class="club-politics-container hidden">
+            <h4 class="section-title">Political Approach</h4>
+            <p id="club-politics-display" class="club-politics-content"></p>
+          </div>
+
         </div>
       </div>
     </div>
@@ -661,51 +684,44 @@ let selectedFilters = { cities: [], countries: [], styles: [], roles: [], pol: [
     filtersContent.classList.add('hidden');
     artistContent.classList.remove('hidden');
 
-    // Populate artist details
-    document.getElementById('artist-name').textContent = artist.artistName || 'Unknown Artist';
+    console.log('🎨 Showing artist detail for:', artist.artistName);
+    console.log('🔍 Full artist object:', artist);
+    console.log('🔍 Artist keys:', Object.keys(artist));
+    console.log('🔍 themesDevelopment:', artist.themesDevelopment);
+    console.log('🔍 clubPolitics:', artist.clubPolitics);
+
+    // Populate basic info
+    const artistNameElement = document.getElementById('artist-name-display');
+    console.log('📝 Setting artist name:', artist.artistName, 'Element:', artistNameElement);
+    artistNameElement.textContent = artist.artistName || 'Unknown Artist';
+
+    // Use full country name instead of code
+    const countryName = getCountryDisplayName(artist.country) || artist.country || 'Unknown Country';
     document.getElementById('artist-location').textContent =
-      `${(artist.city || 'Unknown City').toUpperCase()} - ${(artist.country || 'Unknown Country').toUpperCase()}`;
+      `${(artist.city || 'Unknown City').toUpperCase()} - ${countryName.toUpperCase()}`;
 
-    // Set artist photo
-    const artistPhoto = document.getElementById('artist-photo');
-    if (artist.profile_image) {
-      // Generate Directus asset URL
-      const directusUrl = 'https://directus-production-1f5c.up.railway.app';
-      artistPhoto.src = `${directusUrl}/assets/${artist.profile_image}`;
-      artistPhoto.style.display = 'block';
+    // Pronouns
+    const pronounsContainer = document.getElementById('artist-pronouns-container');
+    const pronounsElement = document.getElementById('artist-pronouns');
 
-      // Add error handling for missing images
-      artistPhoto.onerror = function() {
-        console.log('Failed to load profile image:', artist.profile_image);
-        this.style.display = 'none';
-      };
+    if (artist.pronouns && artist.pronouns.trim()) {
+      pronounsContainer.classList.remove('hidden');
+      pronounsElement.textContent = `Pronouns: ${artist.pronouns}`;
     } else {
-      artistPhoto.style.display = 'none';
+      pronounsContainer.classList.add('hidden');
     }
+
 
     // Set bio
     document.getElementById('artist-bio').textContent = artist.bio || 'No bio available.';
 
     // Handle social media links
-    const youtubeLink = document.getElementById('youtube-link');
     const instagramLink = document.getElementById('instagram-link');
     const soundcloudLink = document.getElementById('soundcloud-link');
-
-    // YouTube link
-    if (artist.youtube) {
-      youtubeLink.onclick = () => window.open(artist.youtube, '_blank');
-      youtubeLink.style.color = '#000';
-      youtubeLink.style.cursor = 'pointer';
-      youtubeLink.classList.remove('disabled');
-    } else {
-      youtubeLink.style.color = '#ccc';
-      youtubeLink.style.cursor = 'default';
-      youtubeLink.onclick = null;
-      youtubeLink.classList.add('disabled');
-    }
+    const spotifyLink = document.getElementById('spotify-link');
 
     // Instagram link
-    if (artist.instagram) {
+    if (artist.instagram && artist.instagram.trim()) {
       instagramLink.onclick = () => window.open(artist.instagram, '_blank');
       instagramLink.style.color = '#000';
       instagramLink.style.cursor = 'pointer';
@@ -718,7 +734,7 @@ let selectedFilters = { cities: [], countries: [], styles: [], roles: [], pol: [
     }
 
     // SoundCloud link
-    if (artist.soundcloud) {
+    if (artist.soundcloud && artist.soundcloud.trim()) {
       soundcloudLink.onclick = () => window.open(artist.soundcloud, '_blank');
       soundcloudLink.style.color = '#000';
       soundcloudLink.style.cursor = 'pointer';
@@ -728,6 +744,19 @@ let selectedFilters = { cities: [], countries: [], styles: [], roles: [], pol: [
       soundcloudLink.style.cursor = 'default';
       soundcloudLink.onclick = null;
       soundcloudLink.classList.add('disabled');
+    }
+
+    // Spotify link
+    if (artist.spotify && artist.spotify.trim()) {
+      spotifyLink.onclick = () => window.open(artist.spotify, '_blank');
+      spotifyLink.style.color = '#000';
+      spotifyLink.style.cursor = 'pointer';
+      spotifyLink.classList.remove('disabled');
+    } else {
+      spotifyLink.style.color = '#ccc';
+      spotifyLink.style.cursor = 'default';
+      spotifyLink.onclick = null;
+      spotifyLink.classList.add('disabled');
     }
 
     // Populate ALL tags on single line
@@ -751,6 +780,50 @@ let selectedFilters = { cities: [], countries: [], styles: [], roles: [], pol: [
           : `<span class="tag-inline">${tag}</span>`
       ).join('');
       allTagsContainer.innerHTML = tagsHTML;
+    }
+
+    // Social/Political Topics
+    const socialTopicsContainer = document.getElementById('social-topics-container');
+    const socialTopicsElement = document.getElementById('social-topics');
+
+    if (artist.socialTopics && Array.isArray(artist.socialTopics) && artist.socialTopics.length > 0) {
+      socialTopicsContainer.classList.remove('hidden');
+      const topicsHTML = artist.socialTopics.map(topic =>
+        `<span class="topic-tag">${getSocialTopicLabel(topic)}</span>`
+      ).join('');
+      socialTopicsElement.innerHTML = topicsHTML;
+    } else {
+      socialTopicsContainer.classList.add('hidden');
+    }
+
+    // Themes & Development
+    const themesContainer = document.getElementById('themes-container');
+    const themesElement = document.getElementById('themes-development-display');
+
+    console.log('🎭 Themes section - Value:', artist.themesDevelopment, 'Container:', themesContainer, 'Element:', themesElement);
+    if (artist.themesDevelopment && artist.themesDevelopment.trim()) {
+      console.log('✅ Showing themes section');
+      themesContainer.classList.remove('hidden');
+      themesElement.textContent = artist.themesDevelopment;
+      console.log('📝 Set themes text to:', themesElement.textContent);
+    } else {
+      console.log('❌ Hiding themes section');
+      themesContainer.classList.add('hidden');
+    }
+
+    // Club Politics
+    const clubPoliticsContainer = document.getElementById('club-politics-container');
+    const clubPoliticsElement = document.getElementById('club-politics-display');
+
+    console.log('🏛️ Politics section - Value:', artist.clubPolitics, 'Container:', clubPoliticsContainer, 'Element:', clubPoliticsElement);
+    if (artist.clubPolitics && artist.clubPolitics.trim()) {
+      console.log('✅ Showing politics section');
+      clubPoliticsContainer.classList.remove('hidden');
+      clubPoliticsElement.textContent = artist.clubPolitics;
+      console.log('📝 Set politics text to:', clubPoliticsElement.textContent);
+    } else {
+      console.log('❌ Hiding politics section');
+      clubPoliticsContainer.classList.add('hidden');
     }
   }
 
@@ -1402,16 +1475,22 @@ let selectedFilters = { cities: [], countries: [], styles: [], roles: [], pol: [
 
                 // Add click event to show artist in filters container
                 markerElement.addEventListener('click', () => {
-                  // Convert properties back to artist object format
-                  const artistData = {
-                    id: properties.id,
-                    artistName: properties.artistName,
-                    city: properties.city,
-                    country: properties.country,
-                    activities: properties.activities ? properties.activities.split(', ') : [],
-                    genres: properties.genres ? properties.genres.split(', ') : []
-                  };
-                  showArtistDetail(artistData);
+                  // Find full artist data from allArtists array
+                  const fullArtist = allArtists.find(a => a.id === properties.id);
+                  if (fullArtist) {
+                    showArtistDetail(fullArtist);
+                  } else {
+                    // Fallback with basic data
+                    const artistData = {
+                      id: properties.id,
+                      artistName: properties.artistName,
+                      city: properties.city,
+                      country: properties.country,
+                      activities: properties.activities ? properties.activities.split(', ') : [],
+                      genres: properties.genres ? properties.genres.split(', ') : []
+                    };
+                    showArtistDetail(artistData);
+                  }
                 });
 
                 const marker = new mapboxgl.Marker(markerElement)
@@ -1604,33 +1683,27 @@ let selectedFilters = { cities: [], countries: [], styles: [], roles: [], pol: [
       );
   }
 
-  /* Artist photo */
-  .artist-photo-container {
-    display: flex;
-    justify-content: center;
-    margin: 1.5rem 0;
-  }
-
-  .artist-photo {
-    border: 2px solid black;
-    clip-path: polygon(
-      20% 0,
-      100% 0,
-      100% 40%,
-      80% 100%,
-      0 100%,
-      0% 60%
-    );
-    height: 200px;
-    width: 280px;
-    object-fit: cover;
-  }
 
   /* Artist name */
   .artist-name {
     font-size: 24px;
     font-weight: 900;
     text-transform: uppercase;
+    margin-bottom: 0.5rem;
+  }
+
+  /* Pronouns */
+  .artist-pronouns-container {
+    text-align: center;
+    margin-bottom: 1rem;
+  }
+
+  .artist-pronouns {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #555;
+    margin: 0.25rem 0;
+    font-style: italic;
   }
 
   /* Artist location */
@@ -1735,6 +1808,54 @@ let selectedFilters = { cities: [], countries: [], styles: [], roles: [], pol: [
     font-size: 0.9rem;
     color: #000;
     font-weight: 900;
+  }
+
+  /* Section titles */
+  .section-title {
+    font-size: 1.1rem;
+    font-weight: 800;
+    color: #000;
+    text-transform: uppercase;
+    margin: 1.5rem 0 0.8rem 0;
+    letter-spacing: 0.5px;
+  }
+
+  /* Social topics */
+  .social-topics-container, .themes-container, .club-politics-container {
+    margin: 1.5rem 0;
+    padding: 1rem;
+    background: rgba(0, 0, 0, 0.05);
+    border-radius: 8px;
+    display: block !important;
+  }
+
+  .social-topics-container.hidden, .themes-container.hidden, .club-politics-container.hidden {
+    display: none !important;
+  }
+
+  .topics-content {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .topic-tag {
+    background: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 0.3rem 0.6rem;
+    border-radius: 15px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: capitalize;
+  }
+
+  /* Themes and club politics content */
+  .themes-content, .club-politics-content {
+    font-size: 0.95rem;
+    line-height: 1.6;
+    color: #333;
+    margin: 0;
+    text-align: justify;
   }
 
   .filters-container {

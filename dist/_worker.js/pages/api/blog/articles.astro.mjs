@@ -23,7 +23,8 @@ const GET = async ({ url, locals }) => {
           "status",
           "date_created",
           "date_updated",
-          "published_date"
+          "published_date",
+          "post_number"
         ],
         filter: {
           status: {

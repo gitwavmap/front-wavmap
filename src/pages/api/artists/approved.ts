@@ -13,10 +13,15 @@ interface MapboxArtistData {
   longitude: number;
   activities: string[];
   genres: string[];
-  bio?: string;
-  instagram?: string;
-  soundcloud?: string;
-  spotify?: string;
+  socialTopics: string[];
+  clubPolitics: string;
+  themesDevelopment: string;
+  pronouns: string;
+  bio: string;
+  instagram: string;
+  soundcloud: string;
+  spotify: string;
+  profile_image: string;
 }
 
 // Client Directus réutilisable (connection pooling)
@@ -56,6 +61,8 @@ export const GET: APIRoute = async ({ request, locals }) => {
           'musicalstyles',
           'socialtopics',
           'anyotherpoliticalapproach',
+          'linksbetweenthemeandwork',
+          'pronouns',
           'bio',
           'instagram',
           'soundcloud',
@@ -147,7 +154,14 @@ export const GET: APIRoute = async ({ request, locals }) => {
         activities,
         genres,
         socialTopics,
-        clubPolitics: artist.anyotherpoliticalapproach || ''
+        clubPolitics: artist.anyotherpoliticalapproach || '',
+        themesDevelopment: artist.linksbetweenthemeandwork || '',
+        pronouns: artist.pronouns || '',
+        bio: artist.bio || '',
+        instagram: artist.instagram || '',
+        soundcloud: artist.soundcloud || '',
+        spotify: artist.spotify || '',
+        profile_image: artist.profile_image || ''
       };
       
       return result;
