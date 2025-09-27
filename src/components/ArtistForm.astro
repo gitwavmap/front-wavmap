@@ -16,11 +16,6 @@ const currentLang = getLocale();
     </div>
 
     <div class="form-group">
-      <label for="real-name">{m.real_name({}, { locale: 'en' })}</label>
-      <input type="text" id="real-name" name="realName">
-    </div>
-
-    <div class="form-group">
       <label for="pronouns">{m.pronouns({}, { locale: 'en' })}</label>
       <input type="text" id="pronouns" name="pronouns" placeholder={m.pronouns_placeholder({}, { locale: 'en' })}>
     </div>
