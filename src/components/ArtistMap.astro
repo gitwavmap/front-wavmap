@@ -54,8 +54,6 @@ let selectedFilters = { cities: [], countries: [], styles: [], roles: [], pol: [
     <div class="filters-container">
       <!-- Filters Content (shown by default) -->
       <div id="filters-content" class="filters-content">
-        <h2>{m.artist_map_title()}</h2>
-
         {filters.map(filter => (
           <div key={filter.id} class="filter-wrapper">
             <button
