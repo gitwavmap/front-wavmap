@@ -1040,8 +1040,8 @@ let selectedFilters = { cities: [], countries: [], styles: [], roles: [], pol: [
           type: 'geojson',
           data: geojsonData,
           cluster: true,
-          clusterMaxZoom: 14,
-          clusterRadius: 50
+          clusterMaxZoom: 10,  // Reduced from 14 to 10 - clusters will break apart sooner
+          clusterRadius: 30    // Reduced from 50 to 30 pixels - smaller cluster radius
         });
 
         // Implémentation du clustering selon le tutoriel officiel Mapbox
@@ -1079,7 +1079,7 @@ let selectedFilters = { cities: [], countries: [], styles: [], roles: [], pol: [
 
           // Simple distance-based clustering
           const clustered = [];
-          const clusterRadius = 80; // pixels
+          const clusterRadius = 40; // pixels - reduced from 80 to match smaller clusters
           const processed = new Set();
 
           filteredArtists.forEach((artist, index) => {
@@ -1089,7 +1089,8 @@ let selectedFilters = { cities: [], countries: [], styles: [], roles: [], pol: [
             const cluster = {
               coordinates: artistCoords,
               artists: [artist],
-              indices: [index]
+              indices: [index],
+              allCoords: [artistCoords] // Track all coordinates for centroid calculation
             };
 
             // Find nearby artists for clustering
@@ -1107,9 +1108,17 @@ let selectedFilters = { cities: [], countries: [], styles: [], roles: [], pol: [
               if (pixelDistance < clusterRadius) {
                 cluster.artists.push(otherArtist);
                 cluster.indices.push(otherIndex);
+                cluster.allCoords.push(otherCoords); // Add coordinates to list
                 processed.add(otherIndex);
               }
             });
+
+            // Calculate centroid (geometric center) of all points in the cluster
+            if (cluster.allCoords.length > 1) {
+              const avgLng = cluster.allCoords.reduce((sum, coord) => sum + coord[0], 0) / cluster.allCoords.length;
+              const avgLat = cluster.allCoords.reduce((sum, coord) => sum + coord[1], 0) / cluster.allCoords.length;
+              cluster.coordinates = [avgLng, avgLat];
+            }
 
             processed.add(index);
             clustered.push(cluster);
