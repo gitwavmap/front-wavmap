@@ -38,6 +38,12 @@ import * as m from '../paraglide/messages.js';
       <button type="submit" class="btn btn-primary btn-lg w-full" id="login-submit">
         {m.login({}, { locale: 'en' })}
       </button>
+
+      <div class="text-center mt-4">
+        <a href="/forgot-password" class="forgot-password-link">
+          {m.forgot_password ? m.forgot_password({}, { locale: 'en' }) : 'Forgot Password?'}
+        </a>
+      </div>
     </form>
   </div>
 
@@ -436,6 +442,28 @@ import * as m from '../paraglide/messages.js';
 
   .hidden {
     display: none;
+  }
+
+  .forgot-password-link {
+    color: #666;
+    text-decoration: none;
+    font-size: 0.875rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    transition: all 0.2s;
+    position: relative;
+  }
+
+  .forgot-password-link:hover {
+    color: black;
+    text-decoration: underline;
+  }
+
+  .forgot-password-link::before {
+    content: "?";
+    margin-right: 0.25rem;
+    font-weight: 900;
   }
 
   /* Responsive */
