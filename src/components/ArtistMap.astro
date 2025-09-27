@@ -1355,32 +1355,13 @@ let selectedFilters = { cities: [], countries: [], styles: [], roles: [], pol: [
         console.log('🚀 Generating immediate clusters...');
         generateManualClusters();
 
-        // Wait for the map to fully render before adding markers
+        // Wait for the map to be fully loaded and ready
         map.once('idle', () => {
-          console.log('🗺️ Map is idle, updating with proper clusters...');
+          console.log('🗺️ Map is idle, adding markers...');
           addCustomMarkers();
         });
 
-        // Alternative: Force render with a small delay
-        setTimeout(() => {
-          console.log('🗺️ Adding markers after timeout...');
-          addCustomMarkers();
-        }, 200);
-
-        // Additional: Force a re-render after source is loaded
-        setTimeout(() => {
-          console.log('🗺️ Final marker update after 1 second...');
-          addCustomMarkers();
-        }, 1000);
-
-        // Mettre à jour les marqueurs lors des changements
-        map.on('data', (e) => {
-          if (e.sourceId === 'points' && e.isSourceLoaded) {
-            console.log('🗺️ Points data loaded, updating markers...');
-            addCustomMarkers();
-          }
-        });
-
+        // Mettre à jour les marqueurs lors des changements de vue
         map.on('zoomend', addCustomMarkers);
         map.on('moveend', addCustomMarkers);
 
@@ -1462,7 +1443,14 @@ let selectedFilters = { cities: [], countries: [], styles: [], roles: [], pol: [
   }
 
   // Main application initialization - simplified approach
+  let appInitialized = false;
   function initializeApp() {
+    if (appInitialized) {
+      console.log('⚠️ App already initialized, skipping...');
+      return;
+    }
+
+    appInitialized = true;
     console.log('🚀 Initializing application...');
 
     // ONLY attach permanent events - everything else is secondary
