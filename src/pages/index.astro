@@ -1,62 +1,17 @@
 ---
 import Layout from '../layouts/Layout.astro';
-import LanguageSelector from '../components/LanguageSelector.astro';
 import * as m from '../paraglide/messages.js';
+import logoGif from '../assets/images/logo.gif'
 ---
 
 <Layout title={m.home_title()} description={m.home_description()}>
-	<!-- Hero Section -->
-	<div class="min-h-screen bg-gradient-primary flex items-center justify-center p-8 relative overflow-hidden">
-		<!-- Sélecteur de langue -->
-		<div class="absolute top-6 right-6 z-20">
-			<LanguageSelector />
-		</div>
-		<!-- Contenu principal -->
-		<div class="max-w-2xl text-center text-white z-10 animate-fade-in">
-			<h1 class="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 leading-tight">
-				{m.welcome_to_platform()}
-				<span class="text-transparent bg-clip-text bg-gradient-to-r from-yellow-300 to-orange-300">
-					Wavmap
-				</span>
-			</h1>
-			
-			<p class="text-lg md:text-xl text-white/90 mb-8 leading-relaxed max-w-lg mx-auto">
-				{m.home_subtitle()}
-			</p>
-			
-			<p class="text-xl md:text-2xl font-semibold text-transparent bg-clip-text bg-gradient-to-r from-purple-300 to-blue-300 mb-12">
-				Underground Music Community
-			</p>
-			
-			<div class="mt-12 flex flex-col sm:flex-row gap-4 items-center justify-center">
-				<a href="/map" class="bg-white text-primary-600 font-bold py-4 px-12 rounded-xl transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:bg-gray-50 text-xl">
-					{m.explore_map()}
-				</a>
-			</div>
-		</div>
-		
-		<!-- Cartes flottantes -->
-		<div class="absolute inset-0 pointer-events-none hidden lg:block">
-			<div class="glass-card absolute top-1/4 left-[10%] p-6 text-white text-center floating-animation" style="animation-delay: 0s;">
-				<div class="text-3xl mb-2">🎧</div>
-				<span class="font-medium">Discover</span>
-			</div>
-			
-			<div class="glass-card absolute top-1/4 right-[15%] p-6 text-white text-center floating-animation" style="animation-delay: 2s;">
-				<div class="text-3xl mb-2">🚀</div>
-				<span class="font-medium">Connect</span>
-			</div>
-			
-			<div class="glass-card absolute bottom-1/4 left-[15%] p-6 text-white text-center floating-animation" style="animation-delay: 4s;">
-				<div class="text-3xl mb-2">🌍</div>
-				<span class="font-medium">Global</span>
-			</div>
-		</div>
-		
-		<!-- Éléments décoratifs -->
-		<div class="absolute top-10 left-10 w-20 h-20 bg-white/10 rounded-full blur-xl"></div>
-		<div class="absolute bottom-10 right-10 w-32 h-32 bg-white/5 rounded-full blur-xl"></div>
-		<div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-white/5 rounded-full blur-3xl -z-10"></div>
+	<div class="h-screen w-screen bg-gradient-primary flex items-center justify-center overflow-hidden">
+		<a href="/map/">
+			<img 
+				src={logoGif.src} 
+				alt="Logo animation" 
+				class="h-full w-full object-contain cursor-pointer"
+			/>
+		</a>
 	</div>
-
 </Layout>
