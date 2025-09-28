@@ -8,9 +8,46 @@ export const POST: APIRoute = async ({ request, cookies, redirect, locals }) => 
   const lastName = formData.get('lastName') as string;
   const email = formData.get("email") as string;
   const password = formData.get('password') as string;
+  const confirmPassword = formData.get('confirmPassword') as string;
 
   if (!firstName || !lastName ||!email || !password) {
-    return new Response(JSON.stringify({ error: "All fields are required" }), { 
+    return new Response(JSON.stringify({ error: "All fields are required" }), {
+      status: 400,
+      headers: { 'Content-Type': 'application/json' }
+    });
+  }
+
+  // Enhanced password validation
+  const passwordErrors = [];
+
+  if (password.length < 8) {
+    passwordErrors.push('at least 8 characters');
+  }
+
+  if (!/[a-zA-Z]/.test(password)) {
+    passwordErrors.push('at least one letter');
+  }
+
+  if (!/\d/.test(password)) {
+    passwordErrors.push('at least one number');
+  }
+
+  if (!/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password)) {
+    passwordErrors.push('at least one special character');
+  }
+
+  if (passwordErrors.length > 0) {
+    return new Response(JSON.stringify({
+      error: `Password must contain ${passwordErrors.join(', ')}`
+    }), {
+      status: 400,
+      headers: { 'Content-Type': 'application/json' }
+    });
+  }
+
+  // Check password confirmation (if provided)
+  if (confirmPassword && password !== confirmPassword) {
+    return new Response(JSON.stringify({ error: "Passwords do not match" }), {
       status: 400,
       headers: { 'Content-Type': 'application/json' }
     });

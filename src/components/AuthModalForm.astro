@@ -94,8 +94,48 @@ import * as m from '../paraglide/messages.js';
           id="register-password"
           name="password"
           class="form-input"
+          minlength="8"
           required
         />
+        <div id="register-password-requirements" class="password-requirements mt-2 text-sm text-gray-600">
+          <p class="font-medium mb-1">Password must contain:</p>
+          <ul class="space-y-1">
+            <li id="register-req-length" class="flex items-center">
+              <span class="requirement-icon">✗</span>
+              <span class="ml-2">At least 8 characters</span>
+            </li>
+            <li id="register-req-letters" class="flex items-center">
+              <span class="requirement-icon">✗</span>
+              <span class="ml-2">At least one letter</span>
+            </li>
+            <li id="register-req-numbers" class="flex items-center">
+              <span class="requirement-icon">✗</span>
+              <span class="ml-2">At least one number</span>
+            </li>
+            <li id="register-req-special" class="flex items-center">
+              <span class="requirement-icon">✗</span>
+              <span class="ml-2">At least one special character</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="register-confirm-password" class="form-label">{m.confirmPassword ? m.confirmPassword({}, { locale: 'en' }) : 'Confirm Password'}</label>
+        <input
+          type="password"
+          id="register-confirm-password"
+          name="confirmPassword"
+          class="form-input"
+          minlength="8"
+          required
+        />
+        <div id="password-match-indicator" class="mt-2 text-sm hidden">
+          <div class="flex items-center">
+            <span id="match-icon" class="requirement-icon">✗</span>
+            <span class="ml-2" id="match-text">Passwords do not match</span>
+          </div>
+        </div>
       </div>
 
       <button type="submit" class="btn btn-primary btn-lg w-full" id="register-submit">
@@ -120,6 +160,95 @@ import * as m from '../paraglide/messages.js';
     const registerSubmit = document.getElementById('register-submit');
     const loginError = document.getElementById('login-error');
     const registerError = document.getElementById('register-error');
+    const registerPasswordInput = document.getElementById('register-password');
+    const registerConfirmPasswordInput = document.getElementById('register-confirm-password');
+
+    // Password validation functions
+    function validatePassword(password) {
+      const errors = [];
+
+      if (password.length < 8) {
+        errors.push('at least 8 characters');
+      }
+
+      if (!/[a-zA-Z]/.test(password)) {
+        errors.push('at least one letter');
+      }
+
+      if (!/\d/.test(password)) {
+        errors.push('at least one number');
+      }
+
+      if (!/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password)) {
+        errors.push('at least one special character');
+      }
+
+      return {
+        isValid: errors.length === 0,
+        errors
+      };
+    }
+
+    function updateRegisterPasswordRequirements(password) {
+      const requirements = {
+        length: password.length >= 8,
+        letters: /[a-zA-Z]/.test(password),
+        numbers: /\d/.test(password),
+        special: /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password)
+      };
+
+      const reqLength = document.getElementById('register-req-length');
+      const reqLetters = document.getElementById('register-req-letters');
+      const reqNumbers = document.getElementById('register-req-numbers');
+      const reqSpecial = document.getElementById('register-req-special');
+
+      if (reqLength) {
+        reqLength.className = requirements.length ? 'flex items-center requirement-met' : 'flex items-center';
+        reqLength.querySelector('.requirement-icon').textContent = requirements.length ? '✓' : '✗';
+      }
+
+      if (reqLetters) {
+        reqLetters.className = requirements.letters ? 'flex items-center requirement-met' : 'flex items-center';
+        reqLetters.querySelector('.requirement-icon').textContent = requirements.letters ? '✓' : '✗';
+      }
+
+      if (reqNumbers) {
+        reqNumbers.className = requirements.numbers ? 'flex items-center requirement-met' : 'flex items-center';
+        reqNumbers.querySelector('.requirement-icon').textContent = requirements.numbers ? '✓' : '✗';
+      }
+
+      if (reqSpecial) {
+        reqSpecial.className = requirements.special ? 'flex items-center requirement-met' : 'flex items-center';
+        reqSpecial.querySelector('.requirement-icon').textContent = requirements.special ? '✓' : '✗';
+      }
+    }
+
+    function updatePasswordMatchIndicator() {
+      const password = registerPasswordInput?.value || '';
+      const confirmPassword = registerConfirmPasswordInput?.value || '';
+      const matchIndicator = document.getElementById('password-match-indicator');
+      const matchIcon = document.getElementById('match-icon');
+      const matchText = document.getElementById('match-text');
+
+      if (!confirmPassword) {
+        matchIndicator?.classList.add('hidden');
+        return;
+      }
+
+      matchIndicator?.classList.remove('hidden');
+
+      const passwordsMatch = password === confirmPassword;
+
+      if (passwordsMatch) {
+        matchIndicator.className = 'mt-2 text-sm requirement-met';
+        matchIcon.textContent = '✓';
+        matchText.textContent = 'Passwords match';
+      } else {
+        matchIndicator.className = 'mt-2 text-sm';
+        matchIcon.textContent = '✗';
+        matchText.textContent = 'Passwords do not match';
+      }
+    }
 
     // Tab switching
     loginTab?.addEventListener('click', () => {
@@ -169,12 +298,40 @@ import * as m from '../paraglide/messages.js';
       }
     });
 
+    // Real-time password validation for register form
+    registerPasswordInput?.addEventListener('input', () => {
+      const password = registerPasswordInput.value;
+      updateRegisterPasswordRequirements(password);
+      updatePasswordMatchIndicator();
+    });
+
+    registerConfirmPasswordInput?.addEventListener('input', () => {
+      updatePasswordMatchIndicator();
+    });
+
     // Register form handling
     document.getElementById('auth-register-form')?.addEventListener('submit', async (e) => {
       e.preventDefault();
       const formData = new FormData(e.target);
+      const password = formData.get('password');
+      const confirmPassword = formData.get('confirmPassword');
       const originalText = registerSubmit?.textContent;
-      
+
+      // Client-side password validation
+      const validation = validatePassword(password);
+      if (!validation.isValid) {
+        registerError.textContent = `Password must contain ${validation.errors.join(', ')}.`;
+        registerError.classList.remove('hidden');
+        return;
+      }
+
+      // Check password confirmation
+      if (password !== confirmPassword) {
+        registerError.textContent = 'Passwords do not match.';
+        registerError.classList.remove('hidden');
+        return;
+      }
+
       try {
         registerSubmit.disabled = true;
         registerSubmit.textContent = signingUp;
@@ -442,6 +599,34 @@ import * as m from '../paraglide/messages.js';
 
   .hidden {
     display: none;
+  }
+
+  .password-requirements {
+    color: rgba(255, 255, 255, 0.8);
+  }
+
+  .password-requirements .font-medium {
+    color: white;
+    font-weight: 700;
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    letter-spacing: 0.5px;
+  }
+
+  .requirement-icon {
+    color: #ef4444;
+    font-weight: bold;
+    font-size: 14px;
+    min-width: 16px;
+    text-align: center;
+  }
+
+  .requirement-met {
+    color: #22c55e;
+  }
+
+  .requirement-met .requirement-icon {
+    color: #22c55e;
   }
 
   .forgot-password-link {

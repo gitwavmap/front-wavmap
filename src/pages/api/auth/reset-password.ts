@@ -13,8 +13,36 @@ export const POST: APIRoute = async ({ request, locals }) => {
       });
     }
 
-    if (!password || password.length < 6) {
-      return new Response(JSON.stringify({ error: "Password must be at least 6 characters long" }), { 
+    // Enhanced password validation
+    if (!password) {
+      return new Response(JSON.stringify({ error: "Password is required" }), {
+        status: 400,
+        headers: { 'Content-Type': 'application/json' }
+      });
+    }
+
+    const passwordErrors = [];
+
+    if (password.length < 8) {
+      passwordErrors.push('at least 8 characters');
+    }
+
+    if (!/[a-zA-Z]/.test(password)) {
+      passwordErrors.push('at least one letter');
+    }
+
+    if (!/\d/.test(password)) {
+      passwordErrors.push('at least one number');
+    }
+
+    if (!/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password)) {
+      passwordErrors.push('at least one special character');
+    }
+
+    if (passwordErrors.length > 0) {
+      return new Response(JSON.stringify({
+        error: `Password must contain ${passwordErrors.join(', ')}`
+      }), {
         status: 400,
         headers: { 'Content-Type': 'application/json' }
       });
