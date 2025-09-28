@@ -3,27 +3,10 @@ import Layout from '../layouts/Layout.astro';
 import Navbar from '../components/Navbar.astro';
 import * as m from '../paraglide/messages.js';
 import Footer from '../components/Footer.astro';
+import BlogArticle from '../components/BlogArticle.astro';
 
-import CountImg from '../assets/images/count_img.svg'
-
-// Fetch initial articles server-side
-let articles = [];
-let hasMore = false;
-let error = null;
-
-try {
-  const response = await fetch(`${Astro.url.origin}/api/blog/articles?page=1&limit=10`);
-  const result = await response.json();
-  
-  if (result.success) {
-    articles = result.data.articles;
-    hasMore = result.data.pagination.hasMore;
-  } else {
-    error = result.error;
-  }
-} catch (e) {
-  error = 'Failed to load articles';
-}
+// Start with skeleton loading - articles will be loaded client-side
+const initialSkeletonCount = 6;
 ---
 
 <Layout title={`Blog - Wavmap`} description="Wavmap Blog - Underground music community stories">
@@ -36,75 +19,39 @@ try {
 
 				<!-- Articles Grid -->
 				<div id="articles-container">
-					{error ? (
-						<div class="bg-red-50 border border-red-200 rounded-lg p-8 text-center">
-							<div class="text-4xl mb-4">⚠️</div>
-							<h2 class="text-2xl font-semibold text-red-800 mb-4">Error Loading Articles</h2>
-							<p class="text-red-600">{error}</p>
-						</div>
-					) : articles.length === 0 ? (
-						<div class="bg-white rounded-2xl shadow-sm p-12 text-center">
-							<div class="text-8xl mb-6">📝</div>
-							<h2 class="text-3xl font-semibold text-gray-900 mb-6">No Articles Yet</h2>
-							<p class="text-lg text-gray-600 max-w-md mx-auto">
-								We're working on bringing you the latest stories and insights from the underground music scene.
-							</p>
-						</div>
-					) : (
-						<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8" id="articles-grid">
-							{articles.map((article: any) => (
-								<article class="">
-									{article.imageUrl && (
-										<div class="aspect-video ">
-											<img 
-												src={article.imageUrl} 
-												alt={article.title}
-												class="w-full h-full object-cover"
-											/>
-										</div>
-									)}
-									<div class="article">
-                    <div class="divider-container">
-                      <div class="divider"/>
-                      <div class="count">
-                        <img src={CountImg.src} alt="" />
-                        <p>{article.post_number ? String(article.post_number).padStart(3, '0') : '001'}</p>
-                      </div>
-                    </div>
-										<h2 class="text-xl font-semibold" style={{color: "black"}}>
-											<a href={`/blog/${article.slug}`} class="hover:text-primary-600 transition-colors">
-												{article.title}
-											</a>
-										</h2>
-										<p class="text-gray-600 mb-4 line-clamp-3">
-											{article.excerpt || 'No preview available'}
-										</p>
-										{/* <div class="flex items-center justify-between text-sm text-gray-500">
-											<span>
-												By Admin
-											</span>
-											<time>
-												{new Date(article.published_date || article.date_created).toLocaleDateString()}
-											</time>
-										</div> */}
-									</div>
-								</article>
-							))}
-						</div>
-					)}
+					<!-- Error message (hidden by default) -->
+					<div id="error-message" class="bg-red-50 border border-red-200 rounded-lg p-8 text-center hidden">
+						<div class="text-4xl mb-4">⚠️</div>
+						<h2 class="text-2xl font-semibold text-red-800 mb-4">Error Loading Articles</h2>
+						<p class="text-red-600" id="error-text"></p>
+					</div>
+
+					<!-- No articles message (hidden by default) -->
+					<div id="no-articles-message" class="bg-white rounded-2xl shadow-sm p-12 text-center hidden">
+						<div class="text-8xl mb-6">📝</div>
+						<h2 class="text-3xl font-semibold text-gray-900 mb-6">No Articles Yet</h2>
+						<p class="text-lg text-gray-600 max-w-md mx-auto">
+							We're working on bringing you the latest stories and insights from the underground music scene.
+						</p>
+					</div>
+
+					<!-- Articles Grid with initial skeleton loading -->
+					<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8" id="articles-grid">
+						{Array.from({ length: initialSkeletonCount }, (_, i) => (
+							<BlogArticle skeleton={true} />
+						))}
+					</div>
 				</div>
 
-				<!-- Load More Button -->
-				{hasMore && !error && (
-					<div class="text-center mt-12">
-						<button 
-							id="load-more-btn"
-							class="bg-primary-600 text-white px-8 py-3 rounded-lg font-medium hover:bg-primary-700 transition-colors"
-						>
-							Load More Articles
-						</button>
-					</div>
-				)}
+				<!-- Load More Button (hidden by default) -->
+				<div class="text-center mt-12 hidden" id="load-more-container">
+					<button
+						id="load-more-btn"
+						class="bg-primary-600 text-white px-8 py-3 rounded-lg font-medium hover:bg-primary-700 transition-colors"
+					>
+						Load More Articles
+					</button>
+				</div>
 
 				<!-- Loading indicator -->
 				<div id="loading-indicator" class="hidden text-center mt-12">
@@ -119,79 +66,111 @@ try {
 	</div>
 </Layout>
 
-<script define:vars={{ hasMore: hasMore }}>
+<script>
   let currentPage = 1;
   let isLoading = false;
-  let hasMoreArticles = hasMore;
+  let hasMoreArticles = false;
+  let allArticles = [];
 
-  function initBlogPagination() {
-    const loadMoreBtn = document.getElementById('load-more-btn');
-    const loadingIndicator = document.getElementById('loading-indicator');
-    const articlesGrid = document.getElementById('articles-grid');
+  // Cache configuration
+  const CACHE_KEY = 'wavmap_blog_articles';
+  const CACHE_EXPIRY_KEY = 'wavmap_blog_cache_expiry';
+  const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
 
-    if (!loadMoreBtn || !articlesGrid) return;
+  function getFromCache() {
+    try {
+      const cachedData = localStorage.getItem(CACHE_KEY);
+      const cacheExpiry = localStorage.getItem(CACHE_EXPIRY_KEY);
 
-    loadMoreBtn.addEventListener('click', async function() {
-      if (isLoading || !hasMoreArticles) return;
-
-      isLoading = true;
-      currentPage++;
-
-      // Show loading indicator
-      loadingIndicator.classList.remove('hidden');
-      loadMoreBtn.style.display = 'none';
-
-      try {
-        const response = await fetch(`/api/blog/articles?page=${currentPage}&limit=10`);
-        const result = await response.json();
-
-        if (result.success && result.data.articles.length > 0) {
-          // Add new articles to the grid
-          result.data.articles.forEach(article => {
-            const articleElement = createArticleElement(article);
-            articlesGrid.appendChild(articleElement);
-          });
-
-          hasMoreArticles = result.data.pagination.hasMore;
-
-          // Show/hide load more button based on hasMore
-          if (hasMoreArticles) {
-            loadMoreBtn.style.display = 'inline-block';
-          }
-        } else {
-          hasMoreArticles = false;
-        }
-      } catch (error) {
-        console.error('Error loading more articles:', error);
-        alert('Error loading more articles. Please try again.');
-      } finally {
-        isLoading = false;
-        loadingIndicator.classList.add('hidden');
-        
-        if (!hasMoreArticles) {
-          loadMoreBtn.style.display = 'none';
-        }
+      if (cachedData && cacheExpiry && Date.now() < parseInt(cacheExpiry)) {
+        return JSON.parse(cachedData);
       }
-    });
+    } catch (error) {
+      console.warn('Error reading from cache:', error);
+    }
+    return null;
   }
 
-  function createArticleElement(article) {
-    const articleEl = document.createElement('article');
-    articleEl.className = '';
+  function saveToCache(data) {
+    try {
+      localStorage.setItem(CACHE_KEY, JSON.stringify(data));
+      localStorage.setItem(CACHE_EXPIRY_KEY, (Date.now() + CACHE_DURATION).toString());
+    } catch (error) {
+      console.warn('Error saving to cache:', error);
+    }
+  }
 
-    const featuredImage = article.imageUrl 
+  function showError(message) {
+    const errorDiv = document.getElementById('error-message');
+    const errorText = document.getElementById('error-text');
+    const articlesGrid = document.getElementById('articles-grid');
+
+    if (errorDiv && errorText && articlesGrid) {
+      errorText.textContent = message;
+      errorDiv.classList.remove('hidden');
+      articlesGrid.classList.add('hidden');
+    }
+  }
+
+  function showNoArticles() {
+    const noArticlesDiv = document.getElementById('no-articles-message');
+    const articlesGrid = document.getElementById('articles-grid');
+
+    if (noArticlesDiv && articlesGrid) {
+      noArticlesDiv.classList.remove('hidden');
+      articlesGrid.classList.add('hidden');
+    }
+  }
+
+  function replaceSkeletonWithArticle(articleElement, article, index) {
+    const skeletonElement = articleElement;
+
+    // Create the image HTML if there's an image
+    const imageHtml = article.imageUrl
       ? `<div class="aspect-video">
-           <img src="${article.imageUrl}" alt="${article.title}" class="w-full h-full object-cover">
+           <img src="${article.imageUrl}" alt="${article.title}" class="w-full h-full object-cover" style="clip-path: polygon(20% 0, 100% 0, 100% 40%, 80% 100%, 0 100%, 0% 60%);">
          </div>`
       : '';
 
+    const postNumber = article.post_number ? String(article.post_number).padStart(3, '0') : String(index + 1).padStart(3, '0');
     const excerpt = article.excerpt || 'No preview available';
-    const date = new Date(article.published_date || article.date_created).toLocaleDateString();
 
-    const postNumber = article.post_number ? String(article.post_number).padStart(3, '0') : '001';
+    // Replace the skeleton content with real article content
+    skeletonElement.innerHTML = `
+      ${imageHtml}
+      <div class="article">
+        <div class="divider-container">
+          <div class="divider"></div>
+          <div class="count">
+            <img src="/src/assets/images/count_img.svg" alt="" />
+            <p>${postNumber}</p>
+          </div>
+        </div>
+        <h2 class="text-xl font-semibold" style="color: black">
+          <a href="/blog/${article.slug}" class="hover:text-primary-600 transition-colors">
+            ${article.title}
+          </a>
+        </h2>
+        <p class="text-gray-600 mb-4 line-clamp-3">${excerpt}</p>
+      </div>
+    `;
+  }
+
+  function createArticleElement(article, index) {
+    const articleEl = document.createElement('article');
+    articleEl.className = '';
+
+    const imageHtml = article.imageUrl
+      ? `<div class="aspect-video">
+           <img src="${article.imageUrl}" alt="${article.title}" class="w-full h-full object-cover" style="clip-path: polygon(20% 0, 100% 0, 100% 40%, 80% 100%, 0 100%, 0% 60%);">
+         </div>`
+      : '';
+
+    const postNumber = article.post_number ? String(article.post_number).padStart(3, '0') : String(index + 1).padStart(3, '0');
+    const excerpt = article.excerpt || 'No preview available';
 
     articleEl.innerHTML = `
-      ${featuredImage}
+      ${imageHtml}
       <div class="article">
         <div class="divider-container">
           <div class="divider"></div>
@@ -212,87 +191,156 @@ try {
     return articleEl;
   }
 
+  async function loadInitialArticles() {
+    try {
+      // Check cache first
+      const cachedData = getFromCache();
+      if (cachedData && cachedData.articles.length > 0) {
+        displayArticles(cachedData.articles, cachedData.hasMore, true);
+        return;
+      }
+
+      // Load from API
+      const response = await fetch('/api/blog/articles?page=1&limit=10');
+      const result = await response.json();
+
+      if (result.success) {
+        const { articles, pagination } = result.data;
+
+        // Save to cache
+        saveToCache({
+          articles,
+          hasMore: pagination.hasMore
+        });
+
+        displayArticles(articles, pagination.hasMore, false);
+      } else {
+        showError(result.error || 'Failed to load articles');
+      }
+    } catch (error) {
+      console.error('Error loading articles:', error);
+      showError('Failed to load articles. Please try again.');
+    }
+  }
+
+  function displayArticles(articles, hasMore, fromCache) {
+    const articlesGrid = document.getElementById('articles-grid');
+    const loadMoreContainer = document.getElementById('load-more-container');
+    const existingArticles = articlesGrid.querySelectorAll('article');
+
+    if (articles.length === 0) {
+      showNoArticles();
+      return;
+    }
+
+    allArticles = articles;
+    hasMoreArticles = hasMore;
+    currentPage = 1;
+
+    // Replace skeletons with real articles
+    articles.forEach((article, index) => {
+      if (index < existingArticles.length) {
+        // Replace existing skeleton
+        replaceSkeletonWithArticle(existingArticles[index], article, index);
+      } else {
+        // Add new article element
+        const articleElement = createArticleElement(article, index);
+        articlesGrid.appendChild(articleElement);
+      }
+    });
+
+    // Remove any remaining skeletons
+    if (articles.length < existingArticles.length) {
+      for (let i = articles.length; i < existingArticles.length; i++) {
+        existingArticles[i].remove();
+      }
+    }
+
+    // Show load more button if there are more articles
+    if (hasMore && loadMoreContainer) {
+      loadMoreContainer.classList.remove('hidden');
+    }
+  }
+
+  async function loadMoreArticles() {
+    if (isLoading || !hasMoreArticles) return;
+
+    isLoading = true;
+    currentPage++;
+
+    const loadMoreBtn = document.getElementById('load-more-btn');
+    const loadingIndicator = document.getElementById('loading-indicator');
+    const articlesGrid = document.getElementById('articles-grid');
+
+    // Show loading indicator
+    if (loadingIndicator) loadingIndicator.classList.remove('hidden');
+    if (loadMoreBtn) loadMoreBtn.style.display = 'none';
+
+    try {
+      const response = await fetch(`/api/blog/articles?page=${currentPage}&limit=10`);
+      const result = await response.json();
+
+      if (result.success && result.data.articles.length > 0) {
+        // Add new articles to the grid
+        result.data.articles.forEach((article, index) => {
+          const articleElement = createArticleElement(article, allArticles.length + index);
+          articlesGrid.appendChild(articleElement);
+        });
+
+        allArticles = [...allArticles, ...result.data.articles];
+        hasMoreArticles = result.data.pagination.hasMore;
+
+        // Update cache with all articles
+        saveToCache({
+          articles: allArticles,
+          hasMore: hasMoreArticles
+        });
+
+        // Show/hide load more button
+        const loadMoreContainer = document.getElementById('load-more-container');
+        if (hasMoreArticles && loadMoreContainer) {
+          loadMoreContainer.classList.remove('hidden');
+        } else if (loadMoreContainer) {
+          loadMoreContainer.classList.add('hidden');
+        }
+      } else {
+        hasMoreArticles = false;
+        const loadMoreContainer = document.getElementById('load-more-container');
+        if (loadMoreContainer) loadMoreContainer.classList.add('hidden');
+      }
+    } catch (error) {
+      console.error('Error loading more articles:', error);
+      alert('Error loading more articles. Please try again.');
+    } finally {
+      isLoading = false;
+      if (loadingIndicator) loadingIndicator.classList.add('hidden');
+
+      if (hasMoreArticles && loadMoreBtn) {
+        loadMoreBtn.style.display = 'inline-block';
+      }
+    }
+  }
+
+  function initBlog() {
+    // Load initial articles
+    loadInitialArticles();
+
+    // Set up load more button
+    const loadMoreBtn = document.getElementById('load-more-btn');
+    if (loadMoreBtn) {
+      loadMoreBtn.addEventListener('click', loadMoreArticles);
+    }
+  }
+
   // Initialize when DOM is loaded
-  document.addEventListener('DOMContentLoaded', initBlogPagination);
-  
+  document.addEventListener('DOMContentLoaded', initBlog);
+
   // Also initialize immediately in case DOM is already loaded
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initBlogPagination);
+    document.addEventListener('DOMContentLoaded', initBlog);
   } else {
-    initBlogPagination();
+    initBlog();
   }
 </script>
 
-<style>
-  /* Line clamp utilities for text truncation */
-  .line-clamp-2 {
-    
-  }
-  
-  .line-clamp-3 {
-    
-  }
-
-  .article {
-    color: black !important;
-    padding: 1rem 0 1rem 0;
-  }
-
-  .article p {
-    color: black
-  }
-
-  .article a {
-    color: black;
-    text-transform: uppercase;
-  }
-
-  .divider-container {
-    display: flex;
-    gap: 1rem;
-
-  }
-  .divider {
-    width: 100%;
-    height: 2px;
-    background-color: black;
-  }
-
-  .divider-container {
-    position: relative;
-  }
-
-  .divider-container img {
-    height: 22px;
-    position: relative;
-  }
-
-  .count {
-    position: relative;
-  }
-
-  .divider-container p {
-    font-weight: 700;
-    font-size: 10px;
-    color: white;
-    position: absolute;
-    top: 3px;
-    left: 4px;
-  }
-
-  /* Aspect ratio utility */
-  .aspect-video {
-    aspect-ratio: 16 / 9;
-  }
-
-  .aspect-video img {
-    clip-path: polygon(
-    20% 0,
-    100% 0,
-    100% 40%,
-    80% 100%,
-    0 100%,
-    0% 60%
-  );
-  }
-</style>
+<!-- Styles now in globals.css to avoid Astro scoping issues -->

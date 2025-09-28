@@ -336,3 +336,78 @@ h3 {
 .navbar {
   background-color: #A4A4A4 !important;
 }
+
+/* Blog Articles Styles - Global to avoid Astro scoping issues */
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.line-clamp-3 {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.article {
+  color: black !important;
+  padding: 1rem 0 1rem 0;
+}
+
+.article p {
+  color: black !important;
+}
+
+.article a {
+  color: black !important;
+  text-transform: uppercase;
+}
+
+.divider-container {
+  display: flex;
+  gap: 1rem;
+  position: relative;
+}
+
+.divider {
+  width: 100%;
+  height: 2px;
+  background-color: black;
+}
+
+.divider-container img {
+  height: 22px;
+  position: relative;
+}
+
+.count {
+  position: relative;
+}
+
+.divider-container p {
+  font-weight: 700;
+  font-size: 10px;
+  color: white !important;
+  position: absolute;
+  top: 3px;
+  left: 4px;
+}
+
+/* Aspect ratio utility */
+.aspect-video {
+  aspect-ratio: 16 / 9;
+}
+
+.aspect-video img {
+  clip-path: polygon(
+    20% 0,
+    100% 0,
+    100% 40%,
+    80% 100%,
+    0 100%,
+    0% 60%
+  );
+}
