@@ -1,7 +1,7 @@
 globalThis.process ??= {}; globalThis.process.env ??= {};
 import { d as defineMiddleware, s as sequence } from './chunks/index_CXI7KtHC.mjs';
-import { c as createTokenClient } from './chunks/directus_CRJ8d9Pu.mjs';
-import { V as Vm } from './chunks/index_Dhdmj7aT.mjs';
+import { c as createTokenClient } from './chunks/directus_C0rBbLrA.mjs';
+import { V as Vm } from './chunks/index_Brr1gO2v.mjs';
 import { c as cookieName, i as isLocale, d as defineGetLocale, r } from './chunks/runtime_DSWkPTzG.mjs';
 import './chunks/astro-designed-error-pages_D-ToA2Uv.mjs';
 import './chunks/astro/server_BB4k16uX.mjs';

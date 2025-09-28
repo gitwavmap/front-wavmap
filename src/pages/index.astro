@@ -1,10 +1,14 @@
 ---
 import Layout from '../layouts/Layout.astro';
-import * as m from '../paraglide/messages.js';
+import { siteConfig } from '../config/metadata.ts';
 import logoGif from '../assets/images/logo.gif'
 ---
 
-<Layout title={m.home_title()} description={m.home_description()}>
+<Layout
+	title={siteConfig.pages.home.title}
+	description={siteConfig.pages.home.description}
+	lang="en"
+>
 	<div class="h-screen w-screen bg-gradient-primary flex items-center justify-center overflow-hidden">
 		<a href="/map/">
 			<img 

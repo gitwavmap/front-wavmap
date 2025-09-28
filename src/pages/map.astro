@@ -3,10 +3,14 @@ import Layout from '../layouts/Layout.astro';
 import ArtistMap from '../components/ArtistMap.astro';
 import Navbar from '../components/Navbar.astro';
 import Footer from '../components/Footer.astro';
-import * as m from '../paraglide/messages.js';
+import { siteConfig } from '../config/metadata.ts';
 ---
 
-<Layout title={`${m.artist_map_title()} - Wavmap`} description={m.artist_map_description()}>
+<Layout
+	title={siteConfig.pages.map.title}
+	description={siteConfig.pages.map.description}
+	lang="en"
+>
 	<!-- Map Page -->
 	<div class="min-h-screen" style={{backgroundColor: "#A4A4A4"}}>
 		<Navbar currentPage="map" />

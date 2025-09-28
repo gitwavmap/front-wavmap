@@ -1,6 +1,6 @@
 globalThis.process ??= {}; globalThis.process.env ??= {};
-import { a as createDirectusClient } from '../../../chunks/directus_CRJ8d9Pu.mjs';
-import { B as Bp } from '../../../chunks/index_Dhdmj7aT.mjs';
+import { a as createDirectusClient } from '../../../chunks/directus_C0rBbLrA.mjs';
+import { B as Bp } from '../../../chunks/index_Brr1gO2v.mjs';
 export { renderers } from '../../../renderers.mjs';
 
 const POST = async ({ request, cookies, redirect, locals }) => {
@@ -9,8 +9,36 @@ const POST = async ({ request, cookies, redirect, locals }) => {
   const lastName = formData.get("lastName");
   const email = formData.get("email");
   const password = formData.get("password");
+  const confirmPassword = formData.get("confirmPassword");
   if (!firstName || !lastName || !email || !password) {
     return new Response(JSON.stringify({ error: "All fields are required" }), {
+      status: 400,
+      headers: { "Content-Type": "application/json" }
+    });
+  }
+  const passwordErrors = [];
+  if (password.length < 8) {
+    passwordErrors.push("at least 8 characters");
+  }
+  if (!/[a-zA-Z]/.test(password)) {
+    passwordErrors.push("at least one letter");
+  }
+  if (!/\d/.test(password)) {
+    passwordErrors.push("at least one number");
+  }
+  if (!/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password)) {
+    passwordErrors.push("at least one special character");
+  }
+  if (passwordErrors.length > 0) {
+    return new Response(JSON.stringify({
+      error: `Password must contain ${passwordErrors.join(", ")}`
+    }), {
+      status: 400,
+      headers: { "Content-Type": "application/json" }
+    });
+  }
+  if (confirmPassword && password !== confirmPassword) {
+    return new Response(JSON.stringify({ error: "Passwords do not match" }), {
       status: 400,
       headers: { "Content-Type": "application/json" }
     });

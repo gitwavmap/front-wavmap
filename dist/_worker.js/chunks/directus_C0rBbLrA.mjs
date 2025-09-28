@@ -1,5 +1,5 @@
 globalThis.process ??= {}; globalThis.process.env ??= {};
-import { l as le, j as ju, p as pe, n as ne } from './index_Dhdmj7aT.mjs';
+import { l as le, j as ju, p as pe, n as ne } from './index_Brr1gO2v.mjs';
 
 function createDirectusClient(directusUrl) {
   const client = le(directusUrl).with(ju()).with(ne("cookie", { credentials: "include" }));

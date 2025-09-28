@@ -1,5 +1,5 @@
 globalThis.process ??= {}; globalThis.process.env ??= {};
-import { a as createDirectusClient } from '../../../chunks/directus_CRJ8d9Pu.mjs';
+import { a as createDirectusClient } from '../../../chunks/directus_C0rBbLrA.mjs';
 export { renderers } from '../../../renderers.mjs';
 
 const POST = async ({ request, cookies, redirect, locals }) => {

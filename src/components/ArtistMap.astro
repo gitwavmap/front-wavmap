@@ -1621,12 +1621,20 @@ let selectedFilters = { cities: [], countries: [], styles: [], roles: [], pol: [
 
   // Main application initialization - always fresh start
   let isInitializing = false;
+  let isAppInitialized = false; // Global flag to prevent View Transitions re-initialization
+
   function initializeApp() {
     console.log('🚀 Initializing application...');
 
-    // Prevent multiple simultaneous initializations
+    // Prevent multiple simultaneous initializations and View Transitions conflicts
     if (isInitializing) {
       console.log('⏳ Already initializing, skipping...');
+      return;
+    }
+
+    // Prevent View Transitions from reinitializing the same instance
+    if (isAppInitialized && window.wavmapInstance) {
+      console.log('✅ App already initialized, skipping duplicate initialization');
       return;
     }
 
@@ -1639,6 +1647,7 @@ let selectedFilters = { cities: [], countries: [], styles: [], roles: [], pol: [
 
     initializeMap().then(() => {
       isInitializing = false;
+      isAppInitialized = true; // Mark as fully initialized for View Transitions
       console.log('✅ Initialization complete');
     }).catch(error => {
       console.error('🗺️ Map initialization failed:', error);
@@ -1652,6 +1661,7 @@ let selectedFilters = { cities: [], countries: [], styles: [], roles: [], pol: [
 
     // Reset all initialization flags
     isInitializing = false;
+    isAppInitialized = false; // Reset for View Transitions
     permanentEventsAttached = false;
 
     // Clear data
