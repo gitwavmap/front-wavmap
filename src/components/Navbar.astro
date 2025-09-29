@@ -97,12 +97,15 @@ const currentPath = Astro.url.pathname;
     justify-content: space-between;
     align-items: center;
     gap: 1rem;
-    margin: 0 1rem;
+    margin: 0;
+    padding: 0 1rem; /* Use padding instead of margin to keep full width */
     position: sticky;
     top: 0;
     height: 80px;
     background: white;
     z-index: 100;
+    width: 100%;
+    box-sizing: border-box;
   }
 
   .navbar::after {
@@ -268,6 +271,11 @@ const currentPath = Astro.url.pathname;
     transform: translateY(-1px);
   }
 
+  /* No hover effect when dropdown is open (showing close icon) */
+  .community-dropdown-container.dropdown-state .community-button:hover {
+    transform: none;
+  }
+
   .community-content {
     display: flex;
     flex-direction: row;
@@ -285,6 +293,7 @@ const currentPath = Astro.url.pathname;
     position: relative;
     width: 30%;
     height: inherit;
+    margin-right: -1rem; /* Extend to edge by compensating navbar padding */
   }
 
   .community-dropdown-container .community-button {
@@ -336,7 +345,8 @@ const currentPath = Astro.url.pathname;
     position: fixed;
     top: 80px;
     right: 0;
-    width: 30%;
+    /* Match the button width: 30% of viewport minus navbar padding */
+    width: calc(30vw - 0.6rem);
     background: linear-gradient(to right, #E9930F, #3E44E6, #8FD116);
     border: none;
     border-radius: 0;
@@ -480,9 +490,9 @@ const currentPath = Astro.url.pathname;
       dropdown.classList.add('hidden');
       navbar.classList.remove('dropdown-open');
       dropdownContainer.classList.remove('dropdown-state');
-      // Reset button style
-      joinBtn.style.background = 'white';
-      joinBtn.style.color = 'black';
+      // Reset button style - remove inline styles to allow CSS hover to work
+      joinBtn.style.background = '';
+      joinBtn.style.color = '';
       // Restore body scroll
       document.body.style.overflow = '';
       isOpen = false;
