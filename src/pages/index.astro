@@ -1,7 +1,36 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import { siteConfig } from '../config/metadata.ts';
-import logoGif from '../assets/images/logo.gif'
+
+// Import all 22 animation steps
+import step01 from '../assets/animations/homeanim-01.svg';
+import step02 from '../assets/animations/homeanim-02.svg';
+import step03 from '../assets/animations/homeanim-03.svg';
+import step04 from '../assets/animations/homeanim-04.svg';
+import step05 from '../assets/animations/homeanim-05.svg';
+import step06 from '../assets/animations/homeanim-06.svg';
+import step07 from '../assets/animations/homeanim-07.svg';
+import step08 from '../assets/animations/homeanim-08.svg';
+import step09 from '../assets/animations/homeanim-09.svg';
+import step10 from '../assets/animations/homeanim-10.svg';
+import step11 from '../assets/animations/homeanim-11.svg';
+import step12 from '../assets/animations/homeanim-12.svg';
+import step13 from '../assets/animations/homeanim-13.svg';
+import step14 from '../assets/animations/homeanim-14.svg';
+import step15 from '../assets/animations/homeanim-15.svg';
+import step16 from '../assets/animations/homeanim-16.svg';
+import step17 from '../assets/animations/homeanim-17.svg';
+import step18 from '../assets/animations/homeanim-18.svg';
+import step19 from '../assets/animations/homeanim-19.svg';
+import step20 from '../assets/animations/homeanim-20.svg';
+import step21 from '../assets/animations/homeanim-21.svg';
+import step22 from '../assets/animations/homeanim-22.svg';
+
+const animationSteps = [
+	step01, step02, step03, step04, step05, step06, step07, step08,
+	step09, step10, step11, step12, step13, step14, step15, step16,
+	step17, step18, step19, step20, step21, step22
+];
 ---
 
 <Layout
@@ -9,13 +38,147 @@ import logoGif from '../assets/images/logo.gif'
 	description={siteConfig.pages.home.description}
 	lang="en"
 >
-	<div class="h-screen w-screen bg-gradient-primary flex items-center justify-center overflow-hidden">
-		<a href="/map/">
-			<img 
-				src={logoGif.src} 
-				alt="Logo animation" 
-				class="h-full w-full object-contain cursor-pointer"
-			/>
+	<div class="homepage-wrapper">
+		<a href="/map/" class="animation-container" id="logo-animation">
+			<!-- All 22 frames stacked on top of each other -->
+			{animationSteps.map((step, index) => (
+				<img
+					src={step.src}
+					alt={`Logo animation step ${index + 1}`}
+					class="animation-frame"
+					data-frame={index}
+				/>
+			))}
 		</a>
 	</div>
 </Layout>
+
+<style>
+	/* Force full reset and black background */
+	:global(html),
+	:global(body) {
+		margin: 0 !important;
+		padding: 0 !important;
+		width: 100% !important;
+		height: 100% !important;
+		background-color: black !important;
+		overflow: hidden !important;
+	}
+
+	.homepage-wrapper {
+		position: fixed;
+		top: 0;
+		left: 0;
+		width: 100vw;
+		height: 100vh;
+		background-color: black;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		overflow: hidden;
+	}
+
+	.animation-container {
+		position: relative;
+		width: 80%;
+		height: 80%;
+		max-width: 800px;
+		max-height: 800px;
+		cursor: pointer;
+		/* Black background */
+		background-color: black;
+		padding: 40px;
+		box-sizing: border-box;
+		/* Force centering with flex */
+		display: flex;
+		align-items: center;
+		justify-content: center;
+	}
+
+	.animation-frame {
+		position: absolute;
+		top: 0;
+		left: 0;
+		right: 0;
+		bottom: 0;
+		width: 100%;
+		height: 100%;
+		object-fit: contain;
+		object-position: center center;
+		opacity: 0;
+		transition: none;
+		filter: invert(1);
+		margin: auto; /* Center with margin auto */
+	}
+
+	/* Show first frame by default */
+	.animation-frame[data-frame="0"] {
+		opacity: 1;
+	}
+</style>
+
+<script>
+	const container = document.getElementById('logo-animation');
+	const frames = document.querySelectorAll('.animation-frame');
+	let currentFrame = 0;
+	let isAnimating = false;
+
+	// Preload all images to prevent flashing
+	function preloadImages() {
+		frames.forEach(frame => {
+			const img = new Image();
+			img.src = frame.src;
+		});
+	}
+
+	// Call preload on page load
+	preloadImages();
+
+	function showFrame(frameIndex) {
+		// Use faster, direct manipulation without transition
+		frames.forEach((frame, index) => {
+			frame.style.opacity = index === frameIndex ? '1' : '0';
+		});
+		currentFrame = frameIndex;
+	}
+
+	// Animate through all frames on hover
+	container?.addEventListener('mouseenter', () => {
+		if (isAnimating) return;
+		isAnimating = true;
+
+		let frame = 0;
+		const interval = setInterval(() => {
+			showFrame(frame);
+			frame++;
+
+			if (frame >= frames.length) {
+				clearInterval(interval);
+				isAnimating = false;
+				// Loop back to first frame after animation completes
+				setTimeout(() => {
+					showFrame(0);
+				}, 500);
+			}
+		}, 50); // 50ms per frame = ~20fps, adjust for speed
+	});
+
+	// Optional: scrub through frames based on mouse position
+	container?.addEventListener('mousemove', (e) => {
+		if (isAnimating) return;
+
+		const rect = container.getBoundingClientRect();
+		const x = e.clientX - rect.left;
+		const progress = x / rect.width;
+		const targetFrame = Math.floor(progress * frames.length);
+
+		showFrame(Math.max(0, Math.min(frames.length - 1, targetFrame)));
+	});
+
+	// Reset to first frame when mouse leaves
+	container?.addEventListener('mouseleave', () => {
+		if (!isAnimating) {
+			showFrame(0);
+		}
+	});
+</script>
