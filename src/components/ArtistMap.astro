@@ -44,7 +44,7 @@ let allArtists = []; // Store all artists for filtering
 let selectedFilters = { cities: [], countries: [], styles: [], roles: [], pol: [] }; // Track selected filters
 ---
 
-<div class="map-container">
+<div class="map-container" transition:persist="false">
   <div class="map-wrapper">
     <div id="wavmap" class="map"></div>
     <button class="shuffle">
@@ -889,31 +889,18 @@ let selectedFilters = { cities: [], countries: [], styles: [], roles: [], pol: [
     artistContent.classList.add('hidden');
   }
 
-  // Simple event management - fresh every time
-  let mapContainer = null;
-  let mapClickHandler = null;
-  let mapMouseoverHandler = null;
-  let mapMouseoutHandler = null;
-
+  // Simple event management
   function attachSimpleEvents() {
-    // Only attach events on map page
-    if (!window.location.pathname.includes('/map')) {
-      console.log('🚫 Not on map page, skipping events');
-      return;
-    }
+    console.log('🎯 Attaching events...');
 
-    console.log('🎯 Attaching fresh events...');
-
-    mapContainer = document.querySelector('.map-container');
+    const mapContainer = document.querySelector('.map-container');
     if (!mapContainer) {
       console.warn('⚠️ Map container not found, skipping events');
       return;
     }
 
-    console.log('🎯 Attaching events to map container...');
-
-    // Main click handler - ONLY for map container
-    mapClickHandler = function(e) {
+    // Main click handler
+    const clickHandler = function(e) {
       // Filter toggle buttons
       const filterButton = e.target.closest('.filter');
       if (filterButton) {
@@ -953,7 +940,7 @@ let selectedFilters = { cities: [], countries: [], styles: [], roles: [], pol: [
     };
 
     // Hover effects for filter options
-    mapMouseoverHandler = function(e) {
+    const mouseoverHandler = function(e) {
       const filterOption = e.target.closest('.filter-option');
       if (filterOption && !filterOption.classList.contains('selected')) {
         const buttonSize = filterOption.dataset.buttonSize;
@@ -965,7 +952,7 @@ let selectedFilters = { cities: [], countries: [], styles: [], roles: [], pol: [
       }
     };
 
-    mapMouseoutHandler = function(e) {
+    const mouseoutHandler = function(e) {
       const filterOption = e.target.closest('.filter-option');
       if (filterOption && !filterOption.classList.contains('selected')) {
         filterOption.style.backgroundImage = '';
@@ -973,28 +960,15 @@ let selectedFilters = { cities: [], countries: [], styles: [], roles: [], pol: [
       }
     };
 
-    // Attach to map container only
-    mapContainer.addEventListener('click', mapClickHandler);
-    mapContainer.addEventListener('mouseover', mapMouseoverHandler);
-    mapContainer.addEventListener('mouseout', mapMouseoutHandler);
+    // Attach to map container
+    mapContainer.addEventListener('click', clickHandler);
+    mapContainer.addEventListener('mouseover', mouseoverHandler);
+    mapContainer.addEventListener('mouseout', mouseoutHandler);
 
-    console.log('✅ Fresh events attached to map container');
+    console.log('✅ Events attached to map container');
   }
 
-  function cleanupSimpleEvents() {
-    if (mapContainer && mapClickHandler) {
-      mapContainer.removeEventListener('click', mapClickHandler);
-      mapContainer.removeEventListener('mouseover', mapMouseoverHandler);
-      mapContainer.removeEventListener('mouseout', mapMouseoutHandler);
-
-      mapContainer = null;
-      mapClickHandler = null;
-      mapMouseoverHandler = null;
-      mapMouseoutHandler = null;
-
-      console.log('🧹 Map events cleaned up');
-    }
-  }
+  // Cleanup is handled automatically when page changes with transition:persist="false"
 
 
   
@@ -1500,100 +1474,23 @@ let selectedFilters = { cities: [], countries: [], styles: [], roles: [], pol: [
   }
   
 
-  // Simple initialization - fresh start every time
+  // Simple initialization for isolated map
   function initializeApp() {
-    // Only run on map page
-    if (!window.location.pathname.includes('/map')) {
-      console.log('🚫 Not on map page, skipping initialization');
-      return;
-    }
+    console.log('🚀 Map initialization started...');
 
-    console.log('🚀 Fresh initialization started...');
-
-    // Initialize map and attach events
     initializeMap().then(() => {
       attachSimpleEvents();
-      console.log('✅ Fresh initialization complete');
+      console.log('✅ Map initialization complete');
     }).catch(error => {
       console.error('🗺️ Map initialization failed:', error);
     });
   }
 
-  // Store references to our global listeners for cleanup
-  let domContentLoadedHandler = null;
-  let astroPageLoadHandler = null;
-  let astroBeforeSwapHandler = null;
-  let astroAfterSwapHandler = null;
-
-  // Complete cleanup - destroy everything INCLUDING global listeners
-  function cleanupApp() {
-    console.log('🧹 Complete cleanup including global listeners...');
-
-    // Cleanup events and map completely
-    cleanupSimpleEvents();
-    cleanupMap();
-
-    // Reset all data
-    allArtists = [];
-    filteredArtists = [];
-
-    // CRITICAL: Remove global Astro listeners to prevent persistence
-    if (domContentLoadedHandler) {
-      document.removeEventListener('DOMContentLoaded', domContentLoadedHandler);
-      domContentLoadedHandler = null;
-    }
-    if (astroPageLoadHandler) {
-      document.removeEventListener('astro:page-load', astroPageLoadHandler);
-      astroPageLoadHandler = null;
-    }
-    if (astroBeforeSwapHandler) {
-      document.removeEventListener('astro:before-swap', astroBeforeSwapHandler);
-      astroBeforeSwapHandler = null;
-    }
-    if (astroAfterSwapHandler) {
-      document.removeEventListener('astro:after-swap', astroAfterSwapHandler);
-      astroAfterSwapHandler = null;
-    }
-
-    console.log('✅ Complete cleanup done - all global listeners removed');
-  }
-
-
-  // Astro lifecycle management with proper cleanup
-
-  // Only attach listeners if not already attached
-  if (!domContentLoadedHandler) {
-    console.log('🔧 Attaching global Astro listeners...');
-
-    // Store handlers for cleanup
-    domContentLoadedHandler = initializeApp;
-    astroPageLoadHandler = initializeApp;
-    astroBeforeSwapHandler = cleanupApp;
-    astroAfterSwapHandler = initializeApp;
-
-    // Initial load
-    document.addEventListener('DOMContentLoaded', domContentLoadedHandler);
-
-    // Astro page load (includes first load and View Transitions)
-    document.addEventListener('astro:page-load', astroPageLoadHandler);
-
-    // Before page transition - full cleanup for reliability
-    document.addEventListener('astro:before-swap', astroBeforeSwapHandler);
-
-    // After page transition - reinitialize
-    document.addEventListener('astro:after-swap', astroAfterSwapHandler);
-
-    console.log('✅ Global Astro listeners attached');
-  } else {
-    console.log('🔧 Global listeners already attached, skipping...');
-  }
-
-  // Fallback for immediate execution if DOM is already ready
+  // Simple lifecycle - map is isolated with transition:persist="false"
   if (document.readyState === 'loading') {
-    // DOM not ready yet, event listeners will handle it
+    document.addEventListener('DOMContentLoaded', initializeApp);
   } else {
-    // DOM is already ready, initialize immediately
-    setTimeout(initializeApp, 10);
+    initializeApp();
   }
   
 </script>
