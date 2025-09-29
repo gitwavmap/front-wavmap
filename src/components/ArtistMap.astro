@@ -599,9 +599,46 @@ let selectedFilters = { cities: [], countries: [], styles: [], roles: [], pol: [
     console.log(`📍 Showing ${filteredArtists.length} of ${allArtists.length} artists`);
   }
 
-  // Fetch real artist data from Directus API
+  // Cache configuration
+  const ARTISTS_CACHE_KEY = 'wavmap_artists_cache';
+  const ARTISTS_CACHE_EXPIRY_KEY = 'wavmap_artists_cache_expiry';
+  const CACHE_DURATION = 10 * 60 * 1000; // 10 minutes
+
+  function getArtistsFromCache() {
+    try {
+      const cachedData = localStorage.getItem(ARTISTS_CACHE_KEY);
+      const cacheExpiry = localStorage.getItem(ARTISTS_CACHE_EXPIRY_KEY);
+
+      if (cachedData && cacheExpiry && Date.now() < parseInt(cacheExpiry)) {
+        console.log('✅ Using cached artists data');
+        return JSON.parse(cachedData);
+      }
+    } catch (error) {
+      console.warn('⚠️ Error reading artists cache:', error);
+    }
+    return null;
+  }
+
+  function saveArtistsToCache(artists) {
+    try {
+      localStorage.setItem(ARTISTS_CACHE_KEY, JSON.stringify(artists));
+      localStorage.setItem(ARTISTS_CACHE_EXPIRY_KEY, (Date.now() + CACHE_DURATION).toString());
+      console.log('💾 Artists cached for 10 minutes');
+    } catch (error) {
+      console.warn('⚠️ Error saving artists to cache:', error);
+    }
+  }
+
+  // Fetch real artist data from Directus API with smart caching
   async function loadApprovedArtists() {
     try {
+      // Try cache first
+      const cachedArtists = getArtistsFromCache();
+      if (cachedArtists) {
+        console.log('🚨 DATA SOURCE: CACHED DATA');
+        return cachedArtists;
+      }
+
       console.log('🔍 Fetching artists from API...');
       console.log('🔍 Current timestamp:', new Date().toISOString());
       const response = await fetch('/api/artists/approved?_t=' + Date.now());
@@ -629,8 +666,11 @@ let selectedFilters = { cities: [], countries: [], styles: [], roles: [], pol: [
       }
 
       if (data.success && data.artists && data.artists.length > 0) {
-        console.log('✅ Using real artist data:', data.artists.length, 'artists');
-        console.log('🚨 DATA SOURCE: REAL API DATA');
+        // Save to cache
+        saveArtistsToCache(data.artists);
+
+        console.log('✅ Using fresh API data:', data.artists.length, 'artists');
+        console.log('🚨 DATA SOURCE: FRESH API DATA');
         return data.artists;
       } else {
         console.log('⚠️ No artists found in database');
@@ -849,209 +889,110 @@ let selectedFilters = { cities: [], countries: [], styles: [], roles: [], pol: [
     artistContent.classList.add('hidden');
   }
 
-  // Centralized Event Manager - follows Astro best practices
-  class EventManager {
-    constructor() {
-      this.initialized = false;
-      this.hoverTimeout = null;
-      this.eventHandlers = new Map();
+  // Simple event management - fresh every time
+  let mapContainer = null;
+  let mapClickHandler = null;
+  let mapMouseoverHandler = null;
+  let mapMouseoutHandler = null;
+
+  function attachSimpleEvents() {
+    // Only attach events on map page
+    if (!window.location.pathname.includes('/map')) {
+      console.log('🚫 Not on map page, skipping events');
+      return;
     }
 
-    init() {
-      if (this.initialized) {
-        console.log('🎯 EventManager already initialized');
+    console.log('🎯 Attaching fresh events...');
+
+    mapContainer = document.querySelector('.map-container');
+    if (!mapContainer) {
+      console.warn('⚠️ Map container not found, skipping events');
+      return;
+    }
+
+    console.log('🎯 Attaching events to map container...');
+
+    // Main click handler - ONLY for map container
+    mapClickHandler = function(e) {
+      // Filter toggle buttons
+      const filterButton = e.target.closest('.filter');
+      if (filterButton) {
+        const targetId = filterButton.dataset.target;
+        const filterOptions = document.getElementById(targetId);
+        if (filterOptions) {
+          filterOptions.classList.toggle('hidden');
+          console.log('Toggle filter:', targetId);
+        }
         return;
       }
 
-      console.log('🎯 Initializing EventManager...');
-      this.attachDelegatedEvents();
-      this.attachDirectEvents();
-      this.initialized = true;
-      console.log('✅ EventManager initialized successfully');
-    }
-
-    cleanup() {
-      console.log('🧹 Cleaning up EventManager...');
-      // Remove all event handlers
-      this.eventHandlers.forEach((handler, key) => {
-        const [element, event] = key.split('|');
-        if (element === 'document') {
-          document.removeEventListener(event, handler);
-        }
-      });
-      this.eventHandlers.clear();
-      this.initialized = false;
-    }
-
-    attachDelegatedEvents() {
-      // Use document-level delegation as per best practices
-      const delegatedClickHandler = (e) => {
-        console.log('🔍 Click detected on:', e.target, 'Classes:', e.target.className);
-
-        // Filter button toggles - check both target and closest for img inside button
-        if (e.target.matches('.filter') || e.target.closest('.filter')) {
-          console.log('🎯 Filter toggle button detected');
-          this.handleFilterToggle(e);
-          return;
-        }
-
-        // Filter option clicks - use .closest() for better reliability
-        const filterOption = e.target.closest('.filter-option');
-        if (filterOption) {
-          e.preventDefault();
-          e.stopPropagation();
-          console.log('🎯 Filter option clicked via delegation:', filterOption);
-          this.handleFilterOptionClick(filterOption);
-          return;
-        }
-
-        // Clear all filters button
-        if (e.target.id === 'clear-all-filters-global' || e.target.closest('#clear-all-filters-global')) {
-          e.preventDefault();
-          e.stopPropagation();
-          console.log('🧹 Clear all filters clicked');
-          clearAllFilters();
-          return;
-        }
-
-        // Close artist panel
-        if (e.target.closest('#close-artist-panel')) {
-          console.log('❌ Close artist panel clicked');
-          showFiltersContent();
-          return;
-        }
-
-        // Shuffle button
-        if (e.target.closest('.shuffle')) {
-          console.log('🎲 Shuffle button clicked');
-          handleShuffle();
-          return;
-        }
-
-        console.log('🔍 Click not handled by any filter');
-      };
-
-      // Hover effects for filter options
-      const delegatedMouseoverHandler = (e) => {
-        const filterOption = e.target.closest('.filter-option');
-        if (filterOption && !filterOption.classList.contains('selected')) {
-          clearTimeout(this.hoverTimeout);
-          this.hoverTimeout = setTimeout(() => {
-            this.applyHoverEffect(filterOption);
-          }, 50);
-        }
-      };
-
-      const delegatedMouseoutHandler = (e) => {
-        const filterOption = e.target.closest('.filter-option');
-        if (filterOption && !filterOption.classList.contains('selected')) {
-          clearTimeout(this.hoverTimeout);
-          this.removeHoverEffect(filterOption);
-        }
-      };
-
-      // Attach delegated events
-      document.addEventListener('click', delegatedClickHandler);
-      document.addEventListener('mouseover', delegatedMouseoverHandler);
-      document.addEventListener('mouseout', delegatedMouseoutHandler);
-
-      // Store handlers for cleanup
-      this.eventHandlers.set('document|click', delegatedClickHandler);
-      this.eventHandlers.set('document|mouseover', delegatedMouseoverHandler);
-      this.eventHandlers.set('document|mouseout', delegatedMouseoutHandler);
-
-      console.log('✅ Delegated events attached');
-    }
-
-    attachDirectEvents() {
-      // Direct events for elements that exist at initialization
-      console.log('✅ Direct events would go here if needed');
-    }
-
-    handleFilterToggle(e) {
-      // Find the filter button (could be the target or parent if clicking on img)
-      const filterButton = e.target.matches('.filter') ? e.target : e.target.closest('.filter');
-
-      if (!filterButton) {
-        console.warn('⚠️ Filter button not found');
+      // Filter option clicks
+      const filterOption = e.target.closest('.filter-option');
+      if (filterOption && allArtists && allArtists.length > 0) {
+        handleFilterClick(filterOption);
         return;
       }
 
-      const targetId = filterButton.dataset.target;
-      console.log('🎯 Filter toggle clicked, target ID:', targetId);
-
-      if (!targetId) {
-        console.warn('⚠️ No target ID found on filter button');
+      // Clear all filters
+      if (e.target.id === 'clear-all-filters-global') {
+        clearAllFilters();
         return;
       }
 
-      const el = document.getElementById(targetId);
-      if (el) {
-        el.classList.toggle('hidden');
-        console.log('✅ Toggled hidden class on:', targetId, 'Hidden:', el.classList.contains('hidden'));
-      } else {
-        console.warn('⚠️ Target element not found:', targetId);
-      }
-    }
-
-    handleFilterOptionClick(element) {
-      // Ensure we have valid data before processing
-      if (!element || !allArtists || allArtists.length === 0) {
-        console.warn('⚠️ Filter click ignored - data not ready:', {
-          element: !!element,
-          allArtists: allArtists ? allArtists.length : 0
-        });
+      // Close artist panel
+      if (e.target.closest('#close-artist-panel')) {
+        showFiltersContent();
         return;
       }
 
-      handleFilterClick(element);
-    }
-
-    applyHoverEffect(element) {
-      const buttonSize = element.dataset.buttonSize;
-      const backgroundUrl = buttonBackgrounds[buttonSize];
-      if (backgroundUrl) {
-        element.style.backgroundImage = `url('${backgroundUrl}')`;
-        element.style.opacity = '0.5';
+      // Shuffle button
+      if (e.target.closest('.shuffle')) {
+        handleShuffle();
+        return;
       }
-    }
+    };
 
-    removeHoverEffect(element) {
-      element.style.backgroundImage = '';
-      element.style.opacity = '1';
-    }
+    // Hover effects for filter options
+    mapMouseoverHandler = function(e) {
+      const filterOption = e.target.closest('.filter-option');
+      if (filterOption && !filterOption.classList.contains('selected')) {
+        const buttonSize = filterOption.dataset.buttonSize;
+        const backgroundUrl = buttonBackgrounds[buttonSize];
+        if (backgroundUrl) {
+          filterOption.style.backgroundImage = `url('${backgroundUrl}')`;
+          filterOption.style.opacity = '0.5';
+        }
+      }
+    };
+
+    mapMouseoutHandler = function(e) {
+      const filterOption = e.target.closest('.filter-option');
+      if (filterOption && !filterOption.classList.contains('selected')) {
+        filterOption.style.backgroundImage = '';
+        filterOption.style.opacity = '1';
+      }
+    };
+
+    // Attach to map container only
+    mapContainer.addEventListener('click', mapClickHandler);
+    mapContainer.addEventListener('mouseover', mapMouseoverHandler);
+    mapContainer.addEventListener('mouseout', mapMouseoutHandler);
+
+    console.log('✅ Fresh events attached to map container');
   }
 
-  // Global event manager instance
-  let eventManager = null;
+  function cleanupSimpleEvents() {
+    if (mapContainer && mapClickHandler) {
+      mapContainer.removeEventListener('click', mapClickHandler);
+      mapContainer.removeEventListener('mouseover', mapMouseoverHandler);
+      mapContainer.removeEventListener('mouseout', mapMouseoutHandler);
 
-  // Initialize event manager
-  function initializeEvents() {
-    console.log('🎯 initializeEvents called, current eventManager:', eventManager);
+      mapContainer = null;
+      mapClickHandler = null;
+      mapMouseoverHandler = null;
+      mapMouseoutHandler = null;
 
-    if (!eventManager) {
-      console.log('🎯 Creating new EventManager...');
-      eventManager = new EventManager();
-    }
-
-    console.log('🎯 Calling eventManager.init()...');
-    eventManager.init();
-
-    // Test if events are actually working
-    setTimeout(() => {
-      console.log('🧪 Testing click delegation after 2 seconds...');
-      const testFilters = document.querySelectorAll('.filter');
-      console.log('🧪 Found filter buttons:', testFilters.length);
-      testFilters.forEach((filter, index) => {
-        console.log(`🧪 Filter ${index}:`, filter, 'data-target:', filter.dataset.target);
-      });
-    }, 2000);
-  }
-
-  // Cleanup events
-  function cleanupEvents() {
-    if (eventManager) {
-      eventManager.cleanup();
+      console.log('🧹 Map events cleaned up');
     }
   }
 
@@ -1070,13 +1011,17 @@ let selectedFilters = { cities: [], countries: [], styles: [], roles: [], pol: [
   
   async function initializeMap() {
     const mapContainer = document.getElementById('wavmap');
-    
+
     if (!mapContainer) {
       return;
     }
-    
+
     // Always cleanup existing map first
     cleanupMap();
+
+    // Ensure container is completely empty for Mapbox
+    mapContainer.innerHTML = '';
+    console.log('🧹 Map container cleared completely');
     
     // Wait for Mapbox GL to load with retry mechanism
     let attempts = 0;
@@ -1554,143 +1499,94 @@ let selectedFilters = { cities: [], countries: [], styles: [], roles: [], pol: [
     }
   }
   
-  // Permanent event delegation - cannot be overridden
-  let permanentEventsAttached = false;
 
-  function attachPermanentEvents() {
-    if (permanentEventsAttached) {
-      console.log('🔒 Permanent events already attached');
-      return;
-    }
-
-    console.log('🔒 Attaching PERMANENT event delegation...');
-
-    // Single permanent event listener that cannot be overridden
-    document.addEventListener('click', function permanentClickHandler(e) {
-      console.log('🔒 PERMANENT click handler triggered:', e.target);
-
-      // Filter toggle buttons
-      const filterButton = e.target.closest('.filter');
-      if (filterButton) {
-        console.log('🔒 PERMANENT filter toggle:', filterButton.dataset.target);
-        const targetId = filterButton.dataset.target;
-        const el = document.getElementById(targetId);
-        if (el) {
-          el.classList.toggle('hidden');
-          console.log('🔒 Toggled', targetId, 'hidden:', el.classList.contains('hidden'));
-        }
-        return;
-      }
-
-      // Filter options
-      const filterOption = e.target.closest('.filter-option');
-      if (filterOption && typeof allArtists !== 'undefined' && allArtists && allArtists.length > 0) {
-        console.log('🔒 PERMANENT filter option:', filterOption);
-        e.preventDefault();
-        e.stopPropagation();
-        handleFilterClick(filterOption);
-        return;
-      }
-
-      // Clear all filters
-      if (e.target.id === 'clear-all-filters-global' || e.target.closest('#clear-all-filters-global')) {
-        console.log('🔒 PERMANENT clear filters');
-        clearAllFilters();
-        return;
-      }
-
-      // Close artist panel
-      if (e.target.closest('#close-artist-panel')) {
-        console.log('🔒 PERMANENT close artist panel');
-        showFiltersContent();
-        return;
-      }
-
-      // Shuffle button
-      if (e.target.closest('.shuffle')) {
-        console.log('🔒 PERMANENT shuffle button clicked');
-        handleShuffle();
-        return;
-      }
-
-    }, true); // Use capture phase to ensure it runs first
-
-    permanentEventsAttached = true;
-    console.log('✅ PERMANENT events attached and locked');
-  }
-
-  // Main application initialization - always fresh start
-  let isInitializing = false;
-  let isAppInitialized = false; // Global flag to prevent View Transitions re-initialization
-
+  // Simple initialization - fresh start every time
   function initializeApp() {
-    console.log('🚀 Initializing application...');
-
-    // Prevent multiple simultaneous initializations and View Transitions conflicts
-    if (isInitializing) {
-      console.log('⏳ Already initializing, skipping...');
+    // Only run on map page
+    if (!window.location.pathname.includes('/map')) {
+      console.log('🚫 Not on map page, skipping initialization');
       return;
     }
 
-    // Prevent View Transitions from reinitializing the same instance
-    if (isAppInitialized && window.wavmapInstance) {
-      console.log('✅ App already initialized, skipping duplicate initialization');
-      return;
-    }
+    console.log('🚀 Fresh initialization started...');
 
-    // Always attach permanent events (they're idempotent)
-    attachPermanentEvents();
-
-    // Always do full initialization for reliability
-    console.log('🆕 Full initialization...');
-    isInitializing = true;
-
+    // Initialize map and attach events
     initializeMap().then(() => {
-      isInitializing = false;
-      isAppInitialized = true; // Mark as fully initialized for View Transitions
-      console.log('✅ Initialization complete');
+      attachSimpleEvents();
+      console.log('✅ Fresh initialization complete');
     }).catch(error => {
       console.error('🗺️ Map initialization failed:', error);
-      isInitializing = false;
     });
   }
 
-  // Full cleanup function - always clean everything for reliability
+  // Store references to our global listeners for cleanup
+  let domContentLoadedHandler = null;
+  let astroPageLoadHandler = null;
+  let astroBeforeSwapHandler = null;
+  let astroAfterSwapHandler = null;
+
+  // Complete cleanup - destroy everything INCLUDING global listeners
   function cleanupApp() {
-    console.log('🧹 Full cleanup - removing everything...');
+    console.log('🧹 Complete cleanup including global listeners...');
 
-    // Reset all initialization flags
-    isInitializing = false;
-    isAppInitialized = false; // Reset for View Transitions
-    permanentEventsAttached = false;
-
-    // Clear data
-    if (typeof allArtists !== 'undefined') allArtists = [];
-    if (typeof filteredArtists !== 'undefined') filteredArtists = [];
-
-    // Cleanup map and events
-    cleanupEvents();
+    // Cleanup events and map completely
+    cleanupSimpleEvents();
     cleanupMap();
 
-    console.log('✅ Cleanup complete');
+    // Reset all data
+    allArtists = [];
+    filteredArtists = [];
+
+    // CRITICAL: Remove global Astro listeners to prevent persistence
+    if (domContentLoadedHandler) {
+      document.removeEventListener('DOMContentLoaded', domContentLoadedHandler);
+      domContentLoadedHandler = null;
+    }
+    if (astroPageLoadHandler) {
+      document.removeEventListener('astro:page-load', astroPageLoadHandler);
+      astroPageLoadHandler = null;
+    }
+    if (astroBeforeSwapHandler) {
+      document.removeEventListener('astro:before-swap', astroBeforeSwapHandler);
+      astroBeforeSwapHandler = null;
+    }
+    if (astroAfterSwapHandler) {
+      document.removeEventListener('astro:after-swap', astroAfterSwapHandler);
+      astroAfterSwapHandler = null;
+    }
+
+    console.log('✅ Complete cleanup done - all global listeners removed');
   }
 
-  // IMMEDIATE attachment of permanent events - before everything else
-  attachPermanentEvents();
 
-  // Astro lifecycle management - proper order for SSR + View Transitions
+  // Astro lifecycle management with proper cleanup
 
-  // Initial load
-  document.addEventListener('DOMContentLoaded', initializeApp);
+  // Only attach listeners if not already attached
+  if (!domContentLoadedHandler) {
+    console.log('🔧 Attaching global Astro listeners...');
 
-  // Astro page load (includes first load and View Transitions)
-  document.addEventListener('astro:page-load', initializeApp);
+    // Store handlers for cleanup
+    domContentLoadedHandler = initializeApp;
+    astroPageLoadHandler = initializeApp;
+    astroBeforeSwapHandler = cleanupApp;
+    astroAfterSwapHandler = initializeApp;
 
-  // Before page transition - full cleanup for reliability
-  document.addEventListener('astro:before-swap', cleanupApp);
+    // Initial load
+    document.addEventListener('DOMContentLoaded', domContentLoadedHandler);
 
-  // After page transition - reinitialize
-  document.addEventListener('astro:after-swap', initializeApp);
+    // Astro page load (includes first load and View Transitions)
+    document.addEventListener('astro:page-load', astroPageLoadHandler);
+
+    // Before page transition - full cleanup for reliability
+    document.addEventListener('astro:before-swap', astroBeforeSwapHandler);
+
+    // After page transition - reinitialize
+    document.addEventListener('astro:after-swap', astroAfterSwapHandler);
+
+    console.log('✅ Global Astro listeners attached');
+  } else {
+    console.log('🔧 Global listeners already attached, skipping...');
+  }
 
   // Fallback for immediate execution if DOM is already ready
   if (document.readyState === 'loading') {
