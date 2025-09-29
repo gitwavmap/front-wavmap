@@ -199,6 +199,13 @@ const currentPath = Astro.url.pathname;
       align-items: center;
     }
 
+    /* Force full width when dropdown is open on mobile */
+    .navbar.dropdown-open .community-dropdown-container .community-button {
+      width: 100vw !important;
+      padding: 0 !important;
+      border-radius: 0 !important;
+    }
+
     /* Ajuster le contenu du bouton community */
     .community-content {
       gap: 0.5rem;
@@ -365,6 +372,17 @@ const currentPath = Astro.url.pathname;
     .navbar {
       height: 60px;
       margin: 0;
+      padding: 0 0.5rem; /* Reduce padding on mobile */
+    }
+
+    /* Remove padding when dropdown is open to allow full width */
+    .navbar.dropdown-open {
+      padding: 0 !important;
+    }
+
+    /* Hide navbar bottom line when dropdown is open */
+    .navbar.dropdown-open::after {
+      display: none;
     }
 
     .navbar.dropdown-open .nav-left,
@@ -377,6 +395,12 @@ const currentPath = Astro.url.pathname;
       width: 100%;
       display: flex;
       justify-content: center;
+      margin-right: 0; /* Remove margin compensation on mobile */
+      margin-left: 0;
+    }
+
+    .navbar.dropdown-open .community-button {
+      width: 100vw !important;
     }
 
     .nav-left {
@@ -388,12 +412,17 @@ const currentPath = Astro.url.pathname;
       top: 60px;
       left: 0;
       right: 0;
-      width: 100vw;
+      width: 100vw !important; /* Force full width on mobile */
       height: calc(100vh - 60px);
       z-index: 9999;
       margin: 0;
       padding: 0;
       box-sizing: border-box;
+    }
+
+    .community-dropdown-container {
+      width: auto;
+      position: static;
     }
 
     .community-dropdown-container {

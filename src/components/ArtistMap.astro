@@ -1055,11 +1055,16 @@ let selectedFilters = { cities: [], countries: [], styles: [], roles: [], pol: [
           [ 60, 80 ]   // Nord-est : Inclut complètement la Scandinavie et l'Arctique
       ];
 
+      // Responsive center and zoom for mobile
+      const isMobile = window.innerWidth < 768;
+      const initialCenter = isMobile ? [10, 48] : [10, 54]; // More south on mobile
+      const initialZoom = isMobile ? 2.8 : 3.5; // Much more zoomed out on mobile
+
       const map = new mapboxgl.Map({
         container: 'wavmap',
         style: 'mapbox://styles/mapbox/satellite-v9',
-        center: [10, 54], // Center adjusted for extended Europe
-        zoom: 3.5, // Better initial zoom for extended area
+        center: initialCenter,
+        zoom: initialZoom,
         maxBounds: europeBounds,
         minZoom: 2,
         maxZoom: 18
@@ -1874,6 +1879,11 @@ let selectedFilters = { cities: [], countries: [], styles: [], roles: [], pol: [
     overflow: hidden;
   }
 
+  /* Hide "Improve this map" link from attribution */
+  :global(.mapbox-improve-map) {
+    display: none !important;
+  }
+
   /*
    * TEMPORARILY DISABLED: The CSS filter affects ALL layers rendered on the canvas,
    * including our native cluster layers. We'll need a different approach.
@@ -2133,7 +2143,7 @@ let selectedFilters = { cities: [], countries: [], styles: [], roles: [], pol: [
     .shuffle {
       left: 0.5rem;
       bottom: 0.5rem;
-      width: 120px;
+      width: 102px; /* 15% smaller than 120px */
     }
 
     .shuffle img {
