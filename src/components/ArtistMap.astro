@@ -177,6 +177,31 @@ let selectedFilters = { cities: [], countries: [], styles: [], roles: [], pol: [
     14: Btn14.src
   };
 
+  // Cache for selected SVGs (with black fill)
+  const buttonBackgroundsSelected = {};
+
+  // Pre-load all SVGs with black fill at startup
+  async function preloadSelectedSVGs() {
+    const promises = Object.entries(buttonBackgrounds).map(async ([size, url]) => {
+      try {
+        const response = await fetch(url);
+        const svgText = await response.text();
+        // Add fill="black" to the path
+        const modifiedSvg = svgText.replace(/<path /g, '<path fill="black" ');
+        const blob = new Blob([modifiedSvg], { type: 'image/svg+xml' });
+        const objectUrl = URL.createObjectURL(blob);
+        buttonBackgroundsSelected[size] = objectUrl;
+      } catch (err) {
+        console.error(`Error loading SVG ${size}:`, err);
+      }
+    });
+    await Promise.all(promises);
+    console.log('✅ All selected SVGs preloaded');
+  }
+
+  // Call preload immediately
+  preloadSelectedSVGs();
+
   // Function to determine button background size based on text length
   function getButtonSize(text) {
     const length = text.length;
@@ -368,7 +393,10 @@ let selectedFilters = { cities: [], countries: [], styles: [], roles: [], pol: [
             `.filter-option[data-filter-type="${config.filterType}"][data-value="${value}"].selected`
           );
           const selectedClass = isSelected ? ' selected' : '';
-          const backgroundStyle = isSelected ? `style="background-image: url('${buttonBackgrounds[buttonSize]}'); opacity: 1;"` : '';
+          const selectedBackgroundUrl = buttonBackgroundsSelected[buttonSize];
+          const backgroundStyle = isSelected && selectedBackgroundUrl
+            ? `style="background-image: url('${selectedBackgroundUrl}'); background-size: contain; background-repeat: no-repeat; background-position: center; opacity: 1;"`
+            : '';
 
           return `<span class="filter-option ${config.cssClass}${selectedClass}" data-filter-type="${config.filterType}" data-value="${value}" data-button-size="${buttonSize}" ${backgroundStyle}>${displayValue}</span>`;
         }).join('');
@@ -423,34 +451,24 @@ let selectedFilters = { cities: [], countries: [], styles: [], roles: [], pol: [
       // Deselect
       element.classList.remove('selected');
       element.style.backgroundImage = '';
+      element.style.backgroundColor = '';
       element.style.opacity = '1';
       selectedFilters[filterKey] = selectedFilters[filterKey].filter(item => item !== value);
       console.log(`❌ Deselected ${filterType}:`, value);
     } else {
-      // Select
+      // Select - apply preloaded SVG with black fill
       element.classList.add('selected');
-      // Apply SVG background based on button size
       const buttonSize = element.dataset.buttonSize;
-      const backgroundUrl = buttonBackgrounds[buttonSize];
-      if (backgroundUrl) {
-        element.style.backgroundImage = `url('${backgroundUrl}')`;
+      const selectedBackgroundUrl = buttonBackgroundsSelected[buttonSize];
+      if (selectedBackgroundUrl) {
+        element.style.backgroundImage = `url('${selectedBackgroundUrl}')`;
         element.style.backgroundSize = 'contain';
         element.style.backgroundRepeat = 'no-repeat';
         element.style.backgroundPosition = 'center';
         element.style.opacity = '1';
-
-        // Apply size-specific dimensions
-        const sizes = {
-          1: { width: '93px', height: '93px' },
-          2: { width: '137px', height: '93px' },
-          3: { width: '181px', height: '93px' },
-          4: { width: '226px', height: '93px' },
-          5: { width: '270px', height: '93px' },
-          6: { width: '315px', height: '93px' },
-          7: { width: '360px', height: '93px' }
-        };
-
-        // Don't change width or height - keep consistent sizing
+      } else {
+        // Fallback while SVGs are loading
+        element.style.backgroundColor = 'black';
       }
       selectedFilters[filterKey].push(value);
       console.log(`✅ Selected ${filterType}:`, value);
@@ -1978,19 +1996,16 @@ let selectedFilters = { cities: [], countries: [], styles: [], roles: [], pol: [
     /* Remove the transform to avoid size changes */
   }
 
-  /* Selected state with SVG background */
+  /* Selected state with SVG border and black fill */
   :global(.filter-option.selected) {
-    background-color: transparent !important;
-    color: black !important;
+    color: white !important;
     font-weight: 700 !important;
     text-shadow: none !important;
     opacity: 1 !important;
   }
 
-  /* Size-specific SVG backgrounds for selected filters */
-
   :global(.filter-option.selected:hover) {
-    filter: brightness(1.1) !important;
+    filter: brightness(0.85) !important;
   }
 
   /* Clear filter button */

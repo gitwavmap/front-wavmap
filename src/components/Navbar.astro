@@ -98,8 +98,11 @@ const currentPath = Astro.url.pathname;
     align-items: center;
     gap: 1rem;
     margin: 0 1rem;
-    position: relative;
+    position: sticky;
+    top: 0;
     height: 80px;
+    background: white;
+    z-index: 100;
   }
 
   .navbar::after {
@@ -260,7 +263,8 @@ const currentPath = Astro.url.pathname;
   }
 
   .community-button:hover {
-    background: #f8f8f8;
+    background: linear-gradient(to right, #E9930F, #3E44E6, #8FD116);
+    color: white;
     transform: translateY(-1px);
   }
 
@@ -329,10 +333,10 @@ const currentPath = Astro.url.pathname;
   }
 
   .community-dropdown {
-    position: absolute;
-    top: 100%;
+    position: fixed;
+    top: 80px;
     right: 0;
-    width: 100%;
+    width: 30%;
     background: linear-gradient(to right, #E9930F, #3E44E6, #8FD116);
     border: none;
     border-radius: 0;
@@ -467,6 +471,8 @@ const currentPath = Astro.url.pathname;
       // Change button style
       joinBtn.style.background = 'linear-gradient(to right, #E9930F, #3E44E6, #8FD116)';
       joinBtn.style.color = 'white';
+      // Prevent body scroll
+      document.body.style.overflow = 'hidden';
       isOpen = true;
     }
 
@@ -477,6 +483,8 @@ const currentPath = Astro.url.pathname;
       // Reset button style
       joinBtn.style.background = 'white';
       joinBtn.style.color = 'black';
+      // Restore body scroll
+      document.body.style.overflow = '';
       isOpen = false;
     }
 
