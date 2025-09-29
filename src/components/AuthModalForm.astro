@@ -282,8 +282,25 @@ import * as m from '../paraglide/messages.js';
         });
         
         if (response.ok) {
+          const data = await response.json();
+
           // Success - trigger artist form view
-          window.dispatchEvent(new CustomEvent('authSuccess'));
+          const authEvent = new CustomEvent('authSuccess');
+          window.dispatchEvent(authEvent);
+
+          // Fallback redirection if no listeners handle the event
+          if (data.redirectTo) {
+            setTimeout(() => {
+              // Only redirect if still on the same page (no modal opened)
+              const authSection = document.getElementById('auth-section');
+              const artistSection = document.getElementById('artist-section');
+
+              if (!authSection?.classList.contains('hidden') ||
+                  artistSection?.classList.contains('hidden')) {
+                window.location.href = data.redirectTo;
+              }
+            }, 200);
+          }
         } else {
           const data = await response.json();
           loginError.textContent = data.error || errorOccurred;

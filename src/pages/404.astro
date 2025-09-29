@@ -4,73 +4,72 @@ import * as m from '../paraglide/messages.js';
 ---
 
 <Layout title="404 - Page Not Found | Wavmap">
-  <main class="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 px-4">
+  <main class="min-h-screen flex items-center justify-center px-4" style="background: linear-gradient(to right, #8FD116, #3E44E6 50%, #E9930F 80%, #E92C0F 100%);">
     <div class="max-w-lg w-full text-center">
-      <div class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl p-8 border border-white/20">
+      <div class="bg-white/90 backdrop-blur-sm p-8 border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
         <!-- 404 Icon -->
         <div class="mb-8">
-          <div class="mx-auto w-32 h-32 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
-            <svg class="w-16 h-16 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 12h6m-6-4h6m2 5.291A7.962 7.962 0 0118 12a8 8 0 10-8 8 7.962 7.962 0 014.709-1.29z" />
-            </svg>
+          <div class="mx-auto w-32 h-32 bg-black flex items-center justify-content center relative">
+            <div class="text-white text-6xl font-black absolute inset-0 flex items-center justify-center">!</div>
+            <div class="absolute -top-2 -right-2 w-8 h-8 bg-[#E92C0F] border-2 border-black transform rotate-12"></div>
           </div>
         </div>
 
         <!-- Error Message -->
-        <h1 class="text-6xl font-bold text-gray-900 mb-4">404</h1>
-        <h2 class="text-2xl font-semibold text-gray-800 mb-4">
+        <h1 class="text-6xl font-black text-black mb-4 uppercase tracking-wider">404</h1>
+        <h2 class="text-2xl font-black text-black mb-4 uppercase tracking-wide">
           {m.pageNotFound ? m.pageNotFound() : 'Page Not Found'}
         </h2>
-        <p class="text-gray-600 mb-8">
-          {m.pageNotFoundMessage ? m.pageNotFoundMessage() : 
+        <p class="text-black font-bold mb-8">
+          {m.pageNotFoundMessage ? m.pageNotFoundMessage() :
           'Sorry, the page you\'re looking for doesn\'t exist or has been moved. Let\'s get you back on track!'}
         </p>
 
         <!-- Action Buttons -->
-        <div class="space-y-3">
-          <a 
-            href="/map" 
-            class="block w-full bg-blue-600 text-white py-3 px-6 rounded-lg font-medium hover:bg-blue-700 transition-colors"
+        <div class="space-y-4">
+          <a
+            href="/map"
+            class="block w-full bg-black text-white py-3 px-6 border-4 border-black font-black uppercase tracking-wide hover:bg-white hover:text-black hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:transform hover:translate-x-[-2px] hover:translate-y-[-2px] transition-all"
           >
             {m.goToMap ? m.goToMap() : 'Explore the Map'}
           </a>
-          
+
           <div class="flex space-x-3">
-            <a 
-              href="/" 
-              class="flex-1 bg-gray-100 text-gray-700 py-3 px-4 rounded-lg font-medium hover:bg-gray-200 transition-colors"
+            <a
+              href="/"
+              class="flex-1 bg-[#A4A4A4] text-black py-3 px-4 border-4 border-black font-black uppercase tracking-wide hover:bg-white hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:transform hover:translate-x-[-1px] hover:translate-y-[-1px] transition-all"
             >
-              {m.goHome ? m.goHome() : 'Go Home'}
+              {m.goHome ? m.goHome() : 'Home'}
             </a>
-            <a 
-              href="/blog" 
-              class="flex-1 bg-gray-100 text-gray-700 py-3 px-4 rounded-lg font-medium hover:bg-gray-200 transition-colors"
+            <a
+              href="/about"
+              class="flex-1 bg-[#A4A4A4] text-black py-3 px-4 border-4 border-black font-black uppercase tracking-wide hover:bg-white hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:transform hover:translate-x-[-1px] hover:translate-y-[-1px] transition-all"
             >
-              {m.blog ? m.blog() : 'Blog'}
+              {m.about ? m.about() : 'About'}
             </a>
           </div>
 
-          <button 
-            onclick="history.back()" 
-            class="w-full text-blue-600 hover:text-blue-800 text-sm font-medium py-2"
+          <button
+            onclick="handleGoBack()"
+            class="w-full text-black hover:text-[#E92C0F] text-sm font-black py-2 uppercase tracking-wide transition-colors"
           >
             {m.goBack ? m.goBack() : '← Go Back'}
           </button>
         </div>
 
         <!-- Popular Links -->
-        <div class="mt-8 pt-6 border-t border-gray-200">
-          <h3 class="text-sm font-medium text-gray-500 mb-4">
+        <div class="mt-8 pt-6 border-t-4 border-black">
+          <h3 class="text-sm font-black text-black mb-4 uppercase tracking-wide">
             {m.popularPages ? m.popularPages() : 'Popular Pages'}
           </h3>
           <div class="flex flex-wrap gap-2 justify-center">
-            <a href="/map" class="text-xs bg-blue-50 text-blue-600 px-3 py-1 rounded-full hover:bg-blue-100 transition-colors">
+            <a href="/map" class="text-xs bg-[#8FD116] text-black px-3 py-1 border-2 border-black font-bold uppercase hover:bg-white hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all">
               {m.artistMap ? m.artistMap() : 'Artist Map'}
             </a>
-            <a href="/about" class="text-xs bg-blue-50 text-blue-600 px-3 py-1 rounded-full hover:bg-blue-100 transition-colors">
+            <a href="/about" class="text-xs bg-[#3E44E6] text-white px-3 py-1 border-2 border-black font-bold uppercase hover:bg-white hover:text-black hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all">
               {m.about ? m.about() : 'About'}
             </a>
-            <a href="/blog" class="text-xs bg-blue-50 text-blue-600 px-3 py-1 rounded-full hover:bg-blue-100 transition-colors">
+            <a href="/blog" class="text-xs bg-[#E9930F] text-black px-3 py-1 border-2 border-black font-bold uppercase hover:bg-white hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all">
               {m.blog ? m.blog() : 'Blog'}
             </a>
           </div>
@@ -80,21 +79,140 @@ import * as m from '../paraglide/messages.js';
   </main>
 </Layout>
 
-<style>
-  /* Subtle animation for the 404 number */
-  h1 {
-    animation: bounce 2s infinite;
+<script>
+  function handleGoBack() {
+    // Try to go back, but fallback to map if no history
+    if (window.history.length > 1) {
+      window.history.back();
+    } else {
+      window.location.href = '/map';
+    }
   }
 
-  @keyframes bounce {
-    0%, 20%, 50%, 80%, 100% {
-      transform: translateY(0);
+  // Smart redirection based on URL patterns
+  function handleSmartRedirection() {
+    const currentPath = window.location.pathname;
+    const searchParams = new URLSearchParams(window.location.search);
+
+    // Common redirect mappings
+    const redirectMap: Record<string, string> = {
+      '/login': '/map',
+      '/register': '/map',
+      '/dashboard': '/map',
+      '/admin': '/map',
+      '/api': '/map',
+      '/user': '/map',
+      '/users': '/map',
+      '/artist': '/map',
+      '/artists': '/map',
+      '/posts': '/blog',
+      '/post': '/blog',
+      '/articles': '/blog',
+      '/article': '/blog',
+      '/news': '/blog',
+      '/contact': '/about',
+      '/help': '/about',
+      '/support': '/about',
+      '/faq': '/about',
+    };
+
+    // Check for partial matches
+    for (const [pattern, redirect] of Object.entries(redirectMap)) {
+      if (currentPath.startsWith(pattern)) {
+        // Show message and redirect after 3 seconds
+        setTimeout(() => {
+          window.location.href = redirect;
+        }, 3000);
+
+        // Update the UI to show redirect info
+        const redirectInfo = document.createElement('div');
+        redirectInfo.className = 'mt-4 p-3 bg-[#8FD116] border-2 border-black text-black font-bold text-sm';
+        redirectInfo.innerHTML = `Redirecting to ${redirect} in 3 seconds...`;
+        document.querySelector('.space-y-4')?.after(redirectInfo);
+        return;
+      }
     }
-    40% {
-      transform: translateY(-10px);
+
+    // If it looks like an old blog post URL, redirect to blog
+    if (currentPath.includes('/blog/') || currentPath.includes('/article/') || currentPath.includes('/post/')) {
+      setTimeout(() => {
+        window.location.href = '/blog';
+      }, 3000);
+
+      const redirectInfo = document.createElement('div');
+      redirectInfo.className = 'mt-4 p-3 bg-[#8FD116] border-2 border-black text-black font-bold text-sm';
+      redirectInfo.innerHTML = 'This article may have been moved. Redirecting to blog in 3 seconds...';
+      document.querySelector('.space-y-4')?.after(redirectInfo);
     }
-    60% {
-      transform: translateY(-5px);
+  }
+
+  // Run smart redirection on load
+  document.addEventListener('DOMContentLoaded', handleSmartRedirection);
+</script>
+
+<style>
+  /* Enhanced animation for the 404 number */
+  h1 {
+    animation: glitch 3s infinite;
+  }
+
+  @keyframes glitch {
+    0%, 95%, 100% {
+      transform: translateX(0) translateY(0);
+    }
+    2% {
+      transform: translateX(-2px) translateY(1px);
+    }
+    4% {
+      transform: translateX(-2px) translateY(-1px);
+    }
+    6% {
+      transform: translateX(2px) translateY(1px);
+    }
+    8% {
+      transform: translateX(-2px) translateY(-1px);
+    }
+    10% {
+      transform: translateX(2px) translateY(1px);
+    }
+  }
+
+  /* Icon animation */
+  .mx-auto.w-32.h-32 {
+    animation: shake 4s infinite;
+  }
+
+  @keyframes shake {
+    0%, 90%, 100% {
+      transform: rotate(0deg);
+    }
+    2% {
+      transform: rotate(1deg);
+    }
+    4% {
+      transform: rotate(-1deg);
+    }
+    6% {
+      transform: rotate(1deg);
+    }
+    8% {
+      transform: rotate(-1deg);
+    }
+  }
+
+  /* Responsive adjustments */
+  @media (max-width: 768px) {
+    h1 {
+      font-size: 3rem;
+    }
+
+    .mx-auto.w-32.h-32 {
+      width: 6rem;
+      height: 6rem;
+    }
+
+    .text-6xl {
+      font-size: 2rem;
     }
   }
 </style>

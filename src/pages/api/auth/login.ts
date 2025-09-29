@@ -78,7 +78,10 @@ export const POST: APIRoute = async ({ request, cookies, redirect, locals }) => 
     });
   }
 
-  return new Response(JSON.stringify({ success: true }), {
+  return new Response(JSON.stringify({
+    success: true,
+    redirectTo: '/map'
+  }), {
     status: 200,
     headers: { 'Content-Type': 'application/json' }
   });
