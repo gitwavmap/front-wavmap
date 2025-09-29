@@ -1,0 +1,485 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Navbar from '../components/Navbar.astro';
+import Footer from '../components/Footer.astro';
+import * as m from '../paraglide/messages.js';
+import Count from '../assets/images/count_img_white.svg';
+---
+
+<Layout title={`Privacy Policy - Wavmap`} description="Privacy Policy - Wavmap Platform">
+  <Navbar currentPage="privacy" />
+  <main class="container">
+    <div id="parallax-container" class="flex flex-row">
+      <!-- Column 1 -->
+      <div class="flex-1 parallax-column" data-speed="3">
+        <div class="column-content">
+          <p class="xtra-large">PRIVACY POLICY</p>
+
+          <div class="section-container flex">
+            <div class="count">
+              <img src={Count.src} alt="" />
+              <p>001</p>
+            </div>
+            <div>
+              <p class="large">Introduction</p>
+              <p class="text-base">
+                At WAVMAP, we are committed to protecting your privacy and personal data. This Privacy Policy explains how we collect, use, and safeguard your information when you use our platform.
+              </p>
+              <p class="text-base">
+                We believe in transparency and your right to understand how your data is handled. This policy outlines our practices in accordance with applicable data protection laws, including GDPR.
+              </p>
+            </div>
+          </div>
+
+          <div class="separator" />
+
+          <div class="section-container flex">
+            <div class="count">
+              <img src={Count.src} alt="" />
+              <p>002</p>
+            </div>
+            <div>
+              <p class="large">Information We Collect</p>
+              <p class="text-base">
+                We collect information you provide directly to us, such as when you create an account, submit artist profiles, or contact us. This includes name, email address, biographical information, and artistic content.
+              </p>
+              <p class="text-base">
+                We also collect information automatically through your use of the platform, including usage statistics, device information, and location data when you provide consent.
+              </p>
+            </div>
+          </div>
+
+          <div class="separator" />
+
+          <div class="section-container flex">
+            <div class="count">
+              <img src={Count.src} alt="" />
+              <p>003</p>
+            </div>
+            <div>
+              <p class="large">How We Use Your Information</p>
+              <p class="text-base">
+                We use your information to provide and improve our services, connect artists and audiences, facilitate communication within the community, and ensure platform security.
+              </p>
+              <p class="text-base">
+                Your data helps us personalize your experience, send relevant updates about the platform, and analyze usage patterns to enhance our services for all users.
+              </p>
+            </div>
+          </div>
+
+          <div class="separator" />
+
+          <div class="section-container flex">
+            <div class="count">
+              <img src={Count.src} alt="" />
+              <p>004</p>
+            </div>
+            <div>
+              <p class="large">Data Sharing and Disclosure</p>
+              <p class="text-base">
+                We do not sell your personal information to third parties. We may share your information only in specific circumstances: with your consent, to provide services you've requested, or as required by law.
+              </p>
+              <p class="text-base">
+                Artist profile information you choose to make public will be visible to other platform users as part of the community features and artist discovery functionality.
+              </p>
+            </div>
+          </div>
+
+          <div class="separator" />
+
+          <div class="section-container flex">
+            <div class="count">
+              <img src={Count.src} alt="" />
+              <p>005</p>
+            </div>
+            <div>
+              <p class="large">Data Security</p>
+              <p class="text-base">
+                We implement appropriate technical and organizational measures to protect your personal data against unauthorized access, alteration, disclosure, or destruction.
+              </p>
+              <p class="text-base">
+                While we strive to protect your information, no method of transmission over the internet is 100% secure. We encourage users to take steps to protect their account credentials.
+              </p>
+            </div>
+          </div>
+
+          <div class="separator" />
+
+          <div class="section-container flex">
+            <div class="count">
+              <img src={Count.src} alt="" />
+              <p>006</p>
+            </div>
+            <div>
+              <p class="large">Your Rights</p>
+              <p class="text-base">
+                You have the right to access, update, or delete your personal information. You can also object to certain processing activities or request data portability where applicable.
+              </p>
+              <p class="text-base">
+                To exercise these rights or if you have questions about your data, please contact us at privacy@wavmap.eu. We will respond to your request within the timeframes required by law.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div class="img-container">
+          <!-- Add any decorative images here if needed -->
+        </div>
+      </div>
+
+      <!-- Column 2 -->
+      <div class="flex-1 parallax-column" data-speed="2">
+        <div class="column-content">
+          <div class="big-section">
+            <p class="xtra-large">DATA MANAGEMENT</p>
+
+            <div class="section-container flex">
+              <div class="count">
+                <img src={Count.src} alt="" />
+                <p>007</p>
+              </div>
+              <div>
+                <p class="large">Cookies and Tracking</p>
+                <p class="text-base">
+                  We use cookies and similar technologies to enhance your experience, remember your preferences, and analyze platform usage. You can control cookie settings through your browser.
+                </p>
+                <p class="text-base">
+                  Essential cookies are necessary for platform functionality, while optional cookies help us improve our services and provide personalized content.
+                </p>
+              </div>
+            </div>
+
+            <div class="separator" />
+
+            <div class="section-container flex">
+              <div class="count">
+                <img src={Count.src} alt="" />
+                <p>008</p>
+              </div>
+              <div>
+                <p class="large">Data Retention</p>
+                <p class="text-base">
+                  We retain your personal data only as long as necessary to provide our services and fulfill the purposes outlined in this policy, or as required by legal obligations.
+                </p>
+                <p class="text-base">
+                  When you delete your account, we will remove your personal information within a reasonable timeframe, except for data we are legally required to retain.
+                </p>
+              </div>
+            </div>
+
+            <div class="separator" />
+
+            <div class="section-container flex">
+              <div class="count">
+                <img src={Count.src} alt="" />
+                <p>009</p>
+              </div>
+              <div>
+                <p class="large">Third-Party Services</p>
+                <p class="text-base">
+                  Our platform may integrate with third-party services such as social media platforms, mapping services, and analytics tools. These services have their own privacy policies.
+                </p>
+                <p class="text-base">
+                  We recommend reviewing the privacy policies of any third-party services you interact with through our platform to understand their data practices.
+                </p>
+              </div>
+            </div>
+
+            <div class="separator" />
+
+            <div class="section-container flex">
+              <div class="count">
+                <img src={Count.src} alt="" />
+                <p>010</p>
+              </div>
+              <div>
+                <p class="large">International Data Transfers</p>
+                <p class="text-base">
+                  Your information may be transferred to and processed in countries other than your own. We ensure appropriate safeguards are in place to protect your data during such transfers.
+                </p>
+                <p class="text-base">
+                  We comply with applicable data protection laws regarding international transfers and implement necessary security measures to protect your information.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="img-container">
+          <!-- Add any decorative images here if needed -->
+        </div>
+      </div>
+
+      <!-- Column 3 -->
+      <div class="flex-1 parallax-column" data-speed="1">
+        <div class="column-content">
+          <div class="big-section">
+            <p class="xtra-large">COMPLIANCE & CONTACT</p>
+
+            <div class="section-container flex">
+              <div class="count">
+                <img src={Count.src} alt="" />
+                <p>011</p>
+              </div>
+              <div>
+                <p class="large">Children's Privacy</p>
+                <p class="text-base">
+                  Our platform is not intended for users under the age of 16. We do not knowingly collect personal information from children under 16. If we become aware of such collection, we will take steps to delete the information.
+                </p>
+                <p class="text-base">
+                  Parents or guardians who believe their child has provided personal information to us should contact us immediately so we can address the situation.
+                </p>
+              </div>
+            </div>
+
+            <div class="separator" />
+
+            <div class="section-container flex">
+              <div class="count">
+                <img src={Count.src} alt="" />
+                <p>012</p>
+              </div>
+              <div>
+                <p class="large">Updates to This Policy</p>
+                <p class="text-base">
+                  We may update this Privacy Policy from time to time to reflect changes in our practices or legal requirements. We will notify users of significant changes through the platform or email.
+                </p>
+                <p class="text-base">
+                  We encourage you to review this policy periodically to stay informed about how we protect your information and your privacy rights.
+                </p>
+              </div>
+            </div>
+
+            <div class="separator" />
+
+            <div class="section-container flex">
+              <div class="count">
+                <img src={Count.src} alt="" />
+                <p>013</p>
+              </div>
+              <div>
+                <p class="large">Contact Information</p>
+                <p class="text-base">
+                  If you have questions, concerns, or requests regarding this Privacy Policy or our data practices, please contact our Data Protection Officer at privacy@wavmap.eu.
+                </p>
+                <p class="text-base">
+                  You also have the right to lodge a complaint with your local data protection authority if you believe we have not adequately addressed your concerns.
+                </p>
+                <p class="text-base">
+                  Last updated: [Date to be filled]
+                </p>
+              </div>
+            </div>
+
+            <div class="separator" />
+
+            <div class="section-container flex">
+              <div class="count">
+                <img src={Count.src} alt="" />
+                <p>014</p>
+              </div>
+              <div>
+                <p class="large">Legal Basis for Processing</p>
+                <p class="text-base">
+                  We process your personal data based on various legal grounds including consent, contract performance, legitimate interests, and legal compliance, depending on the specific context and purpose.
+                </p>
+                <p class="text-base">
+                  We are committed to processing your data fairly and transparently, and only for the purposes for which it was collected or other compatible purposes.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="img-container">
+          <!-- Add any decorative images here if needed -->
+        </div>
+      </div>
+    </div>
+  </main>
+  <Footer />
+</Layout>
+
+<script>
+  function initParallax() {
+    const parallaxColumns = document.querySelectorAll('.parallax-column');
+    if (!parallaxColumns.length) return;
+
+    function updateParallax() {
+      const scrollTop = window.pageYOffset;
+      const windowHeight = window.innerHeight;
+      const documentHeight = document.documentElement.scrollHeight;
+      const maxScroll = documentHeight - windowHeight;
+
+      parallaxColumns.forEach(column => {
+        const speed = parseFloat(column.dataset.speed) || 0;
+        const content = column.querySelector('.column-content');
+
+        // Constant parallax effect
+        const yPos = scrollTop * speed * 0.8; // Effet constant : 80% du mouvement original
+
+        // Cap only when really necessary to prevent excessive space
+        const maxMovement = windowHeight * 0.4; // Max 0.4x viewport height
+        const cappedYPos = Math.min(yPos, maxMovement);
+
+        content.style.transform = `translateY(-${cappedYPos}px)`;
+      });
+    }
+
+    // Throttled scroll handler
+    let ticking = false;
+    function handleScroll() {
+      if (!ticking) {
+        requestAnimationFrame(() => {
+          updateParallax();
+          ticking = false;
+        });
+        ticking = true;
+      }
+    }
+
+    // Remove existing listeners to avoid duplicates
+    window.removeEventListener('scroll', handleScroll);
+    window.removeEventListener('resize', updateParallax);
+
+    // Add listeners
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    window.addEventListener('resize', updateParallax);
+
+    // Initial call
+    updateParallax();
+  }
+
+  // Initialize on DOM ready
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initParallax);
+  } else {
+    initParallax();
+  }
+
+  // Reinitialize on Astro page navigation
+  document.addEventListener('astro:page-load', initParallax);
+</script>
+
+<style>
+  #parallax-container {
+    min-height: 0;
+    height: auto;
+    align-items: flex-start;
+  }
+
+  .parallax-column {
+    padding: 1.5rem 1rem;
+    overflow: visible;
+    position: relative;
+    height: auto;
+    min-height: 0;
+    flex-shrink: 0;
+  }
+
+  .parallax-column img {
+    align-self: right;
+    height: 60px;
+  }
+
+  .img-container {
+    display: flex;
+    align-items: end;
+    justify-content: end;
+    padding-top: 40vh;
+  }
+
+  .count {
+    position: relative;
+    display: inline-block;
+  }
+
+  .big-section {
+    padding-top: 4rem;
+    padding-bottom: 4rem;
+  }
+
+  .section-container {
+    gap: 0.5rem;
+  }
+
+  .count img {
+    width: 38px !important;
+    min-width: 38px;
+    display: block;
+    object-fit: contain;
+  }
+
+  .count p {
+    position: absolute;
+    top: 11px;
+    left: 20%;
+    margin: 0;
+    font-size: 12px;
+    font-weight: bold;
+    color: white;
+  }
+
+  .column-content {
+    will-change: transform;
+    padding-bottom: 1rem;
+    height: fit-content;
+    min-height: 0;
+  }
+
+  .parallax-column a {
+    color: white;
+    text-decoration: underline;
+    font-weight: 500;
+  }
+
+  .separator {
+    height: 2px;
+    background: white;
+    margin: 2rem 0;
+    opacity: 0.3;
+  }
+
+  /* Typography from global styles */
+  .xtra-large {
+    font-size: 3rem;
+    font-weight: 900;
+    line-height: 1.1;
+    margin: 2rem 0;
+  }
+
+  .large {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin: 1.5rem 0 1rem 0;
+  }
+
+  .text-base {
+    font-size: 1rem;
+    line-height: 1.6;
+    margin: 1rem 0;
+  }
+
+  /* Responsive adjustments */
+  @media (max-width: 768px) {
+    .parallax-column {
+      padding: 1rem 0.5rem;
+    }
+
+    .xtra-large {
+      font-size: 2rem;
+    }
+
+    .large {
+      font-size: 1.2rem;
+    }
+
+    .text-base {
+      font-size: 0.9rem;
+    }
+
+    #parallax-container {
+      flex-direction: column;
+    }
+  }
+</style>
