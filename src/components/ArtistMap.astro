@@ -1348,6 +1348,10 @@ let selectedFilters = { cities: [], countries: [], styles: [], roles: [], pol: [
           console.log(`   Latitude: ${coords.lat.toFixed(4)}`);
           console.log(`   Array format: [${coords.lng.toFixed(4)}, ${coords.lat.toFixed(4)}]`);
         });
+
+        // Dispatch event when map is fully ready
+        console.log('🎉 Map fully loaded and ready');
+        window.dispatchEvent(new CustomEvent('mapReady'));
       });
 
       map.on('error', function(e) {

@@ -4,6 +4,7 @@ import ArtistMap from '../components/ArtistMap.astro';
 import Navbar from '../components/Navbar.astro';
 import Footer from '../components/Footer.astro';
 import { siteConfig } from '../config/metadata.ts';
+import logoSvg from '../assets/images/logo.svg';
 ---
 
 <Layout
@@ -11,10 +12,16 @@ import { siteConfig } from '../config/metadata.ts';
 	description={siteConfig.pages.map.description}
 	lang="en"
 >
-	<!-- Map Page -->
-	<div class="min-h-screen" style={{backgroundColor: "#A4A4A4"}}>
-		<Navbar currentPage="map" />
+	<!-- Navbar always visible -->
+	<Navbar currentPage="map" />
 
+	<!-- Loading Screen -->
+	<div id="map-loader" class="map-loader">
+		<img src={logoSvg.src} alt="Loading" class="loader-logo" />
+	</div>
+
+	<!-- Map Page Content (without Navbar) -->
+	<div id="map-content" class="min-h-screen map-content" style={{backgroundColor: "#A4A4A4"}}>
 		<!-- Map Section -->
 		<main class="">
 			<ArtistMap />
@@ -22,3 +29,87 @@ import { siteConfig } from '../config/metadata.ts';
 		<Footer />
 	</div>
 </Layout>
+
+<style>
+	.map-loader {
+		position: fixed;
+		top: 80px; /* Below navbar (navbar height is 80px) */
+		left: 0;
+		width: 100vw;
+		height: calc(100vh - 80px);
+		background-color: #A4A4A4;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		z-index: 50; /* Below navbar (navbar is z-index: 100) */
+		transition: opacity 0.5s ease, visibility 0.5s ease;
+	}
+
+	.map-loader.hidden {
+		opacity: 0;
+		visibility: hidden;
+		pointer-events: none;
+	}
+
+	.loader-logo {
+		width: 200px;
+		height: auto;
+		animation: pulse 2s ease-in-out infinite;
+	}
+
+	@keyframes pulse {
+		0%, 100% {
+			opacity: 1;
+			transform: scale(1);
+		}
+		50% {
+			opacity: 0.7;
+			transform: scale(0.95);
+		}
+	}
+
+	.map-content {
+		opacity: 0;
+		transition: opacity 0.5s ease;
+	}
+
+	.map-content.visible {
+		opacity: 1;
+	}
+</style>
+
+<script>
+	// Wait for map to be fully loaded
+	function initMapLoader() {
+		const loader = document.getElementById('map-loader');
+		const content = document.getElementById('map-content');
+
+		// Listen for map ready event
+		window.addEventListener('mapReady', () => {
+			console.log('🗺️ Map is ready, hiding loader');
+
+			// Fade out loader
+			loader?.classList.add('hidden');
+
+			// Fade in content
+			content?.classList.add('visible');
+		});
+
+		// Fallback: hide loader after 5 seconds max
+		setTimeout(() => {
+			if (!loader?.classList.contains('hidden')) {
+				console.log('⏰ Loader timeout, showing content anyway');
+				loader?.classList.add('hidden');
+				content?.classList.add('visible');
+			}
+		}, 5000);
+	}
+
+	// Initialize on page load
+	document.addEventListener('DOMContentLoaded', initMapLoader);
+
+	// Also run if DOM already loaded
+	if (document.readyState !== 'loading') {
+		initMapLoader();
+	}
+</script>
