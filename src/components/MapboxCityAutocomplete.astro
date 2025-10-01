@@ -1,0 +1,441 @@
+---
+import * as m from '../paraglide/messages.js';
+import { MAPBOX_ACCESS_TOKEN } from 'astro:env/client';
+---
+
+<div class="mapbox-city-autocomplete">
+  <!-- Country Selection -->
+  <div class="form-group">
+    <label for="country">{m.country()} *</label>
+    <select id="country" name="country" required>
+      <option value="">{m.select_country()}</option>
+      <option value="AL">🇦🇱 Albania</option>
+      <option value="AM">🇦🇲 Armenia</option>
+      <option value="AT">🇦🇹 Austria</option>
+      <option value="BE">🇧🇪 Belgium</option>
+      <option value="BA">🇧🇦 Bosnia and Herzegovina</option>
+      <option value="BG">🇧🇬 Bulgaria</option>
+      <option value="HR">🇭🇷 Croatia</option>
+      <option value="CY">🇨🇾 Cyprus</option>
+      <option value="CZ">🇨🇿 Czechia</option>
+      <option value="DK">🇩🇰 Denmark</option>
+      <option value="EE">🇪🇪 Estonia</option>
+      <option value="FI">🇫🇮 Finland</option>
+      <option value="FR">🇫🇷 France</option>
+      <option value="DE">🇩🇪 Germany</option>
+      <option value="GE">🇬🇪 Georgia</option>
+      <option value="GR">🇬🇷 Greece</option>
+      <option value="HU">🇭🇺 Hungary</option>
+      <option value="IS">🇮🇸 Iceland</option>
+      <option value="IE">🇮🇪 Ireland</option>
+      <option value="IT">🇮🇹 Italy</option>
+      <option value="XK">🇽🇰 Kosovo</option>
+      <option value="LV">🇱🇻 Latvia</option>
+      <option value="LI">🇱🇮 Liechtenstein</option>
+      <option value="LT">🇱🇹 Lithuania</option>
+      <option value="LU">🇱🇺 Luxembourg</option>
+      <option value="MT">🇲🇹 Malta</option>
+      <option value="ME">🇲🇪 Montenegro</option>
+      <option value="MK">🇲🇰 North Macedonia</option>
+      <option value="NL">🇳🇱 Netherlands</option>
+      <option value="NO">🇳🇴 Norway</option>
+      <option value="PL">🇵🇱 Poland</option>
+      <option value="PT">🇵🇹 Portugal</option>
+      <option value="RO">🇷🇴 Romania</option>
+      <option value="RS">🇷🇸 Serbia</option>
+      <option value="SK">🇸🇰 Slovakia</option>
+      <option value="SI">🇸🇮 Slovenia</option>
+      <option value="ES">🇪🇸 Spain</option>
+      <option value="SE">🇸🇪 Sweden</option>
+      <option value="TN">🇹🇳 Tunisia</option>
+      <option value="TR">🇹🇷 Turkey</option>
+      <option value="UA">🇺🇦 Ukraine</option>
+    </select>
+  </div>
+
+  <!-- City Input with Autocomplete -->
+  <div class="form-group">
+    <label for="city">{m.main_city()} *</label>
+    <div class="autocomplete-container">
+      <input
+        type="text"
+        id="city"
+        name="city"
+        placeholder={m.city_placeholder()}
+        required
+        autocomplete="off"
+      >
+      <!-- Hidden fields for city data -->
+      <input type="hidden" id="latitude" name="latitude" value="">
+      <input type="hidden" id="longitude" name="longitude" value="">
+      <div id="city-suggestions" class="city-suggestions hidden"></div>
+    </div>
+    <small class="city-note">{m.city_note()}</small>
+  </div>
+</div>
+
+<script define:vars={{ MAPBOX_ACCESS_TOKEN }}>
+  const MAPBOX_TOKEN = MAPBOX_ACCESS_TOKEN;
+
+  async function initMapboxCityAutocomplete() {
+    // Wait for elements to be available
+    let cityInput, citySuggestions, latField, lngField, countrySelect;
+    let retries = 10;
+
+    while (retries > 0) {
+      cityInput = document.getElementById('city');
+      citySuggestions = document.getElementById('city-suggestions');
+      latField = document.getElementById('latitude');
+      lngField = document.getElementById('longitude');
+      countrySelect = document.getElementById('country');
+
+      if (cityInput && citySuggestions && latField && lngField && countrySelect) {
+        break;
+      }
+
+      await new Promise(resolve => setTimeout(resolve, 100));
+      retries--;
+    }
+
+    if (!cityInput || !citySuggestions || !countrySelect) {
+      // Silently return if elements don't exist
+      return;
+    }
+
+    let selectedCityIndex = -1;
+    let currentSuggestions = [];
+    let debounceTimer = null;
+
+    // Clear city when country changes
+    countrySelect.addEventListener('change', () => {
+      cityInput.value = '';
+      latField.value = '';
+      lngField.value = '';
+      hideSuggestions();
+    });
+
+    // Debounced search function
+    function debouncedSearch(query) {
+      clearTimeout(debounceTimer);
+      debounceTimer = setTimeout(() => searchCities(query), 300);
+    }
+
+    // Search cities using Mapbox Geocoding API with fallback
+    async function searchCities(query) {
+      if (!query || query.trim().length < 2) {
+        hideSuggestions();
+        return;
+      }
+
+      // Check if country is selected
+      const selectedCountry = countrySelect.value;
+      if (!selectedCountry) {
+        hideSuggestions();
+        console.warn('⚠️ Please select a country first');
+        return;
+      }
+
+      try {
+        // Use only the selected country
+        const url = `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(query)}.json?access_token=${MAPBOX_TOKEN}&types=place&limit=8&country=${selectedCountry}`;
+
+        const response = await fetch(url);
+
+        if (!response.ok) {
+          throw new Error(`Mapbox API error: ${response.status}`);
+        }
+
+        const data = await response.json();
+
+        if (data.features && data.features.length > 0) {
+          currentSuggestions = data.features.map(feature => ({
+            name: feature.text,
+            placeName: feature.place_name,
+            coordinates: feature.center, // [lng, lat]
+            country: getCountryCode(feature.context)
+          }));
+
+          showSuggestions();
+        } else {
+          // Fallback: try local JSON if Mapbox returns no results
+          await searchCitiesLocal(query);
+        }
+      } catch (error) {
+        console.error('❌ Mapbox Geocoding API error, falling back to local data:', error);
+        // Fallback to local european-cities.json
+        await searchCitiesLocal(query);
+      }
+    }
+
+    // Fallback search using local european-cities.json
+    async function searchCitiesLocal(query) {
+      try {
+        const selectedCountry = countrySelect.value;
+        const response = await fetch('/api/cities/european');
+        const data = await response.json();
+
+        if (data.success && data.cities) {
+          const matches = data.cities
+            .filter(city =>
+              city.country === selectedCountry &&
+              city.name.toLowerCase().includes(query.toLowerCase())
+            )
+            .slice(0, 8);
+
+          if (matches.length > 0) {
+            currentSuggestions = matches.map(city => ({
+              name: city.name,
+              placeName: `${city.name}, ${city.countryName}`,
+              coordinates: city.coordinates, // [lng, lat]
+              country: city.country
+            }));
+
+            showSuggestions();
+            console.log('✅ Using local cities fallback');
+          } else {
+            hideSuggestions();
+          }
+        }
+      } catch (error) {
+        console.error('❌ Local cities fallback also failed:', error);
+        hideSuggestions();
+      }
+    }
+
+    // Extract country code from Mapbox context
+    function getCountryCode(context) {
+      if (!context) return '';
+      const countryContext = context.find(c => c.id.startsWith('country'));
+      return countryContext ? countryContext.short_code.toUpperCase() : '';
+    }
+
+    // Show suggestions
+    function showSuggestions() {
+      if (currentSuggestions.length === 0) {
+        hideSuggestions();
+        return;
+      }
+
+      citySuggestions.innerHTML = currentSuggestions.map((city, index) => `
+        <div class="city-suggestion ${index === selectedCityIndex ? 'selected' : ''}" data-index="${index}">
+          <span class="city-name">${city.name}</span>
+          <span class="place-name">${city.placeName}</span>
+        </div>
+      `).join('');
+
+      citySuggestions.classList.remove('hidden');
+
+      // Add click listeners
+      citySuggestions.querySelectorAll('.city-suggestion').forEach((elem, index) => {
+        elem.addEventListener('click', () => selectCity(currentSuggestions[index]));
+      });
+    }
+
+    function hideSuggestions() {
+      citySuggestions.classList.add('hidden');
+      selectedCityIndex = -1;
+      currentSuggestions = [];
+    }
+
+    function selectCity(city) {
+      cityInput.value = city.name;
+
+      // Fill hidden fields with coordinates
+      if (latField) latField.value = city.coordinates[1]; // latitude
+      if (lngField) lngField.value = city.coordinates[0]; // longitude
+
+      console.log('✅ City selected:', {
+        name: city.name,
+        country: countrySelect.value,
+        lat: city.coordinates[1],
+        lng: city.coordinates[0]
+      });
+
+      hideSuggestions();
+      cityInput.blur();
+    }
+
+    // Event listeners
+    cityInput.addEventListener('input', (e) => {
+      debouncedSearch(e.target.value);
+    });
+
+    cityInput.addEventListener('focus', (e) => {
+      if (e.target.value.trim().length >= 2) {
+        debouncedSearch(e.target.value);
+      }
+    });
+
+    cityInput.addEventListener('blur', () => {
+      // Small delay to allow click on suggestions
+      setTimeout(() => {
+        hideSuggestions();
+      }, 200);
+    });
+
+    // Keyboard navigation
+    cityInput.addEventListener('keydown', (e) => {
+      const suggestions = citySuggestions.querySelectorAll('.city-suggestion');
+
+      if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        selectedCityIndex = Math.min(selectedCityIndex + 1, suggestions.length - 1);
+        updateSelectedSuggestion();
+      } else if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        selectedCityIndex = Math.max(selectedCityIndex - 1, -1);
+        updateSelectedSuggestion();
+      } else if (e.key === 'Enter') {
+        e.preventDefault();
+        if (selectedCityIndex >= 0 && currentSuggestions[selectedCityIndex]) {
+          selectCity(currentSuggestions[selectedCityIndex]);
+        }
+      } else if (e.key === 'Escape') {
+        hideSuggestions();
+      }
+    });
+
+    function updateSelectedSuggestion() {
+      citySuggestions.querySelectorAll('.city-suggestion').forEach((elem, index) => {
+        if (index === selectedCityIndex) {
+          elem.classList.add('selected');
+        } else {
+          elem.classList.remove('selected');
+        }
+      });
+    }
+
+    // Hide suggestions when clicking outside
+    document.addEventListener('click', (e) => {
+      if (!e.target.closest('.autocomplete-container')) {
+        hideSuggestions();
+      }
+    });
+  }
+
+  // Initialize on DOM load
+  document.addEventListener('DOMContentLoaded', initMapboxCityAutocomplete);
+
+  // Also initialize on page load (View Transitions)
+  document.addEventListener('astro:page-load', initMapboxCityAutocomplete);
+</script>
+
+<style>
+  .mapbox-city-autocomplete {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  .autocomplete-container {
+    position: relative;
+  }
+
+  .city-suggestions {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: white;
+    border: 2px solid black;
+    border-top: none;
+    border-radius: 0;
+    max-height: 300px;
+    overflow-y: auto;
+    z-index: 1000;
+  }
+
+  .city-suggestion {
+    display: flex;
+    flex-direction: column;
+    padding: 0.75rem;
+    cursor: pointer;
+    border-bottom: 1px solid #f3f4f6;
+    transition: background-color 0.2s ease;
+  }
+
+  .city-suggestion:hover,
+  .city-suggestion.selected {
+    background-color: #f8f9ff;
+  }
+
+  .city-suggestion:last-child {
+    border-bottom: none;
+  }
+
+  .city-name {
+    font-weight: 600;
+    color: #1f2937;
+    font-size: 1rem;
+  }
+
+  .place-name {
+    font-size: 0.85rem;
+    color: #6b7280;
+    margin-top: 0.25rem;
+  }
+
+  .city-suggestions.hidden {
+    display: none;
+  }
+
+  .city-note {
+    font-size: 0.8rem;
+    color: #6b7280;
+    margin-top: 0.25rem;
+    font-style: italic;
+  }
+
+  /* Form group styles (inherit from parent) */
+  .form-group {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .form-group label {
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    color: #1f2937;
+    font-size: 0.9rem;
+  }
+
+  .form-group input,
+  .form-group select {
+    padding: 0.75rem;
+    border: 2px solid black;
+    border-radius: 0;
+    font-size: 1rem;
+    transition: all 0.2s ease;
+    background-color: transparent;
+    color: white;
+    font-weight: 700;
+  }
+
+  .form-group input:focus,
+  .form-group select:focus {
+    outline: none;
+    border-color: black;
+  }
+
+  .form-group input::placeholder {
+    color: rgba(255, 255, 255, 0.7);
+    font-weight: 700;
+  }
+
+  .form-group select option {
+    background-color: white;
+    color: black;
+    font-weight: 700;
+  }
+
+  /* Responsive design */
+  @media (max-width: 768px) {
+    .city-suggestions {
+      max-height: 200px;
+    }
+
+    .city-suggestion {
+      padding: 0.5rem;
+    }
+  }
+</style>

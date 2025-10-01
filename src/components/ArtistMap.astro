@@ -518,6 +518,9 @@ let selectedFilters = { cities: [], countries: [], styles: [], roles: [], pol: [
 
     console.log('🧹 All filters cleared');
 
+    // Repopulate filter options to restore all cities (not just from selected country)
+    populateFilterOptions(allArtists, []);
+
     // Update clear button visibility
     updateClearFilterButton();
 

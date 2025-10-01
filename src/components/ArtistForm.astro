@@ -1,7 +1,7 @@
 ---
 import * as m from '../paraglide/messages.js';
 import { getLocale } from '../paraglide/runtime.js';
-import CityCountryPicker from './CityCountryPicker.astro';
+import MapboxCityAutocomplete from './MapboxCityAutocomplete.astro';
 import SendFlat from '../assets/images/send_flat.svg';
 
 const currentLang = getLocale();
@@ -20,13 +20,8 @@ const currentLang = getLocale();
       <input type="text" id="pronouns" name="pronouns" placeholder={m.pronouns_placeholder({}, { locale: 'en' })}>
     </div>
 
-    <div class="form-group">
-      <label for="email">{m.email({}, { locale: 'en' })} *</label>
-      <input type="email" id="email" name="email" required>
-    </div>
-
-    <!-- Smart City/Country Picker -->
-    <CityCountryPicker />
+    <!-- Mapbox City Autocomplete -->
+    <MapboxCityAutocomplete />
 
     <div class="form-group">
       <label>{m.activities({}, { locale: 'en' })} *</label>
@@ -619,35 +614,18 @@ const currentLang = getLocale();
         return;
       }
 
-      // Validate and auto-resolve city coordinates if missing
+      // Validate that city has coordinates from Mapbox
       const cityInput = form.querySelector('#city');
-      const countryInput = form.querySelector('#country');
-      const cityIdField = form.querySelector('#city-id');
       const latField = form.querySelector('#latitude');
       const lngField = form.querySelector('#longitude');
+      const countryField = form.querySelector('#country');
 
-      if (cityInput && countryInput && cityInput.value && countryInput.value) {
-        // If city is entered but no cityId, try to find it
-        if (!cityIdField?.value || !latField?.value || !lngField?.value) {
-          console.log('🔍 Missing city data, attempting to resolve...');
-
-          // Try to find the city in the cities data
-          if (window.citiesData) {
-            const matchingCity = window.citiesData.find(city =>
-              city.name.toLowerCase() === cityInput.value.toLowerCase() &&
-              city.country === countryInput.value
-            );
-
-            if (matchingCity) {
-              console.log('✅ Found matching city:', matchingCity);
-              if (cityIdField) cityIdField.value = matchingCity.id;
-              if (latField && matchingCity.coordinates) latField.value = matchingCity.coordinates[1];
-              if (lngField && matchingCity.coordinates) lngField.value = matchingCity.coordinates[0];
-            } else {
-              console.warn('⚠️ City not found in database:', cityInput.value, countryInput.value);
-              alert(`Warning: The city "${cityInput.value}" was not found in our database. Your submission will be processed but may not appear on the map immediately.`);
-            }
-          }
+      if (cityInput && cityInput.value) {
+        // Check if coordinates were filled by Mapbox autocomplete
+        if (!latField?.value || !lngField?.value || !countryField?.value) {
+          console.warn('⚠️ City coordinates missing');
+          alert(`Please select a city from the suggestions list. Type your city name and select it from the dropdown.`);
+          return;
         }
       }
       

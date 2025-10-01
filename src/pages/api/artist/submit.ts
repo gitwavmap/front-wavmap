@@ -28,7 +28,6 @@ interface ArtistFormData {
   artistName: string;
   realName?: string;
   pronouns?: string;
-  email: string;
   city: string;
   country: string;
   cityId?: string;      // ID unique de la ville pour optimisation
@@ -50,7 +49,6 @@ interface ArtistSubmission {
   artistname: string;
   realname?: string;
   pronouns?: string;
-  email: string;
   maincity: string;
   country: string;
   cityid?: string;        // ID unique pour référence rapide
@@ -73,33 +71,23 @@ function validateFormData(data: ArtistFormData): string | null {
   if (!data.artistName?.trim()) {
     return 'Artist name is required';
   }
-  
-  if (!data.email?.trim()) {
-    return 'Email is required';
-  }
-  
-  // Validation email basique
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  if (!emailRegex.test(data.email)) {
-    return 'Please enter a valid email address';
-  }
-  
+
   if (!data.city?.trim()) {
     return 'Main city is required';
   }
-  
+
   if (!data.country?.trim()) {
     return 'Country is required';
   }
-  
+
   if (!data.activities || data.activities.length === 0) {
     return 'Please select at least one field of activity';
   }
-  
+
   if (!data.genres || data.genres.length === 0) {
     return 'Please select at least one musical style';
   }
-  
+
   return null; // No error
 }
 
@@ -133,7 +121,6 @@ function transformFormData(formData: ArtistFormData): ArtistSubmission {
     artistname: formData.artistName,
     realname: formData.realName || '',
     pronouns: formData.pronouns || '',
-    email: formData.email,
     maincity: formData.city,
     country: formData.country,
     cityid: finalCityId,                    // ID validé/complété par serveur
@@ -161,7 +148,6 @@ export const POST: APIRoute = async ({ request, cookies, locals }) => {
       artistName: formData.get('artistName')?.toString() || '',
       realName: formData.get('realName')?.toString() || '',
       pronouns: formData.get('pronouns')?.toString() || '',
-      email: formData.get('email')?.toString() || '',
       city: formData.get('city')?.toString() || '',
       country: formData.get('country')?.toString() || '',
       cityId: formData.get('cityId')?.toString() || '',
