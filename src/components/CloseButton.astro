@@ -1,0 +1,52 @@
+---
+import CloseBtn from '../assets/images/close_btn.svg';
+import CloseBtnBg from '../assets/images/close_bg.svg';
+
+interface Props {
+  class?: string;
+}
+
+const { class: className = '' } = Astro.props;
+---
+
+<div class={`close-hover-btn ${className}`}>
+  <img src={CloseBtn.src} alt="Close" class="close-btn-normal" />
+  <img src={CloseBtnBg.src} alt="Close" class="close-btn-hover" />
+</div>
+
+<style>
+  .close-hover-btn {
+    position: relative;
+    cursor: pointer;
+    width: fit-content;
+    display: flex;
+    justify-content: center;
+  }
+
+  .close-btn-normal,
+  .close-btn-hover {
+    height: 30px;
+    width: auto;
+    display: block;
+  }
+
+  .close-btn-normal {
+    transition: opacity 0.2s ease;
+  }
+
+  .close-btn-hover {
+    position: absolute;
+    top: 0;
+    left: 0;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+  }
+
+  .close-hover-btn:hover .close-btn-normal {
+    opacity: 0;
+  }
+
+  .close-hover-btn:hover .close-btn-hover {
+    opacity: 1;
+  }
+</style>

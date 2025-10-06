@@ -8,8 +8,8 @@ import MapFlat from '../assets/images/map_flat.svg';
 import About from '../assets/images/about_button.svg';
 import AboutFlat from '../assets/images/about_flat.svg';
 import HoverLink from './HoverLink.astro';
+import CloseButton from './CloseButton.astro';
 import Logo from '../assets/images/logo.svg';
-import CloseBtn from '../assets/images/close_btn.svg';
 
 interface Props {
   currentPage: 'map' | 'blog' | 'about';
@@ -79,7 +79,9 @@ const currentPath = Astro.url.pathname;
     <button id="join-community-btn" class="community-button">
       <div class="community-content">
         <span class="join-text">Join the community</span>
-        <img class="close-icon hidden" src={CloseBtn.src} alt="Close" />
+        <div class="close-icon-wrapper hidden">
+          <CloseButton class="navbar-close" />
+        </div>
         <img class="logo-icon" src={Logo.src} alt="logo" />
       </div>
     </button>
@@ -349,13 +351,15 @@ const currentPath = Astro.url.pathname;
     width: auto;
   }
 
-  .community-dropdown-container .close-icon {
+  .community-dropdown-container .close-icon-wrapper {
     height: 40px;
-    width: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
 
   .community-dropdown-container .hidden {
-    display: none;
+    display: none !important;
   }
 
   .community-dropdown-container.dropdown-state .join-text,
@@ -363,8 +367,8 @@ const currentPath = Astro.url.pathname;
     display: none;
   }
 
-  .community-dropdown-container.dropdown-state .close-icon {
-    display: inline;
+  .community-dropdown-container.dropdown-state .close-icon-wrapper {
+    display: flex !important;
   }
 
   .community-dropdown {
