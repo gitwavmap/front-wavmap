@@ -122,6 +122,10 @@ const animationSteps = [
 	const frames = document.querySelectorAll('.animation-frame');
 	let currentFrame = 0;
 	let isAnimating = false;
+	let autoAnimationInterval: number | null = null;
+
+	// Detect if device is mobile/touch
+	const isMobile = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
 
 	// Preload all images to prevent flashing
 	function preloadImages() {
@@ -142,8 +146,7 @@ const animationSteps = [
 		currentFrame = frameIndex;
 	}
 
-	// Animate through all frames on hover
-	container?.addEventListener('mouseenter', () => {
+	function startAnimation(shouldLoop = true) {
 		if (isAnimating) return;
 		isAnimating = true;
 
@@ -155,30 +158,42 @@ const animationSteps = [
 			if (frame >= frames.length) {
 				clearInterval(interval);
 				isAnimating = false;
-				// Loop back to first frame after animation completes
-				setTimeout(() => {
-					showFrame(0);
-				}, 500);
+				// Loop back to first frame after animation completes (only on desktop)
+				if (shouldLoop) {
+					setTimeout(() => {
+						showFrame(0);
+					}, 500);
+				}
 			}
 		}, 50); // 50ms per frame = ~20fps, adjust for speed
-	});
+	}
 
-	// Optional: scrub through frames based on mouse position
-	container?.addEventListener('mousemove', (e) => {
-		if (isAnimating) return;
+	if (isMobile) {
+		// On mobile: play animation once and stay at final frame
+		startAnimation(false);
+	} else {
+		// On desktop: mouse-controlled animation
+		container?.addEventListener('mouseenter', () => {
+			startAnimation();
+		});
 
-		const rect = container.getBoundingClientRect();
-		const x = e.clientX - rect.left;
-		const progress = x / rect.width;
-		const targetFrame = Math.floor(progress * frames.length);
+		// Optional: scrub through frames based on mouse position
+		container?.addEventListener('mousemove', (e) => {
+			if (isAnimating) return;
 
-		showFrame(Math.max(0, Math.min(frames.length - 1, targetFrame)));
-	});
+			const rect = container.getBoundingClientRect();
+			const x = e.clientX - rect.left;
+			const progress = x / rect.width;
+			const targetFrame = Math.floor(progress * frames.length);
 
-	// Reset to first frame when mouse leaves
-	container?.addEventListener('mouseleave', () => {
-		if (!isAnimating) {
-			showFrame(0);
-		}
-	});
+			showFrame(Math.max(0, Math.min(frames.length - 1, targetFrame)));
+		});
+
+		// Reset to first frame when mouse leaves
+		container?.addEventListener('mouseleave', () => {
+			if (!isAnimating) {
+				showFrame(0);
+			}
+		});
+	}
 </script>

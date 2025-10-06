@@ -125,11 +125,11 @@ const initialSkeletonCount = 6;
   function replaceSkeletonWithArticle(articleElement, article, index) {
     const skeletonElement = articleElement;
 
-    // Create the image HTML if there's an image
+    // Create the image HTML if there's an image, wrapped in a link
     const imageHtml = article.imageUrl
-      ? `<div class="aspect-video">
-           <img src="${article.imageUrl}" alt="${article.title}" class="w-full h-full object-cover" style="clip-path: polygon(20% 0, 100% 0, 100% 40%, 80% 100%, 0 100%, 0% 60%);">
-         </div>`
+      ? `<a href="/blog/${article.slug}" class="block aspect-video">
+           <img src="${article.imageUrl}" alt="${article.title}" class="w-full h-full object-cover cursor-pointer hover:opacity-90 transition-opacity" style="clip-path: polygon(20% 0, 100% 0, 100% 40%, 80% 100%, 0 100%, 0% 60%);">
+         </a>`
       : '';
 
     const postNumber = article.post_number ? String(article.post_number).padStart(3, '0') : String(index + 1).padStart(3, '0');
@@ -161,9 +161,9 @@ const initialSkeletonCount = 6;
     articleEl.className = '';
 
     const imageHtml = article.imageUrl
-      ? `<div class="aspect-video">
-           <img src="${article.imageUrl}" alt="${article.title}" class="w-full h-full object-cover" style="clip-path: polygon(20% 0, 100% 0, 100% 40%, 80% 100%, 0 100%, 0% 60%);">
-         </div>`
+      ? `<a href="/blog/${article.slug}" class="block aspect-video">
+           <img src="${article.imageUrl}" alt="${article.title}" class="w-full h-full object-cover cursor-pointer hover:opacity-90 transition-opacity" style="clip-path: polygon(20% 0, 100% 0, 100% 40%, 80% 100%, 0 100%, 0% 60%);">
+         </a>`
       : '';
 
     const postNumber = article.post_number ? String(article.post_number).padStart(3, '0') : String(index + 1).padStart(3, '0');

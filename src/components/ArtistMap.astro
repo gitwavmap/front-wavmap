@@ -1052,16 +1052,16 @@ let selectedFilters = { cities: [], countries: [], styles: [], roles: [], pol: [
     
     try {
 
-      // Extended Europe bounds including full Scandinavia
+      // Extended Europe bounds to include Iceland and Tunisia
       const europeBounds = [
-          [ -35, 30 ], // Sud-ouest : Inclut l'Atlantique et l'Afrique du Nord
-          [ 60, 80 ]   // Nord-est : Inclut complètement la Scandinavie et l'Arctique
+          [ -25, 30 ], // Sud-ouest : Inclut la Tunisie et l'Atlantique
+          [ 45, 72 ]   // Nord-est : Inclut l'Islande et la Scandinavie
       ];
 
       // Responsive center and zoom for mobile
       const isMobile = window.innerWidth < 768;
-      const initialCenter = isMobile ? [10, 48] : [10, 54]; // More south on mobile
-      const initialZoom = isMobile ? 2.8 : 3.5; // Much more zoomed out on mobile
+      const initialCenter = isMobile ? [10, 50] : [10, 54]; // Center adjusted for mobile
+      const initialZoom = isMobile ? 3.2 : 3.8; // Zoom adjusted to show full extent
 
       const map = new mapboxgl.Map({
         container: 'wavmap',
@@ -1069,7 +1069,7 @@ let selectedFilters = { cities: [], countries: [], styles: [], roles: [], pol: [
         center: initialCenter,
         zoom: initialZoom,
         maxBounds: europeBounds,
-        minZoom: 2,
+        minZoom: 3,
         maxZoom: 18
       });
 
@@ -1112,13 +1112,6 @@ let selectedFilters = { cities: [], countries: [], styles: [], roles: [], pol: [
         console.log('🗺️ Map loaded!');
         console.log('📍 Initial center:', map.getCenter());
         console.log('🔍 Initial zoom:', map.getZoom());
-
-        // Force center on extended Europe
-        map.setCenter([10, 54]);
-        map.setZoom(3.5);
-
-        console.log('📍 After setCenter - Center:', map.getCenter());
-        console.log('🔍 After setZoom - Zoom:', map.getZoom());
 
         // Fetch approved artists from API
         const artists = await loadApprovedArtists();
