@@ -1,0 +1,325 @@
+---
+import CloseButton from './CloseButton.astro';
+---
+
+<div id="newsletter-modal" class="newsletter-modal-overlay hidden">
+  <div class="newsletter-modal-content">
+    <div class="newsletter-modal-header">
+      <h2>Join the Newsletter</h2>
+      <div id="close-newsletter-modal">
+        <CloseButton />
+      </div>
+    </div>
+
+    <p class="newsletter-description">
+      Stay updated with the latest news, events, and artist spotlights from the European electronic music scene.
+    </p>
+
+    <form id="newsletter-form" class="newsletter-form">
+      <div class="form-group">
+        <label for="newsletter-email">Email Address</label>
+        <input
+          type="email"
+          id="newsletter-email"
+          name="email"
+          required
+          placeholder="your@email.com"
+          class="newsletter-input"
+        />
+      </div>
+
+      <div id="newsletter-error" class="error-message hidden"></div>
+      <div id="newsletter-success" class="success-message hidden"></div>
+
+      <button type="submit" class="newsletter-submit-btn">
+        Subscribe
+      </button>
+    </form>
+  </div>
+</div>
+
+<style>
+  .newsletter-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(4px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10000;
+    padding: 1rem;
+    box-sizing: border-box;
+  }
+
+  .newsletter-modal-overlay.hidden {
+    display: none;
+  }
+
+  .newsletter-modal-content {
+    background: white;
+    border-radius: 1rem;
+    padding: 2rem;
+    max-width: 500px;
+    width: 100%;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    position: relative;
+    animation: modalFadeIn 0.3s ease;
+  }
+
+  @keyframes modalFadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(-20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .newsletter-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+  }
+
+  .newsletter-modal-header h2 {
+    font-size: 1.75rem;
+    font-weight: 700;
+    margin: 0;
+    color: #000;
+  }
+
+  #close-newsletter-modal {
+    cursor: pointer;
+  }
+
+  .newsletter-description {
+    font-size: 0.95rem;
+    line-height: 1.6;
+    color: #555;
+    margin-bottom: 2rem;
+  }
+
+  .newsletter-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  .form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .form-group label {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #333;
+  }
+
+  .newsletter-input {
+    padding: 0.75rem 1rem;
+    border: 2px solid #ddd;
+    border-radius: 0.5rem;
+    font-size: 1rem;
+    transition: all 0.2s ease;
+  }
+
+  .newsletter-input:focus {
+    outline: none;
+    border-color: #3E44E6;
+    box-shadow: 0 0 0 3px rgba(62, 68, 230, 0.1);
+  }
+
+  .newsletter-submit-btn {
+    background: linear-gradient(to right, #E9930F, #3E44E6, #8FD116);
+    color: white;
+    border: none;
+    padding: 0.875rem 2rem;
+    border-radius: 0.5rem;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .newsletter-submit-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(62, 68, 230, 0.3);
+  }
+
+  .newsletter-submit-btn:active {
+    transform: translateY(0);
+  }
+
+  .error-message {
+    background: #fee;
+    color: #c00;
+    padding: 0.75rem;
+    border-radius: 0.5rem;
+    font-size: 0.9rem;
+    border: 1px solid #fcc;
+  }
+
+  .success-message {
+    background: #efe;
+    color: #060;
+    padding: 0.75rem;
+    border-radius: 0.5rem;
+    font-size: 0.9rem;
+    border: 1px solid #cfc;
+  }
+
+  .hidden {
+    display: none !important;
+  }
+
+  /* Responsive */
+  @media (max-width: 768px) {
+    .newsletter-modal-content {
+      padding: 1.5rem;
+      max-width: 90vw;
+    }
+
+    .newsletter-modal-header h2 {
+      font-size: 1.5rem;
+    }
+
+    .newsletter-description {
+      font-size: 0.875rem;
+    }
+
+    .newsletter-submit-btn {
+      padding: 0.75rem 1.5rem;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .newsletter-modal-content {
+      padding: 1.25rem;
+    }
+
+    .newsletter-modal-header h2 {
+      font-size: 1.25rem;
+    }
+
+    .newsletter-description {
+      font-size: 0.8rem;
+      margin-bottom: 1.5rem;
+    }
+  }
+</style>
+
+<script>
+  function initNewsletterModal() {
+    const modal = document.getElementById('newsletter-modal');
+    const closeBtn = document.getElementById('close-newsletter-modal');
+    const form = document.getElementById('newsletter-form') as HTMLFormElement;
+    const errorDiv = document.getElementById('newsletter-error');
+    const successDiv = document.getElementById('newsletter-success');
+
+    if (!modal || !closeBtn || !form) return;
+
+    // Close modal on close button click
+    closeBtn.addEventListener('click', () => {
+      modal.classList.add('hidden');
+      document.body.style.overflow = '';
+    });
+
+    // Close modal on overlay click
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) {
+        modal.classList.add('hidden');
+        document.body.style.overflow = '';
+      }
+    });
+
+    // Close on Escape key
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && !modal.classList.contains('hidden')) {
+        modal.classList.add('hidden');
+        document.body.style.overflow = '';
+      }
+    });
+
+    // Handle form submission
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      if (errorDiv) errorDiv.classList.add('hidden');
+      if (successDiv) successDiv.classList.add('hidden');
+
+      const emailInput = document.getElementById('newsletter-email') as HTMLInputElement;
+      const email = emailInput?.value;
+
+      if (!email) {
+        if (errorDiv) {
+          errorDiv.textContent = 'Please enter your email address.';
+          errorDiv.classList.remove('hidden');
+        }
+        return;
+      }
+
+      try {
+        // TODO: Replace with your actual newsletter API endpoint
+        const response = await fetch('/api/newsletter/subscribe', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ email }),
+        });
+
+        const result = await response.json();
+
+        if (response.ok && result.success) {
+          if (successDiv) {
+            successDiv.textContent = 'Successfully subscribed! Check your email for confirmation.';
+            successDiv.classList.remove('hidden');
+          }
+          form.reset();
+
+          // Close modal after 2 seconds
+          setTimeout(() => {
+            modal.classList.add('hidden');
+            document.body.style.overflow = '';
+            if (successDiv) successDiv.classList.add('hidden');
+          }, 2000);
+        } else {
+          throw new Error(result.error || 'Subscription failed');
+        }
+      } catch (error) {
+        if (errorDiv) {
+          errorDiv.textContent = error instanceof Error ? error.message : 'An error occurred. Please try again.';
+          errorDiv.classList.remove('hidden');
+        }
+      }
+    });
+  }
+
+  // Initialize on page load
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initNewsletterModal);
+  } else {
+    initNewsletterModal();
+  }
+
+  // Re-initialize on Astro page transitions
+  document.addEventListener('astro:page-load', initNewsletterModal);
+
+  // Global function to open the modal
+  window.openNewsletterModal = function() {
+    const modal = document.getElementById('newsletter-modal');
+    if (modal) {
+      modal.classList.remove('hidden');
+      document.body.style.overflow = 'hidden';
+    }
+  };
+</script>

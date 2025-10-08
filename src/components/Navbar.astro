@@ -93,6 +93,12 @@ const currentPath = Astro.url.pathname;
   </div></nav>
 
 <style>
+  /* CSS Variables for responsive navbar heights */
+  :root {
+    --navbar-height-desktop: 5rem; /* 80px */
+    --navbar-height-mobile: 3.75rem; /* 60px */
+  }
+
   /* Structure globale */
   .navbar {
     display: flex;
@@ -103,7 +109,7 @@ const currentPath = Astro.url.pathname;
     padding: 0 1rem; /* Use padding instead of margin to keep full width */
     position: sticky;
     top: 0;
-    height: 80px;
+    height: var(--navbar-height-desktop);
     background: white;
     z-index: 100;
     width: 100%;
@@ -373,7 +379,7 @@ const currentPath = Astro.url.pathname;
 
   .community-dropdown {
     position: fixed;
-    top: 80px;
+    top: var(--navbar-height-desktop);
     right: 0;
     /* Match the button width: 30% of viewport minus navbar padding */
     width: calc(30vw - 0.6rem);
@@ -381,9 +387,11 @@ const currentPath = Astro.url.pathname;
     border: none;
     border-radius: 0;
     z-index: 1000;
-    height: calc(100vh - 80px);
-    max-height: 100vh;
+    height: calc(100vh - var(--navbar-height-desktop));
+    max-height: calc(100vh - var(--navbar-height-desktop));
     overflow-y: auto;
+    overflow-x: hidden;
+    -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
   }
 
   .community-dropdown.hidden {
@@ -393,7 +401,7 @@ const currentPath = Astro.url.pathname;
   /* Responsive */
   @media (max-width: 768px) {
     .navbar {
-      height: 60px;
+      height: var(--navbar-height-mobile);
       margin: 0;
       padding: 0 0.5rem; /* Reduce padding on mobile */
     }
@@ -432,15 +440,19 @@ const currentPath = Astro.url.pathname;
 
     .community-dropdown {
       position: fixed;
-      top: 60px;
+      top: var(--navbar-height-mobile);
       left: 0;
       right: 0;
       width: 100vw !important; /* Force full width on mobile */
-      height: calc(100vh - 60px);
+      height: calc(100dvh - var(--navbar-height-mobile)); /* Use dvh for better mobile support */
+      max-height: calc(100dvh - var(--navbar-height-mobile));
       z-index: 9999;
       margin: 0;
       padding: 0;
       box-sizing: border-box;
+      overflow-y: auto;
+      overflow-x: hidden;
+      -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
     }
 
     .community-dropdown-container {

@@ -1,14 +1,23 @@
 ---
 import ArtistForm from './ArtistForm.astro';
 import AuthModalForm from './AuthModalForm.astro';
+import NewsletterModal from './NewsletterModal.astro';
 import * as m from '../paraglide/messages.js';
 
 // Get authentication state from Layout props
 const { user, isAuthenticated } = Astro.props;
 ---
 
+<!-- Newsletter Modal (global) -->
+<NewsletterModal />
+
 <!-- Dropdown Content -->
 <div class="dropdown-content">
+  <!-- Newsletter Button -->
+  <button id="open-newsletter-btn" class="newsletter-cta-btn">
+    Join the Newsletter
+  </button>
+
   <h2 class="modal-title">Join the map</h2>
 
   <!-- Form Content -->
@@ -29,7 +38,31 @@ const { user, isAuthenticated } = Astro.props;
 <style>
   .dropdown-content {
     padding: 20px;
+    padding-bottom: 80px; /* Extra bottom padding for mobile scrolling */
     background: transparent;
+    box-sizing: border-box;
+  }
+
+  .newsletter-cta-btn {
+    display: block;
+    width: 100%;
+    padding: 1rem;
+    margin-bottom: 2rem;
+    background: white;
+    color: black;
+    border: 3px solid black;
+    font-size: 1.25rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+
+  .newsletter-cta-btn:hover {
+    background: black;
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
   }
 
   .modal-title {
@@ -40,6 +73,30 @@ const { user, isAuthenticated } = Astro.props;
     margin: 0 0 20px 0;
     text-transform: none;
     letter-spacing: normal;
+  }
+
+  /* Responsive */
+  @media (max-width: 768px) {
+    .newsletter-cta-btn {
+      font-size: 1rem;
+      padding: 0.875rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .modal-title {
+      font-size: 1.5rem;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .newsletter-cta-btn {
+      font-size: 0.9rem;
+      padding: 0.75rem;
+    }
+
+    .modal-title {
+      font-size: 1.25rem;
+    }
   }
 
   .auth-intro {
@@ -140,6 +197,7 @@ const { user, isAuthenticated } = Astro.props;
   @media (max-width: 768px) {
     .dropdown-content {
       padding: 15px 20px;
+      padding-bottom: 100px; /* Extra bottom padding for mobile scrolling */
       box-sizing: border-box;
     }
 
@@ -170,13 +228,30 @@ const { user, isAuthenticated } = Astro.props;
   // Listen for auth success event
   window.addEventListener('authSuccess', handleAuthSuccess);
 
+  // Newsletter button handler
+  function initNewsletterButton() {
+    const newsletterBtn = document.getElementById('open-newsletter-btn');
+    if (newsletterBtn) {
+      newsletterBtn.addEventListener('click', () => {
+        if (window.openNewsletterModal) {
+          window.openNewsletterModal();
+        }
+      });
+    }
+  }
+
   // Initialize on DOM loaded
   document.addEventListener('DOMContentLoaded', () => {
     window.addEventListener('authSuccess', handleAuthSuccess);
+    initNewsletterButton();
   });
 
   // Handle case where script loads after DOM
   if (document.readyState !== 'loading') {
     window.addEventListener('authSuccess', handleAuthSuccess);
+    initNewsletterButton();
   }
+
+  // Re-initialize on Astro page transitions
+  document.addEventListener('astro:page-load', initNewsletterButton);
 </script>
