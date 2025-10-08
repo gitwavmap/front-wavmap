@@ -1,22 +1,37 @@
 ---
 import ArtistForm from './ArtistForm.astro';
 import AuthModalForm from './AuthModalForm.astro';
-import NewsletterModal from './NewsletterModal.astro';
 import * as m from '../paraglide/messages.js';
+import OkFlat from '../assets/images/ok_flat.svg';
+import OkBg from '../assets/images/ok_bg.svg';
 
 // Get authentication state from Layout props
 const { user, isAuthenticated } = Astro.props;
 ---
 
-<!-- Newsletter Modal (global) -->
-<NewsletterModal />
-
 <!-- Dropdown Content -->
 <div class="dropdown-content">
-  <!-- Newsletter Button -->
-  <button id="open-newsletter-btn" class="newsletter-cta-btn">
-    Join the Newsletter
-  </button>
+  <!-- Newsletter Section -->
+  <div class="newsletter-section">
+    <h3 class="newsletter-title">Join our newsletter</h3>
+    <div class="newsletter-form-inline">
+      <input
+        type="email"
+        id="newsletter-email-inline"
+        placeholder="your@email.com"
+        class="newsletter-input-inline"
+      />
+      <button id="newsletter-submit-inline" class="newsletter-ok-btn">
+        <img src={OkFlat.src} alt="OK" class="ok-normal" />
+        <img src={OkBg.src} alt="OK" class="ok-hover" />
+      </button>
+    </div>
+    <div id="newsletter-error-inline" class="error-message hidden"></div>
+    <div id="newsletter-success-inline" class="success-message hidden"></div>
+  </div>
+
+  <!-- Separator -->
+  <div class="separator"></div>
 
   <h2 class="modal-title">Join the map</h2>
 
@@ -43,32 +58,121 @@ const { user, isAuthenticated } = Astro.props;
     box-sizing: border-box;
   }
 
-  .newsletter-cta-btn {
-    display: block;
-    width: 100%;
-    padding: 1rem;
+  .newsletter-section {
     margin-bottom: 2rem;
-    background: white;
-    color: black;
-    border: 3px solid black;
-    font-size: 1.25rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    cursor: pointer;
-    transition: all 0.3s ease;
   }
 
-  .newsletter-cta-btn:hover {
-    background: black;
+  .newsletter-title {
     color: white;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    font-size: 24px;
+    font-weight: 700;
+    text-transform: none;
+    margin: 0 0 1rem 0;
+    text-align: center;
+  }
+
+  .newsletter-form-inline {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .newsletter-input-inline {
+    width: 100%;
+    height: 56px;
+    padding: 16px 12px;
+    border: 2px solid black;
+    background: transparent;
+    font-size: 14px;
+    color: white;
+    font-weight: 700;
+    border-radius: 0;
+    transition: all 0.2s ease;
+    box-sizing: border-box;
+  }
+
+  .newsletter-input-inline::placeholder {
+    color: rgba(255, 255, 255, 0.7);
+    font-weight: 700;
+  }
+
+  .newsletter-input-inline:focus {
+    outline: none;
+    background: transparent;
+  }
+
+  .newsletter-ok-btn {
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    align-self: center;
+    position: relative;
+  }
+
+  .newsletter-ok-btn img {
+    display: block;
+    height: 40px;
+    width: auto;
+  }
+
+  .newsletter-ok-btn .ok-normal {
+    transition: opacity 0.2s ease;
+  }
+
+  .newsletter-ok-btn .ok-hover {
+    position: absolute;
+    top: 0;
+    left: 0;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+  }
+
+  .newsletter-ok-btn:hover .ok-normal {
+    opacity: 0;
+  }
+
+  .newsletter-ok-btn:hover .ok-hover {
+    opacity: 1;
+  }
+
+  .error-message {
+    background: rgba(255, 0, 0, 0.2);
+    color: #ff6b6b;
+    padding: 0.75rem;
+    border: 1px solid #ff6b6b;
+    font-size: 0.9rem;
+    margin-top: 0.5rem;
+  }
+
+  .success-message {
+    background: rgba(0, 255, 0, 0.2);
+    color: #6bff6b;
+    padding: 0.75rem;
+    border: 1px solid #6bff6b;
+    font-size: 0.9rem;
+    margin-top: 0.5rem;
+  }
+
+  .hidden {
+    display: none !important;
+  }
+
+  .separator {
+    width: calc(100% + 40px);
+    margin-left: -20px;
+    margin-right: -20px;
+    height: 2px;
+    background: white;
+    margin-top: 2rem;
+    margin-bottom: 2rem;
   }
 
   .modal-title {
     text-align: center;
-    font-size: 2rem;
-    font-weight: 900;
+    font-size: 24px;
+    font-weight: 700;
     color: white;
     margin: 0 0 20px 0;
     text-transform: none;
@@ -77,10 +181,12 @@ const { user, isAuthenticated } = Astro.props;
 
   /* Responsive */
   @media (max-width: 768px) {
-    .newsletter-cta-btn {
-      font-size: 1rem;
-      padding: 0.875rem;
+    .newsletter-section {
       margin-bottom: 1.5rem;
+    }
+
+    .newsletter-title {
+      font-size: 1rem;
     }
 
     .modal-title {
@@ -89,9 +195,8 @@ const { user, isAuthenticated } = Astro.props;
   }
 
   @media (max-width: 480px) {
-    .newsletter-cta-btn {
+    .newsletter-title {
       font-size: 0.9rem;
-      padding: 0.75rem;
     }
 
     .modal-title {
@@ -225,33 +330,95 @@ const { user, isAuthenticated } = Astro.props;
     }
   }
 
-  // Listen for auth success event
-  window.addEventListener('authSuccess', handleAuthSuccess);
+  // Newsletter inline form handler
+  function initNewsletterInline() {
+    const submitBtn = document.getElementById('newsletter-submit-inline');
+    const emailInput = document.getElementById('newsletter-email-inline') as HTMLInputElement;
+    const errorDiv = document.getElementById('newsletter-error-inline');
+    const successDiv = document.getElementById('newsletter-success-inline');
 
-  // Newsletter button handler
-  function initNewsletterButton() {
-    const newsletterBtn = document.getElementById('open-newsletter-btn');
-    if (newsletterBtn) {
-      newsletterBtn.addEventListener('click', () => {
-        if (window.openNewsletterModal) {
-          window.openNewsletterModal();
+    if (!submitBtn || !emailInput) return;
+
+    submitBtn.addEventListener('click', async () => {
+      if (errorDiv) errorDiv.classList.add('hidden');
+      if (successDiv) successDiv.classList.add('hidden');
+
+      const email = emailInput.value.trim();
+
+      if (!email) {
+        if (errorDiv) {
+          errorDiv.textContent = 'Please enter your email address.';
+          errorDiv.classList.remove('hidden');
         }
-      });
-    }
+        return;
+      }
+
+      // Basic email validation
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(email)) {
+        if (errorDiv) {
+          errorDiv.textContent = 'Please enter a valid email address.';
+          errorDiv.classList.remove('hidden');
+        }
+        return;
+      }
+
+      try {
+        const response = await fetch('/api/newsletter/subscribe', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ email }),
+        });
+
+        const result = await response.json();
+
+        if (response.ok && result.success) {
+          if (successDiv) {
+            successDiv.textContent = 'Successfully subscribed! Check your email for confirmation.';
+            successDiv.classList.remove('hidden');
+          }
+          emailInput.value = '';
+
+          // Hide success message after 3 seconds
+          setTimeout(() => {
+            if (successDiv) successDiv.classList.add('hidden');
+          }, 3000);
+        } else {
+          throw new Error(result.error || 'Subscription failed');
+        }
+      } catch (error) {
+        if (errorDiv) {
+          errorDiv.textContent = error instanceof Error ? error.message : 'An error occurred. Please try again.';
+          errorDiv.classList.remove('hidden');
+        }
+      }
+    });
+
+    // Allow Enter key to submit
+    emailInput.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') {
+        submitBtn.click();
+      }
+    });
   }
 
   // Initialize on DOM loaded
   document.addEventListener('DOMContentLoaded', () => {
     window.addEventListener('authSuccess', handleAuthSuccess);
-    initNewsletterButton();
+    initNewsletterInline();
   });
 
   // Handle case where script loads after DOM
   if (document.readyState !== 'loading') {
     window.addEventListener('authSuccess', handleAuthSuccess);
-    initNewsletterButton();
+    initNewsletterInline();
   }
 
   // Re-initialize on Astro page transitions
-  document.addEventListener('astro:page-load', initNewsletterButton);
+  document.addEventListener('astro:page-load', () => {
+    window.addEventListener('authSuccess', handleAuthSuccess);
+    initNewsletterInline();
+  });
 </script>
