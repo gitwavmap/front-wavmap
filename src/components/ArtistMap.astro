@@ -13,6 +13,13 @@ import BackBtnBg from '../assets/images/close_bg.svg';
 import HoverLink from '../components/HoverLink.astro';
 import Separator from '../assets/images/separator.svg';
 
+// Import background images for filter buttons
+import CityBg from '../assets/images/city_bg.svg';
+import CountryBg from '../assets/images/country_bg.svg';
+import PolBg from '../assets/images/pol_bg.svg';
+import RoleBg from '../assets/images/role_bg.svg';
+import StyleBg from '../assets/images/style_bg.svg';
+
 // Import SVG button backgrounds
 import Btn1 from '../assets/images/btn_1.svg';
 import Btn2 from '../assets/images/btn_2.svg';
@@ -33,11 +40,11 @@ import Btn14 from '../assets/images/btn_14.svg';
 const mapboxToken = MAPBOX_ACCESS_TOKEN;
 
 const filters = [
-  { id: "country", label: "Country", icon: CountryBtn, options: [] }, // Populated dynamically
-  { id: "city", label: "City", icon: CityBtn, options: [] }, // Populated dynamically
-  { id: "style", label: "Style", icon: StyleBtn, options: ["Jazz", "HipHop", "Techno"] },
-  { id: "role", label: "Role", icon: RoleBtn, options: ["DJ", "Producer", "Singer"] },
-  { id: "pol", label: "Pol", icon: PolBtn, options: ["Option A", "Option B", "Option C"] },
+  { id: "country", label: "Country", icon: CountryBtn, hoverIcon: CountryBg, options: [] }, // Populated dynamically
+  { id: "city", label: "City", icon: CityBtn, hoverIcon: CityBg, options: [] }, // Populated dynamically
+  { id: "style", label: "Style", icon: StyleBtn, hoverIcon: StyleBg, options: ["Jazz", "HipHop", "Techno"] },
+  { id: "role", label: "Role", icon: RoleBtn, hoverIcon: RoleBg, options: ["DJ", "Producer", "Singer"] },
+  { id: "pol", label: "Pol", icon: PolBtn, hoverIcon: PolBg, options: ["Option A", "Option B", "Option C"] },
 ];
 
 let allArtists = []; // Store all artists for filtering
@@ -57,10 +64,12 @@ let selectedFilters = { cities: [], countries: [], styles: [], roles: [], pol: [
         {filters.map(filter => (
           <div key={filter.id} class="filter-wrapper">
             <button
-              class="filter"
+              class="filter filter-hover-btn"
               data-target={`filter-${filter.id}`}
+              data-normal-src={filter.icon.src}
+              data-hover-src={filter.hoverIcon.src}
             >
-              <img src={filter.icon.src} alt={filter.label} />
+              <img src={filter.icon.src} alt={filter.label} class="filter-button-image" />
             </button>
 
             <!-- Ligne d'options cachée par défaut -->
@@ -924,6 +933,53 @@ let selectedFilters = { cities: [], countries: [], styles: [], roles: [], pol: [
     artistContent.classList.add('hidden');
   }
 
+  // Initialize filter button hover effects
+  function initializeFilterButtonHover() {
+    const filterButtons = document.querySelectorAll('.filter-hover-btn');
+
+    filterButtons.forEach(button => {
+      const img = button.querySelector('.filter-button-image');
+      const normalSrc = button.dataset.normalSrc;
+      const hoverSrc = button.dataset.hoverSrc;
+      const targetId = button.dataset.target;
+
+      if (!img || !normalSrc || !hoverSrc) return;
+
+      // Preload images
+      const normalImg = new Image();
+      const hoverImg = new Image();
+      normalImg.src = normalSrc;
+      hoverImg.src = hoverSrc;
+
+      // Function to check if section is expanded
+      const isExpanded = () => {
+        const filterOptions = document.getElementById(targetId);
+        return filterOptions && !filterOptions.classList.contains('hidden');
+      };
+
+      // Function to update image based on state
+      const updateImage = () => {
+        if (isExpanded()) {
+          img.src = hoverSrc;
+        } else {
+          img.src = normalSrc;
+        }
+      };
+
+      // Hover events
+      button.addEventListener('mouseenter', () => {
+        img.src = hoverSrc;
+      });
+
+      button.addEventListener('mouseleave', () => {
+        updateImage();
+      });
+
+      // Store update function for use in click handler
+      button._updateImage = updateImage;
+    });
+  }
+
   // Simple event management
   function attachSimpleEvents() {
     console.log('🎯 Attaching events...');
@@ -945,6 +1001,11 @@ let selectedFilters = { cities: [], countries: [], styles: [], roles: [], pol: [
           const isOpening = filterOptions.classList.contains('hidden');
           filterOptions.classList.toggle('hidden');
           console.log('Toggle filter:', targetId);
+
+          // Update button image based on expanded state
+          if (filterButton._updateImage) {
+            filterButton._updateImage();
+          }
 
           // If opening the filter, scroll it into view within the filters container
           if (isOpening) {
@@ -1247,8 +1308,8 @@ let selectedFilters = { cities: [], countries: [], styles: [], roles: [], pol: [
           const svg = `
             <svg width="${size}" height="${size}" xmlns="http://www.w3.org/2000/svg">
               <defs>${gradient}</defs>
-              <circle cx="${size/2}" cy="${size/2}" r="${size/2 - 2}" fill="url(#${gradientId})" stroke="white" stroke-width="3"/>
-              <text x="50%" y="50%" text-anchor="middle" dy=".3em" font-family="Arial, sans-serif" font-size="18" font-weight="bold" fill="white" style="text-shadow: 1px 1px 2px rgba(0,0,0,0.8);">${pointCount}</text>
+              <circle cx="${size/2}" cy="${size/2}" r="${size/2 - 2}" fill="url(#${gradientId})" stroke="white" stroke-width="0"/>
+              <text x="50%" y="50%" text-anchor="middle" dy=".3em" font-family="Arial, sans-serif" font-size="14" font-weight="bold" fill="white">${pointCount}</text>
             </svg>
           `;
 
@@ -1307,7 +1368,7 @@ let selectedFilters = { cities: [], countries: [], styles: [], roles: [], pol: [
           paint: {
             'circle-color': '#E92C0F',
             'circle-radius': 8,
-            'circle-stroke-width': 2,
+            'circle-stroke-width': 0,
             'circle-stroke-color': '#fff'
           }
         });
@@ -1390,6 +1451,7 @@ let selectedFilters = { cities: [], countries: [], styles: [], roles: [], pol: [
     console.log('🚀 Map initialization started...');
 
     initializeMap().then(() => {
+      initializeFilterButtonHover();
       attachSimpleEvents();
       console.log('✅ Map initialization complete');
     }).catch(error => {
@@ -1873,6 +1935,18 @@ let selectedFilters = { cities: [], countries: [], styles: [], roles: [], pol: [
 
   .filter img {
     height: 50px;
+  }
+
+  .filter-button-image {
+    transition: opacity 0.2s ease, transform 0.2s ease;
+  }
+
+  .filter-hover-btn:hover .filter-button-image {
+    transform: scale(1.05);
+  }
+
+  .filter-hover-btn:active .filter-button-image {
+    transform: scale(0.95);
   }
 
   .filter-wrapper {

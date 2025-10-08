@@ -466,64 +466,62 @@ import HoverLink from '../components/HoverLink.astro';
 </Layout>
 
 <script>
-  function initParallax() {
+  import Lenis from 'lenis';
+
+  let lenis = null;
+
+  function initLenisAndParallax() {
+    // Check if mobile
+    const isMobile = window.innerWidth <= 768;
+
+    if (isMobile) {
+      console.log('📱 Mobile detected - Smooth scroll and parallax disabled');
+      return;
+    }
+
+    // Destroy existing Lenis instance
+    if (lenis) {
+      lenis.destroy();
+    }
+
+    // Initialize Lenis for smooth scrolling
+    lenis = new Lenis({
+      duration: 1.2,
+      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+      smoothWheel: true,
+      wheelMultiplier: 1,
+    });
+
+    // Get parallax columns
     const parallaxColumns = document.querySelectorAll('.parallax-column');
-    if (!parallaxColumns.length) return;
 
-    function updateParallax() {
-      const scrollTop = window.pageYOffset;
-      const windowHeight = window.innerHeight;
-      const documentHeight = document.documentElement.scrollHeight;
-      const maxScroll = documentHeight - windowHeight;
-
+    // Lenis scroll callback for parallax
+    lenis.on('scroll', ({ scroll }) => {
       parallaxColumns.forEach(column => {
-        const speed = parseFloat(column.dataset.speed) || 0;
+        const speed = parseFloat(column.dataset.speed) || 1;
         const content = column.querySelector('.column-content');
 
-        // Constant parallax effect
-        const yPos = scrollTop * speed * 0.8; // Effet constant : 80% du mouvement original
+        if (!content) return;
 
-        // Cap only when really necessary to prevent excessive space
-        const maxMovement = windowHeight * 0.4; // Max 0.4x viewport height
-        const cappedYPos = Math.min(yPos, maxMovement);
+        // Reverse parallax: slow columns move UP (reveal content faster)
+        // Fast columns stay relatively static
+        // This avoids whitespace because content moves UP, not down
+        const yPos = -scroll * (3 - speed) * 0.2;
 
-        content.style.transform = `translateY(-${cappedYPos}px)`;
+        content.style.transform = `translate3d(0, ${yPos}px, 0)`;
       });
+    });
+
+    // Animation frame loop for Lenis
+    function raf(time) {
+      lenis.raf(time);
+      requestAnimationFrame(raf);
     }
 
-    // Throttled scroll handler
-    let ticking = false;
-    function handleScroll() {
-      if (!ticking) {
-        requestAnimationFrame(() => {
-          updateParallax();
-          ticking = false;
-        });
-        ticking = true;
-      }
-    }
+    requestAnimationFrame(raf);
 
-    // Remove existing listeners to avoid duplicates
-    window.removeEventListener('scroll', handleScroll);
-    window.removeEventListener('resize', updateParallax);
-
-    // Add listeners
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    window.addEventListener('resize', updateParallax);
-
-    // Initial call
-    updateParallax();
+    console.log('✅ Lenis smooth scroll + parallax initialized');
   }
-
-  // Initialize on DOM ready
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initParallax);
-  } else {
-    initParallax();
-  }
-
-  // Reinitialize on Astro page navigation
-  document.addEventListener('astro:page-load', initParallax);
 
   // Feedback button click handler
   function initFeedbackButton() {
@@ -538,15 +536,29 @@ import HoverLink from '../components/HoverLink.astro';
     }
   }
 
-  // Initialize on DOM ready
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initFeedbackButton);
-  } else {
+  // Initialize everything
+  function initAll() {
+    initLenisAndParallax();
     initFeedbackButton();
   }
 
+  // Initialize on DOM ready
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initAll);
+  } else {
+    initAll();
+  }
+
   // Reinitialize on Astro page navigation
-  document.addEventListener('astro:page-load', initFeedbackButton);
+  document.addEventListener('astro:page-load', initAll);
+
+  // Cleanup on page leave
+  document.addEventListener('astro:before-preparation', () => {
+    if (lenis) {
+      lenis.destroy();
+      lenis = null;
+    }
+  });
 </script>
 
 <style>
@@ -564,6 +576,8 @@ import HoverLink from '../components/HoverLink.astro';
     min-height: 0;
     flex-shrink: 0;
   }
+
+
 
   .parallax-column img {
     align-self: right;
