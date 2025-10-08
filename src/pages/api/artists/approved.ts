@@ -18,9 +18,14 @@ interface MapboxArtistData {
   themesDevelopment: string;
   pronouns: string;
   bio: string;
-  instagram: string;
+  website: string;
+  bandcamp: string;
   soundcloud: string;
-  spotify: string;
+  instagram: string;
+  subvert: string;
+  tiktok: string;
+  youtube: string;
+  email: string;
   profile_image: string;
 }
 
@@ -64,9 +69,14 @@ export const GET: APIRoute = async ({ request, locals }) => {
           'linksbetweenthemeandwork',
           'pronouns',
           'bio',
-          'instagram',
+          'website',
+          'bandcamp',
           'soundcloud',
-          'spotify',
+          'instagram',
+          'subvert',
+          'tiktok',
+          'youtube',
+          'email',
           'profile_image'
           // Champs optimisés pour la map + filtres + détail artiste
         ],
@@ -158,9 +168,14 @@ export const GET: APIRoute = async ({ request, locals }) => {
         themesDevelopment: artist.linksbetweenthemeandwork || '',
         pronouns: artist.pronouns || '',
         bio: artist.bio || '',
-        instagram: artist.instagram || '',
+        website: artist.website || '',
+        bandcamp: artist.bandcamp || '',
         soundcloud: artist.soundcloud || '',
-        spotify: artist.spotify || '',
+        instagram: artist.instagram || '',
+        subvert: artist.subvert || '',
+        tiktok: artist.tiktok || '',
+        youtube: artist.youtube || '',
+        email: artist.email || '',
         profile_image: artist.profile_image || ''
       };
       

@@ -35,9 +35,14 @@ interface ArtistFormData {
   longitude?: number;   // Coordonnées pour placement Mapbox
   activities: string[];
   genres: string[];
+  website?: string;
+  bandcamp?: string;
   soundcloud?: string;
-  spotify?: string;
   instagram?: string;
+  subvert?: string;
+  tiktok?: string;
+  youtube?: string;
+  email?: string;
   bio?: string;
   socialPolitical?: string[];
   themesDevelopment?: string;
@@ -56,9 +61,14 @@ interface ArtistSubmission {
   longitude?: number;     // Coordonnées pour carte Mapbox
   activitydomains: string; // JSON string des activités
   musicalstyles: string; // JSON string des genres
+  website?: string;
+  bandcamp?: string;
   soundcloud?: string;
-  spotify?: string;
   instagram?: string;
+  subvert?: string;
+  tiktok?: string;
+  youtube?: string;
+  email?: string;
   bio?: string;
   socialtopics?: string; // JSON string des sujets sociaux/politiques
   linksbetweenthemeandwork?: string;
@@ -128,9 +138,14 @@ function transformFormData(formData: ArtistFormData): ArtistSubmission {
     longitude: finalLongitude,              // Coordonnées validées/complétées
     activitydomains: JSON.stringify(formData.activities),
     musicalstyles: JSON.stringify(formData.genres),
+    website: formData.website || '',
+    bandcamp: formData.bandcamp || '',
     soundcloud: formData.soundcloud || '',
-    spotify: formData.spotify || '',
     instagram: formData.instagram || '',
+    subvert: formData.subvert || '',
+    tiktok: formData.tiktok || '',
+    youtube: formData.youtube || '',
+    email: formData.email || '',
     bio: formData.bio || '',
     socialtopics: formData.socialPolitical ? JSON.stringify(formData.socialPolitical) : '',
     linksbetweenthemeandwork: formData.themesDevelopment || '',
@@ -155,9 +170,14 @@ export const POST: APIRoute = async ({ request, cookies, locals }) => {
       longitude: formData.get('longitude') ? parseFloat(formData.get('longitude')!.toString()) : undefined,
       activities: formData.getAll('activities') as string[],
       genres: formData.getAll('genres') as string[],
+      website: formData.get('website')?.toString() || '',
+      bandcamp: formData.get('bandcamp')?.toString() || '',
       soundcloud: formData.get('soundcloud')?.toString() || '',
-      spotify: formData.get('spotify')?.toString() || '',
       instagram: formData.get('instagram')?.toString() || '',
+      subvert: formData.get('subvert')?.toString() || '',
+      tiktok: formData.get('tiktok')?.toString() || '',
+      youtube: formData.get('youtube')?.toString() || '',
+      email: formData.get('email')?.toString() || '',
       bio: formData.get('bio')?.toString() || '',
       socialPolitical: formData.getAll('socialPolitical') as string[],
       themesDevelopment: formData.get('themesDevelopment')?.toString() || '',

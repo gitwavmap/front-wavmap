@@ -120,11 +120,21 @@ let selectedFilters = { cities: [], countries: [], styles: [], roles: [], pol: [
 
           <!-- Social Media Links -->
           <div class="social-media-links">
-            <span id="instagram-link" class="social-link">IN</span>
+            <span id="website-link" class="social-link">WS</span>
+            <span class="separator">|</span>
+            <span id="bandcamp-link" class="social-link">BC</span>
             <span class="separator">|</span>
             <span id="soundcloud-link" class="social-link">SC</span>
             <span class="separator">|</span>
-            <span id="spotify-link" class="social-link">SP</span>
+            <span id="instagram-link" class="social-link">IN</span>
+            <span class="separator">|</span>
+            <span id="subvert-link" class="social-link">SV</span>
+            <span class="separator">|</span>
+            <span id="tiktok-link" class="social-link">TT</span>
+            <span class="separator">|</span>
+            <span id="youtube-link" class="social-link">YT</span>
+            <span class="separator">|</span>
+            <span id="email-link" class="social-link">EM</span>
           </div>
 
           <!-- Activities & Genres Tags -->
@@ -811,48 +821,43 @@ let selectedFilters = { cities: [], countries: [], styles: [], roles: [], pol: [
     document.getElementById('artist-bio').textContent = artist.bio || 'No bio available.';
 
     // Handle social media links
-    const instagramLink = document.getElementById('instagram-link');
+    const websiteLink = document.getElementById('website-link');
+    const bandcampLink = document.getElementById('bandcamp-link');
     const soundcloudLink = document.getElementById('soundcloud-link');
-    const spotifyLink = document.getElementById('spotify-link');
+    const instagramLink = document.getElementById('instagram-link');
+    const subvertLink = document.getElementById('subvert-link');
+    const tiktokLink = document.getElementById('tiktok-link');
+    const youtubeLink = document.getElementById('youtube-link');
+    const emailLink = document.getElementById('email-link');
 
-    // Instagram link
-    if (artist.instagram && artist.instagram.trim()) {
-      instagramLink.onclick = () => window.open(artist.instagram, '_blank');
-      instagramLink.style.color = '#000';
-      instagramLink.style.cursor = 'pointer';
-      instagramLink.classList.remove('disabled');
-    } else {
-      instagramLink.style.color = '#ccc';
-      instagramLink.style.cursor = 'default';
-      instagramLink.onclick = null;
-      instagramLink.classList.add('disabled');
+    // Helper function to set link state
+    function setSocialLinkState(element, url, isEmail = false) {
+      if (url && url.trim()) {
+        if (isEmail) {
+          element.onclick = () => window.location.href = `mailto:${url}`;
+        } else {
+          element.onclick = () => window.open(url, '_blank');
+        }
+        element.style.color = '#000';
+        element.style.cursor = 'pointer';
+        element.classList.remove('disabled');
+      } else {
+        element.style.color = '#ccc';
+        element.style.cursor = 'default';
+        element.onclick = null;
+        element.classList.add('disabled');
+      }
     }
 
-    // SoundCloud link
-    if (artist.soundcloud && artist.soundcloud.trim()) {
-      soundcloudLink.onclick = () => window.open(artist.soundcloud, '_blank');
-      soundcloudLink.style.color = '#000';
-      soundcloudLink.style.cursor = 'pointer';
-      soundcloudLink.classList.remove('disabled');
-    } else {
-      soundcloudLink.style.color = '#ccc';
-      soundcloudLink.style.cursor = 'default';
-      soundcloudLink.onclick = null;
-      soundcloudLink.classList.add('disabled');
-    }
-
-    // Spotify link
-    if (artist.spotify && artist.spotify.trim()) {
-      spotifyLink.onclick = () => window.open(artist.spotify, '_blank');
-      spotifyLink.style.color = '#000';
-      spotifyLink.style.cursor = 'pointer';
-      spotifyLink.classList.remove('disabled');
-    } else {
-      spotifyLink.style.color = '#ccc';
-      spotifyLink.style.cursor = 'default';
-      spotifyLink.onclick = null;
-      spotifyLink.classList.add('disabled');
-    }
+    // Set all social links
+    setSocialLinkState(websiteLink, artist.website);
+    setSocialLinkState(bandcampLink, artist.bandcamp);
+    setSocialLinkState(soundcloudLink, artist.soundcloud);
+    setSocialLinkState(instagramLink, artist.instagram);
+    setSocialLinkState(subvertLink, artist.subvert);
+    setSocialLinkState(tiktokLink, artist.tiktok);
+    setSocialLinkState(youtubeLink, artist.youtube);
+    setSocialLinkState(emailLink, artist.email, true);
 
     // Populate ALL tags on single line
     const allTagsContainer = document.getElementById('all-tags');
