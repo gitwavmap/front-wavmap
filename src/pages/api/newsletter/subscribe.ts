@@ -1,6 +1,6 @@
 import type { APIRoute } from 'astro';
 
-export const POST: APIRoute = async ({ request }) => {
+export const POST: APIRoute = async ({ request, locals }) => {
   try {
     // Parse request body
     const body = await request.json();
@@ -35,9 +35,10 @@ export const POST: APIRoute = async ({ request }) => {
       );
     }
 
-    // Get Brevo API key from environment variables (works with Cloudflare)
-    const apiKey = import.meta.env.BREVO_API_KEY;
-    const listId = import.meta.env.BREVO_LIST_ID;
+    // Get Brevo API key from Cloudflare environment (secrets + wrangler.toml)
+    const env = locals.runtime?.env || import.meta.env;
+    const apiKey = env.BREVO_API_KEY;
+    const listId = env.BREVO_LIST_ID;
 
     if (!apiKey) {
       console.error('BREVO_API_KEY not configured');
