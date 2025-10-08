@@ -738,8 +738,8 @@ import HoverLink from '../components/HoverLink.astro';
     color: white;
     scrollbar-width: none;
     width: 100%;
-    max-width: 100vw;
-    overflow-x: hidden;
+    overflow-x: clip; /* Use clip instead of hidden to preserve sticky navbar */
+    box-sizing: border-box;
   }
 
   .container::-webkit-scrollbar {
