@@ -353,8 +353,21 @@ import HoverLink from '../components/HoverLink.astro';
 
           <div class="separator" />
 
-          <div class="link  big-section">
-            <HoverLink href="mailto:feedback@wavmap.eu" normal={Feedback.src} hover={FeedbackBg.src} />
+          <div class="link big-section">
+            <!-- Desktop: button that reveals email on click -->
+            <div class="desktop-only feedback-container">
+              <button id="feedback-btn" class="feedback-button">
+                <img src={Feedback.src} alt="Feedback" class="feedback-normal" />
+                <img src={FeedbackBg.src} alt="Feedback" class="feedback-hover" />
+              </button>
+              <a href="mailto:contact@wavmap.org" id="email-reveal" class="email-link hidden">
+                contact@wavmap.org
+              </a>
+            </div>
+            <!-- Mobile: direct mailto link -->
+            <div class="mobile-only">
+              <HoverLink href="mailto:contact@wavmap.org" normal={Feedback.src} hover={FeedbackBg.src} />
+            </div>
           </div>
 
           <div class="separator" />
@@ -511,6 +524,29 @@ import HoverLink from '../components/HoverLink.astro';
 
   // Reinitialize on Astro page navigation
   document.addEventListener('astro:page-load', initParallax);
+
+  // Feedback button click handler
+  function initFeedbackButton() {
+    const feedbackBtn = document.getElementById('feedback-btn');
+    const emailReveal = document.getElementById('email-reveal');
+
+    if (feedbackBtn && emailReveal) {
+      feedbackBtn.addEventListener('click', () => {
+        feedbackBtn.style.display = 'none';
+        emailReveal.classList.remove('hidden');
+      });
+    }
+  }
+
+  // Initialize on DOM ready
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initFeedbackButton);
+  } else {
+    initFeedbackButton();
+  }
+
+  // Reinitialize on Astro page navigation
+  document.addEventListener('astro:page-load', initFeedbackButton);
 </script>
 
 <style>
@@ -598,7 +634,94 @@ import HoverLink from '../components/HoverLink.astro';
     display: flex;
     justify-content: center;
   }
-  
+
+  /* Mobile/Desktop visibility */
+  .mobile-only {
+    display: none;
+  }
+
+  .desktop-only {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  /* Feedback button with hover effect */
+  .feedback-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.5rem;
+  }
+
+  .feedback-button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    position: relative;
+    padding: 0;
+    transition: transform 0.2s ease;
+  }
+
+  .feedback-button:hover {
+    transform: scale(1.05);
+  }
+
+  .feedback-button img {
+    height: 60px;
+    width: auto;
+    display: block;
+  }
+
+  .feedback-normal {
+    transition: opacity 0.2s ease;
+  }
+
+  .feedback-hover {
+    position: absolute;
+    top: 0;
+    left: 0;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+  }
+
+  .feedback-button:hover .feedback-normal {
+    opacity: 0;
+  }
+
+  .feedback-button:hover .feedback-hover {
+    opacity: 1;
+  }
+
+  /* Email link styling */
+  .email-link {
+    font-size: 20px;
+    font-weight: 500;
+    color: white;
+    text-decoration: underline;
+    text-align: center;
+    transition: opacity 0.3s ease;
+  }
+
+  .email-link:hover {
+    opacity: 0.7;
+  }
+
+  .email-link.hidden {
+    display: none;
+  }
+
+  @media (max-width: 768px) {
+    .mobile-only {
+      display: block;
+    }
+
+    .desktop-only {
+      display: none;
+    }
+  }
+
   /* Keep your existing styles below */
   html, body {
     margin: 0;
