@@ -1,6 +1,4 @@
 import type { APIRoute } from 'astro';
-import * as brevo from '@getbrevo/brevo';
-import { BREVO_API_KEY, BREVO_LIST_ID } from 'astro:env/server';
 
 export const POST: APIRoute = async ({ request }) => {
   try {
@@ -37,9 +35,9 @@ export const POST: APIRoute = async ({ request }) => {
       );
     }
 
-    // Get Brevo API key from environment variables
-    const apiKey = BREVO_API_KEY;
-    const listId = BREVO_LIST_ID;
+    // Get Brevo API key from environment variables (works with Cloudflare)
+    const apiKey = import.meta.env.BREVO_API_KEY;
+    const listId = import.meta.env.BREVO_LIST_ID;
 
     if (!apiKey) {
       console.error('BREVO_API_KEY not configured');
@@ -55,22 +53,52 @@ export const POST: APIRoute = async ({ request }) => {
       );
     }
 
-    // Initialize Brevo API client
-    const apiInstance = new brevo.ContactsApi();
-    apiInstance.setApiKey(brevo.ContactsApiApiKeys.apiKey, apiKey);
+    // Call Brevo API directly using fetch (server-side, compatible with Cloudflare Workers)
+    const brevoResponse = await fetch('https://api.brevo.com/v3/contacts', {
+      method: 'POST',
+      headers: {
+        'api-key': apiKey,
+        'content-type': 'application/json',
+      },
+      body: JSON.stringify({
+        email: email,
+        listIds: listId ? [parseInt(listId)] : [],
+        updateEnabled: true, // Update if contact already exists
+      }),
+    });
 
-    // Create contact request
-    const createContact = new brevo.CreateContact();
-    createContact.email = email;
-    createContact.updateEnabled = true; // Update if already exists
+    // Check Brevo API response
+    if (!brevoResponse.ok) {
+      const errorData = await brevoResponse.json().catch(() => ({}));
+      console.error('Brevo API error:', errorData);
 
-    // Add to list if listId is provided
-    if (listId) {
-      createContact.listIds = [parseInt(listId)];
+      // Contact already exists (code: duplicate_parameter) - treat as success
+      if (brevoResponse.status === 400 && errorData.code === 'duplicate_parameter') {
+        console.log(`ℹ️ Contact already exists: ${email}`);
+        return new Response(
+          JSON.stringify({
+            success: true,
+            message: 'Already subscribed to newsletter',
+          }),
+          {
+            status: 200,
+            headers: { 'Content-Type': 'application/json' },
+          }
+        );
+      }
+
+      // Other errors
+      return new Response(
+        JSON.stringify({
+          success: false,
+          error: 'Failed to subscribe. Please try again.',
+        }),
+        {
+          status: brevoResponse.status,
+          headers: { 'Content-Type': 'application/json' },
+        }
+      );
     }
-
-    // Add contact to Brevo
-    await apiInstance.createContact(createContact);
 
     console.log(`✅ Newsletter subscription successful: ${email}`);
 
@@ -86,36 +114,6 @@ export const POST: APIRoute = async ({ request }) => {
     );
   } catch (error: any) {
     console.error('Newsletter subscription error:', error);
-
-    // Handle Brevo specific errors
-    if (error.response) {
-      const statusCode = error.response.status;
-
-      // Contact already exists (not an error for us)
-      if (statusCode === 400 && error.response.body?.code === 'duplicate_parameter') {
-        return new Response(
-          JSON.stringify({
-            success: true,
-            message: 'Already subscribed to newsletter',
-          }),
-          {
-            status: 200,
-            headers: { 'Content-Type': 'application/json' },
-          }
-        );
-      }
-
-      return new Response(
-        JSON.stringify({
-          success: false,
-          error: 'Failed to subscribe. Please try again.',
-        }),
-        {
-          status: statusCode,
-          headers: { 'Content-Type': 'application/json' },
-        }
-      );
-    }
 
     // Generic error
     return new Response(

@@ -13,7 +13,6 @@
     "@astrojs/node": "^9.3.0",
     "@astrojs/tailwind": "^6.0.2",
     "@directus/sdk": "^20.0.0",
-    "@getbrevo/brevo": "^3.0.1",
     "@inlang/paraglide-astro": "^1.0.0-beta.6",
     "@inlang/paraglide-js": "^2.2.0",
     "@tailwindcss/typography": "^0.5.16",
