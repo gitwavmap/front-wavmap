@@ -465,44 +465,50 @@ const currentLang = getLocale();
       </div>
     </div>
 
+    <!-- Social Media Links Section -->
     <div class="form-group">
-      <label for="website">Website</label>
-      <input type="url" id="website" name="website" placeholder="https://yourwebsite.com">
-    </div>
+      <label class="section-label">Social Links</label>
+      <div class="social-links-grid">
+        <div class="social-input-wrapper">
+          <label for="website" class="social-label">Website</label>
+          <input type="url" id="website" name="website" placeholder="yourwebsite.com">
+        </div>
 
-    <div class="form-group">
-      <label for="bandcamp">Bandcamp</label>
-      <input type="url" id="bandcamp" name="bandcamp" placeholder="https://yourname.bandcamp.com">
-    </div>
+        <div class="social-input-wrapper">
+          <label for="bandcamp" class="social-label">Bandcamp</label>
+          <input type="url" id="bandcamp" name="bandcamp" placeholder="yourname.bandcamp.com">
+        </div>
 
-    <div class="form-group">
-      <label for="soundcloud">SoundCloud</label>
-      <input type="url" id="soundcloud" name="soundcloud" placeholder="https://soundcloud.com/yourprofile">
-    </div>
+        <div class="social-input-wrapper">
+          <label for="soundcloud" class="social-label">SoundCloud</label>
+          <input type="url" id="soundcloud" name="soundcloud" placeholder="soundcloud.com/you">
+        </div>
 
-    <div class="form-group">
-      <label for="instagram">Instagram</label>
-      <input type="text" id="instagram" name="instagram" placeholder="@yourusername">
-    </div>
+        <div class="social-input-wrapper">
+          <label for="instagram" class="social-label">Instagram</label>
+          <input type="text" id="instagram" name="instagram" placeholder="@yourusername">
+        </div>
 
-    <div class="form-group">
-      <label for="subvert">Subvert</label>
-      <input type="url" id="subvert" name="subvert" placeholder="https://subvert.fm/...">
-    </div>
+        <div class="social-input-wrapper">
+          <label for="subvert" class="social-label">Subvert</label>
+          <input type="url" id="subvert" name="subvert" placeholder="subvert.fm/...">
+        </div>
 
-    <div class="form-group">
-      <label for="tiktok">TikTok</label>
-      <input type="text" id="tiktok" name="tiktok" placeholder="@yourusername">
-    </div>
+        <div class="social-input-wrapper">
+          <label for="tiktok" class="social-label">TikTok</label>
+          <input type="text" id="tiktok" name="tiktok" placeholder="@yourusername">
+        </div>
 
-    <div class="form-group">
-      <label for="youtube">YouTube</label>
-      <input type="url" id="youtube" name="youtube" placeholder="https://youtube.com/@yourname">
-    </div>
+        <div class="social-input-wrapper">
+          <label for="youtube" class="social-label">YouTube</label>
+          <input type="url" id="youtube" name="youtube" placeholder="youtube.com/@you">
+        </div>
 
-    <div class="form-group">
-      <label for="email">Email (Pro)</label>
-      <input type="email" id="email" name="email" placeholder="contact@youremail.com">
+        <div class="social-input-wrapper">
+          <label for="email" class="social-label">Email (Pro)</label>
+          <input type="email" id="email" name="email" placeholder="contact@email.com">
+        </div>
+      </div>
     </div>
 
     <div class="form-group">
@@ -760,6 +766,46 @@ const currentLang = getLocale();
     font-size: 0.9rem;
   }
 
+  /* Section label for social links */
+  .section-label {
+    font-weight: 700;
+    margin-bottom: 1rem;
+    color: black;
+    font-size: 1rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  /* Social links grid layout */
+  .social-links-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+    padding: 1rem;
+    background: rgba(255, 255, 255, 0.05);
+    border: 2px solid black;
+    border-radius: 0;
+  }
+
+  .social-input-wrapper {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .social-label {
+    font-weight: 700;
+    font-size: 0.75rem;
+    color: white;
+    margin-bottom: 0.25rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .social-input-wrapper input {
+    padding: 0.5rem;
+    font-size: 0.85rem;
+  }
+
   input, select, textarea {
     padding: 0.75rem;
     border: 2px solid black;
@@ -907,6 +953,12 @@ const currentLang = getLocale();
     .checkbox-group {
       grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
       max-height: 250px;
+    }
+
+    .social-links-grid {
+      grid-template-columns: 1fr;
+      gap: 0.75rem;
+      padding: 0.75rem;
     }
   }
 </style>
