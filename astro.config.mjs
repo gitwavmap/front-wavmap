@@ -40,6 +40,16 @@ export default defineConfig({
                 context: 'client',
                 access: 'public',
             }),
+            BREVO_API_KEY: envField.string({
+                context: 'server',
+                access: 'secret',
+                optional: true,
+            }),
+            BREVO_LIST_ID: envField.string({
+                context: 'server',
+                access: 'secret',
+                optional: true,
+            }),
         },
     },
 });

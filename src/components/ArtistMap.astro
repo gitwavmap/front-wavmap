@@ -942,8 +942,28 @@ let selectedFilters = { cities: [], countries: [], styles: [], roles: [], pol: [
         const targetId = filterButton.dataset.target;
         const filterOptions = document.getElementById(targetId);
         if (filterOptions) {
+          const isOpening = filterOptions.classList.contains('hidden');
           filterOptions.classList.toggle('hidden');
           console.log('Toggle filter:', targetId);
+
+          // If opening the filter, scroll it into view within the filters container
+          if (isOpening) {
+            const filtersContainer = document.querySelector('.filters-container');
+            const filterWrapper = filterButton.closest('.filter-wrapper');
+
+            if (filtersContainer && filterWrapper) {
+              // Calculate position of filter wrapper relative to container
+              const containerRect = filtersContainer.getBoundingClientRect();
+              const filterRect = filterWrapper.getBoundingClientRect();
+              const scrollOffset = filterRect.top - containerRect.top + filtersContainer.scrollTop;
+
+              // Smooth scroll to position the filter at the top of the container
+              filtersContainer.scrollTo({
+                top: scrollOffset - 10, // 10px offset from top for visual breathing room
+                behavior: 'smooth'
+              });
+            }
+          }
         }
         return;
       }

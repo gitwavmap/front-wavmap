@@ -1,5 +1,6 @@
 import type { APIRoute } from 'astro';
 import * as brevo from '@getbrevo/brevo';
+import { BREVO_API_KEY, BREVO_LIST_ID } from 'astro:env/server';
 
 export const POST: APIRoute = async ({ request }) => {
   try {
@@ -37,8 +38,8 @@ export const POST: APIRoute = async ({ request }) => {
     }
 
     // Get Brevo API key from environment variables
-    const apiKey = import.meta.env.BREVO_API_KEY;
-    const listId = import.meta.env.BREVO_LIST_ID;
+    const apiKey = BREVO_API_KEY;
+    const listId = BREVO_LIST_ID;
 
     if (!apiKey) {
       console.error('BREVO_API_KEY not configured');

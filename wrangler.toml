@@ -9,6 +9,7 @@ pages_build_output_dir = "dist"
 DIRECTUS_URL = "https://directus-production-1f5c.up.railway.app/"
 PUBLIC_DIRECTUS_URL = "https://directus-production-1f5c.up.railway.app/"
 MAPBOX_ACCESS_TOKEN= "pk.eyJ1Ijoid2F2bWFwIiwiYSI6ImNtY2huc3I1ajB4ZzcybXF4cWEzdXlkbG4ifQ.Szzm5T0oYElXQwPq6GO4Sw"
+BREVO_LIST_ID = "4"
 
 # KV namespace pour les sessions (doit être créé dans Cloudflare dashboard)
 [[kv_namespaces]]
