@@ -1684,6 +1684,8 @@ let selectedFilters = { cities: [], countries: [], styles: [], roles: [], pol: [
     height: 100%;
     overflow-y: auto;
     padding-left: 1rem;
+    position: relative;
+    z-index: 10;
   }
 
   .filters-content {
@@ -2215,7 +2217,8 @@ let selectedFilters = { cities: [], countries: [], styles: [], roles: [], pol: [
     .map-container {
       flex-direction: column;
       padding: 0.5rem;
-      height: calc(100vh - var(--navbar-height, 80px));
+      height: auto; /* Let content flow naturally */
+      min-height: auto;
     }
 
     .map-wrapper {
@@ -2230,11 +2233,16 @@ let selectedFilters = { cities: [], countries: [], styles: [], roles: [], pol: [
 
     .filters-container {
       width: 100%;
-      height: calc(40vh - 2rem); /* Filters take remaining space */
+      height: auto; /* Let content flow naturally */
+      max-height: none; /* Remove max-height constraint */
       flex-direction: row;
       flex-wrap: wrap;
       gap: 0.5rem;
-      overflow-y: auto;
+      overflow-y: visible; /* No internal scroll needed */
+      overflow-x: hidden;
+      position: relative;
+      z-index: 1;
+      padding-bottom: 1rem;
     }
 
     .filters-content {
