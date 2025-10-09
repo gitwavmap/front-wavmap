@@ -3,6 +3,7 @@ import * as m from '../paraglide/messages.js';
 import { MAPBOX_ACCESS_TOKEN } from "astro:env/client";
 
 import ShuffleBtn from '../assets/images/shuffle_btn.svg';
+import ShuffleBg from '../assets/images/shuffle_bg.svg';
 import CityBtn from '../assets/images/city.svg';
 import CountryBtn from '../assets/images/country.svg';
 import PolBtn from '../assets/images/pol.svg';
@@ -55,7 +56,8 @@ let selectedFilters = { cities: [], countries: [], styles: [], roles: [], pol: [
   <div class="map-wrapper">
     <div id="wavmap" class="map"></div>
     <button class="shuffle">
-      <img src={ShuffleBtn.src} alt="shuffle" />
+      <img src={ShuffleBtn.src} alt="shuffle" class="shuffle-normal" />
+      <img src={ShuffleBg.src} alt="shuffle" class="shuffle-hover" />
     </button>
   </div>
     <div class="filters-container">
@@ -1936,6 +1938,36 @@ let selectedFilters = { cities: [], countries: [], styles: [], roles: [], pol: [
     bottom: 1rem;
     width: 150px;
     z-index: 3;
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+  }
+
+  .shuffle img {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+
+  .shuffle .shuffle-normal {
+    transition: opacity 0.2s ease;
+  }
+
+  .shuffle .shuffle-hover {
+    position: absolute;
+    top: 0;
+    left: 0;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+  }
+
+  .shuffle:hover .shuffle-normal {
+    opacity: 0;
+  }
+
+  .shuffle:hover .shuffle-hover {
+    opacity: 1;
   }
 
   .filter img {
