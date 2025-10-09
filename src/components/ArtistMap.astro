@@ -91,7 +91,7 @@ let selectedFilters = { cities: [], countries: [], styles: [], roles: [], pol: [
 
       <!-- Artist Detail Content (hidden by default) -->
       <div id="artist-content" class="artist-content hidden">
-        <div style={{backgroundColor: "white", padding: "1rem", height: "calc(100% - 2rem)", margin: "1rem", boxSizing: "border-box", overflowY: "auto"}}>
+        <div class="artist-detail-inner">
 
           <div id="close-artist-panel" class="close-hover-btn">
             <img src={BackBtn.src} alt="Close" class="close-btn-normal" />
@@ -799,8 +799,16 @@ let selectedFilters = { cities: [], countries: [], styles: [], roles: [], pol: [
 
     // Prevent body scroll on mobile when artist detail is shown
     if (window.innerWidth <= 768) {
+      // Store scroll position
+      const scrollY = window.scrollY;
+      document.body.style.position = 'fixed';
+      document.body.style.top = `-${scrollY}px`;
+      document.body.style.left = '0';
+      document.body.style.right = '0';
       document.body.style.overflow = 'hidden';
       document.documentElement.style.overflow = 'hidden';
+      // Store scroll position for restoration
+      document.body.dataset.scrollY = scrollY.toString();
     }
 
     console.log('🎨 Showing artist detail for:', artist.artistName);
@@ -958,8 +966,23 @@ let selectedFilters = { cities: [], countries: [], styles: [], roles: [], pol: [
     }
 
     // Restore body scroll when closing artist detail
-    document.body.style.overflow = '';
-    document.documentElement.style.overflow = '';
+    if (window.innerWidth <= 768) {
+      const scrollY = document.body.dataset.scrollY;
+      document.body.style.position = '';
+      document.body.style.top = '';
+      document.body.style.left = '';
+      document.body.style.right = '';
+      document.body.style.overflow = '';
+      document.documentElement.style.overflow = '';
+      // Restore scroll position
+      if (scrollY) {
+        window.scrollTo(0, parseInt(scrollY));
+      }
+    } else {
+      document.body.style.overflow = '';
+      document.body.style.position = '';
+      document.documentElement.style.overflow = '';
+    }
   }
 
   // Initialize filter button hover effects
@@ -1518,6 +1541,15 @@ let selectedFilters = { cities: [], countries: [], styles: [], roles: [], pol: [
         #E9930F 80%,
         #E92C0F 100%
       );
+  }
+
+  .artist-detail-inner {
+    background-color: white;
+    padding: 1rem;
+    height: calc(100% - 2rem);
+    margin: 1rem;
+    box-sizing: border-box;
+    overflow-y: auto;
   }
 
 
@@ -2333,7 +2365,10 @@ let selectedFilters = { cities: [], countries: [], styles: [], roles: [], pol: [
       top: var(--navbar-height, 80px);
       left: 0;
       width: 100vw;
+      width: 100dvw; /* Dynamic viewport width for Safari */
+      /* Use dynamic viewport height for Safari mobile */
       height: calc(100vh - var(--navbar-height, 80px));
+      height: calc(100dvh - var(--navbar-height, 80px));
       z-index: 9999;
       margin: 0;
       background: linear-gradient(
@@ -2343,17 +2378,19 @@ let selectedFilters = { cities: [], countries: [], styles: [], roles: [], pol: [
         #E9930F 80%,
         #E92C0F 100%
       );
-      overflow-y: auto;
-      -webkit-overflow-scrolling: touch;
+      overflow: hidden; /* Prevent outer scroll */
     }
 
-    .artist-content > div {
+    .artist-detail-inner {
       height: calc(100% - 2rem) !important;
+      max-height: calc(100% - 2rem);
       margin: 1rem !important;
       padding: 1rem;
-      overflow-y: auto; /* Enable vertical scroll only */
-      overflow-x: hidden; /* Disable horizontal scroll */
+      overflow-y: auto !important; /* Enable vertical scroll only */
+      overflow-x: hidden !important; /* Disable horizontal scroll */
+      -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
       box-sizing: border-box;
+      overscroll-behavior: contain; /* Prevent scroll chaining */
     }
 
     .artist-name {
