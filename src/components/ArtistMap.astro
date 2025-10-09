@@ -2241,6 +2241,8 @@ let selectedFilters = { cities: [], countries: [], styles: [], roles: [], pol: [
       padding: 0.5rem;
       height: auto; /* Let content flow naturally */
       min-height: calc(100vh - var(--navbar-height, 80px));
+      overflow-x: hidden; /* Disable horizontal scroll */
+      overflow-y: hidden; /* Disable vertical scroll on main container */
     }
 
     .map-wrapper {
@@ -2349,7 +2351,8 @@ let selectedFilters = { cities: [], countries: [], styles: [], roles: [], pol: [
       height: calc(100% - 2rem) !important;
       margin: 1rem !important;
       padding: 1rem;
-      overflow-y: auto;
+      overflow-y: auto; /* Enable vertical scroll only */
+      overflow-x: hidden; /* Disable horizontal scroll */
       box-sizing: border-box;
     }
 
