@@ -121,22 +121,26 @@ let selectedFilters = { cities: [], countries: [], styles: [], roles: [], pol: [
           </div>
 
           <!-- Social Media Links -->
-          <div class="social-media-links">
-            <span id="website-link" class="social-link">WS</span>
-            <span class="separator">|</span>
-            <span id="bandcamp-link" class="social-link">BC</span>
-            <span class="separator">|</span>
-            <span id="soundcloud-link" class="social-link">SC</span>
-            <span class="separator">|</span>
-            <span id="instagram-link" class="social-link">IN</span>
-            <span class="separator">|</span>
-            <span id="subvert-link" class="social-link">SV</span>
-            <span class="separator">|</span>
-            <span id="tiktok-link" class="social-link">TT</span>
-            <span class="separator">|</span>
-            <span id="youtube-link" class="social-link">YT</span>
-            <span class="separator">|</span>
-            <span id="email-link" class="social-link">EM</span>
+          <div class="social-media-links-container">
+            <div class="social-media-links">
+              <span id="website-link" class="social-link">WS</span>
+              <span class="separator">|</span>
+              <span id="bandcamp-link" class="social-link">BC</span>
+              <span class="separator">|</span>
+              <span id="soundcloud-link" class="social-link">SC</span>
+              <span class="separator">|</span>
+              <span id="instagram-link" class="social-link">IN</span>
+              <span class="separator">|</span>
+              <span id="subvert-link" class="social-link">SV</span>
+              <span class="separator">|</span>
+              <span id="tiktok-link" class="social-link">TT</span>
+              <span class="separator">|</span>
+              <span id="youtube-link" class="social-link">YT</span>
+              <span class="separator">|</span>
+              <span id="email-link" class="social-link">EM</span>
+            </div>
+            <!-- Email reveal (hidden by default) -->
+            <div id="email-text-reveal" class="email-reveal hidden"></div>
           </div>
 
           <!-- Activities Tags -->
@@ -798,8 +802,15 @@ let selectedFilters = { cities: [], countries: [], styles: [], roles: [], pol: [
     const filtersContent = document.getElementById('filters-content');
     const artistContent = document.getElementById('artist-content');
     const mapWrapper = document.querySelector('.map-wrapper');
+    const emailRevealDiv = document.getElementById('email-text-reveal');
 
     if (!filtersContent || !artistContent) return;
+
+    // Reset email reveal when switching artists
+    if (emailRevealDiv) {
+      emailRevealDiv.classList.add('hidden');
+      emailRevealDiv.textContent = '';
+    }
 
     // Hide filters, show artist details
     filtersContent.classList.add('hidden');
@@ -849,44 +860,60 @@ let selectedFilters = { cities: [], countries: [], styles: [], roles: [], pol: [
     // Set bio
     document.getElementById('artist-bio').textContent = artist.bio || 'No bio available.';
 
-    // Handle social media links
-    const websiteLink = document.getElementById('website-link');
-    const bandcampLink = document.getElementById('bandcamp-link');
-    const soundcloudLink = document.getElementById('soundcloud-link');
-    const instagramLink = document.getElementById('instagram-link');
-    const subvertLink = document.getElementById('subvert-link');
-    const tiktokLink = document.getElementById('tiktok-link');
-    const youtubeLink = document.getElementById('youtube-link');
-    const emailLink = document.getElementById('email-link');
+    // Handle social media links - only show links that are filled
+    const socialMediaContainer = document.querySelector('.social-media-links');
 
-    // Helper function to set link state
-    function setSocialLinkState(element, url, isEmail = false) {
-      if (url && url.trim()) {
-        if (isEmail) {
-          element.onclick = () => window.location.href = `mailto:${url}`;
-        } else {
-          element.onclick = () => window.open(url, '_blank');
+    const socialLinks = [
+      { id: 'website-link', url: artist.website, label: 'WS', isEmail: false },
+      { id: 'bandcamp-link', url: artist.bandcamp, label: 'BC', isEmail: false },
+      { id: 'soundcloud-link', url: artist.soundcloud, label: 'SC', isEmail: false },
+      { id: 'instagram-link', url: artist.instagram, label: 'IN', isEmail: false },
+      { id: 'subvert-link', url: artist.subvert, label: 'SV', isEmail: false },
+      { id: 'tiktok-link', url: artist.tiktok, label: 'TT', isEmail: false },
+      { id: 'youtube-link', url: artist.youtube, label: 'YT', isEmail: false },
+      { id: 'email-link', url: artist.email, label: 'EM', isEmail: true }
+    ];
+
+    // Filter only links with URLs
+    const activeSocialLinks = socialLinks.filter(link => link.url && link.url.trim());
+
+    // Build HTML for active social links
+    if (activeSocialLinks.length > 0) {
+      const socialLinksHTML = activeSocialLinks.map((link, index) => {
+        const separator = index < activeSocialLinks.length - 1 ? '<span class="separator">|</span>' : '';
+        return `<span id="${link.id}" class="social-link">${link.label}</span>${separator}`;
+      }).join('');
+
+      socialMediaContainer.innerHTML = socialLinksHTML;
+
+      // Add click handlers for each active link
+      activeSocialLinks.forEach(link => {
+        const element = document.getElementById(link.id);
+        if (element) {
+          if (link.isEmail) {
+            // Email: desktop reveals text, mobile opens mailto
+            const isMobile = window.innerWidth <= 768;
+            element.onclick = () => {
+              if (isMobile) {
+                // Mobile: direct mailto
+                window.location.href = `mailto:${link.url}`;
+              } else {
+                // Desktop: reveal email text
+                emailRevealDiv.textContent = link.url;
+                emailRevealDiv.classList.remove('hidden');
+              }
+            };
+          } else {
+            element.onclick = () => window.open(link.url, '_blank');
+          }
+          element.style.color = '#000';
+          element.style.cursor = 'pointer';
         }
-        element.style.color = '#000';
-        element.style.cursor = 'pointer';
-        element.classList.remove('disabled');
-      } else {
-        element.style.color = '#ccc';
-        element.style.cursor = 'default';
-        element.onclick = null;
-        element.classList.add('disabled');
-      }
+      });
+    } else {
+      // No social links available
+      socialMediaContainer.innerHTML = '<span style="color: #999; font-style: italic;">No social links available</span>';
     }
-
-    // Set all social links
-    setSocialLinkState(websiteLink, artist.website);
-    setSocialLinkState(bandcampLink, artist.bandcamp);
-    setSocialLinkState(soundcloudLink, artist.soundcloud);
-    setSocialLinkState(instagramLink, artist.instagram);
-    setSocialLinkState(subvertLink, artist.subvert);
-    setSocialLinkState(tiktokLink, artist.tiktok);
-    setSocialLinkState(youtubeLink, artist.youtube);
-    setSocialLinkState(emailLink, artist.email, true);
 
 
     // Populate ACTIVITIES on their own line
@@ -1633,16 +1660,41 @@ let selectedFilters = { cities: [], countries: [], styles: [], roles: [], pol: [
     transform: rotate(180deg);
   }
 
+  /* Social media links container */
+  .social-media-links-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    margin: 2rem 0;
+  }
+
   /* Social media links */
   .social-media-links {
     display: flex;
     justify-content: center;
     align-items: center;
-    margin: 2rem 0;
     font-size: 1.5rem;
     font-weight: 700;
     color: #000;
     letter-spacing: 2px;
+  }
+
+  /* Email reveal */
+  .email-reveal {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #000;
+    text-align: center;
+    padding: 0.5rem 1rem;
+    background: rgba(0, 0, 0, 0.05);
+    border-radius: 8px;
+    user-select: all;
+    cursor: text;
+  }
+
+  .email-reveal.hidden {
+    display: none;
   }
 
   .social-link {
