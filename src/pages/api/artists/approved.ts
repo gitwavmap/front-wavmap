@@ -32,6 +32,13 @@ interface MapboxArtistData {
 // Client Directus réutilisable (connection pooling)
 let globalClient: any = null;
 
+// Cache pour les métadonnées des champs (choices)
+let fieldMetadataCache: { [key: string]: { [value: string]: string } | null } = {
+  musicalstyles: null,
+  activitydomains: null,
+  socialtopics: null
+};
+
 function getDirectusClient(directusUrl: string) {
   if (!globalClient) {
     globalClient = createDirectus(directusUrl).with(rest());
@@ -39,14 +46,74 @@ function getDirectusClient(directusUrl: string) {
   return globalClient;
 }
 
+// Fonction pour récupérer les métadonnées d'un champ depuis Directus
+async function getFieldChoices(directusUrl: string, collection: string, fieldName: string): Promise<{ [value: string]: string } | null> {
+  try {
+    // Vérifier le cache
+    if (fieldMetadataCache[fieldName]) {
+      return fieldMetadataCache[fieldName];
+    }
+
+    // Récupérer les métadonnées du champ via l'API Directus
+    const response = await fetch(`${directusUrl}fields/${collection}/${fieldName}`);
+
+    if (!response.ok) {
+      console.warn(`⚠️ Failed to fetch field metadata for ${fieldName}:`, response.status);
+      return null;
+    }
+
+    const fieldData = await response.json();
+
+    // Extraire les choices depuis les options du champ
+    const choices = fieldData?.data?.meta?.options?.choices || null;
+
+    if (choices && Array.isArray(choices)) {
+      // Créer un mapping value → text
+      const mapping: { [value: string]: string } = {};
+      choices.forEach((choice: any) => {
+        if (choice.value && choice.text) {
+          mapping[choice.value] = choice.text;
+        }
+      });
+
+      // Mettre en cache
+      fieldMetadataCache[fieldName] = mapping;
+
+      return mapping;
+    }
+
+    return null;
+  } catch (error) {
+    console.error(`❌ Error fetching field metadata for ${fieldName}:`, error);
+    return null;
+  }
+}
+
+// Fonction helper pour transformer les values en texts
+function mapValuesToTexts(values: string[], mapping: { [value: string]: string } | null): string[] {
+  if (!mapping) {
+    // Pas de mapping disponible, retourner les values telles quelles
+    return values;
+  }
+
+  return values.map(value => {
+    // Si on a un mapping pour cette value, utiliser le text, sinon garder la value
+    return mapping[value] || value;
+  });
+}
+
 export const GET: APIRoute = async ({ request, locals }) => {
   try {
     // Get DIRECTUS_URL from Cloudflare runtime environment
     const directusUrl = locals.runtime?.env?.DIRECTUS_URL || 'https://directus-production-1f5c.up.railway.app/';
-    
+
     // Utiliser le client global pour éviter de recréer des connexions
     const client = getDirectusClient(directusUrl);
-    
+
+    // Charger les métadonnées des champs (une seule fois, ensuite en cache)
+    const genresMapping = await getFieldChoices(directusUrl, 'form', 'musicalstyles');
+    const activitiesMapping = await getFieldChoices(directusUrl, 'form', 'activitydomains');
+
     // Récupérer les artistes avec pagination et limites pour performance
     const artists = await client.request(
       readItems('form', {
@@ -88,24 +155,30 @@ export const GET: APIRoute = async ({ request, locals }) => {
 
     // Transformer les données pour Mapbox (format léger pour performance)
     const mapboxData: MapboxArtistData[] = artists.map((artist: any) => {
-      
+
       // Parser les données de manière sécurisée
       let activities = [];
       let genres = [];
-      
+
       // Vérifier le type des données activities/activitydomains
       if (artist.activitydomains) {
         if (Array.isArray(artist.activitydomains)) {
-          // Déjà un array JavaScript
-          activities = artist.activitydomains;
+          // Les values sont déjà en array, on les transforme via le mapping
+          activities = mapValuesToTexts(artist.activitydomains, activitiesMapping);
         } else if (typeof artist.activitydomains === 'string') {
           try {
             if (artist.activitydomains.startsWith('[') || artist.activitydomains.startsWith('{')) {
-              // String JSON
-              activities = JSON.parse(artist.activitydomains);
+              // String JSON - parser
+              const parsed = JSON.parse(artist.activitydomains);
+              if (Array.isArray(parsed)) {
+                activities = mapValuesToTexts(parsed, activitiesMapping);
+              } else {
+                activities = [];
+              }
             } else {
               // String séparée par virgules
-              activities = artist.activitydomains.split(',').map(s => s.trim()).filter(s => s);
+              const values = artist.activitydomains.split(',').map(s => s.trim()).filter(s => s);
+              activities = mapValuesToTexts(values, activitiesMapping);
             }
           } catch (e) {
             console.warn(`⚠️ Invalid activities data for artist ${artist.id}:`, artist.activitydomains);
@@ -117,16 +190,22 @@ export const GET: APIRoute = async ({ request, locals }) => {
       // Vérifier le type des données genres/musicalstyles
       if (artist.musicalstyles) {
         if (Array.isArray(artist.musicalstyles)) {
-          // Déjà un array JavaScript
-          genres = artist.musicalstyles;
+          // Les values sont déjà en array, on les transforme via le mapping
+          genres = mapValuesToTexts(artist.musicalstyles, genresMapping);
         } else if (typeof artist.musicalstyles === 'string') {
           try {
             if (artist.musicalstyles.startsWith('[') || artist.musicalstyles.startsWith('{')) {
-              // String JSON
-              genres = JSON.parse(artist.musicalstyles);
+              // String JSON - parser
+              const parsed = JSON.parse(artist.musicalstyles);
+              if (Array.isArray(parsed)) {
+                genres = mapValuesToTexts(parsed, genresMapping);
+              } else {
+                genres = [];
+              }
             } else {
               // String séparée par virgules
-              genres = artist.musicalstyles.split(',').map(s => s.trim()).filter(s => s);
+              const values = artist.musicalstyles.split(',').map(s => s.trim()).filter(s => s);
+              genres = mapValuesToTexts(values, genresMapping);
             }
           } catch (e) {
             console.warn(`⚠️ Invalid genres data for artist ${artist.id}:`, artist.musicalstyles);

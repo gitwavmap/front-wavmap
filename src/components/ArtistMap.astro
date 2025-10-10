@@ -139,10 +139,23 @@ let selectedFilters = { cities: [], countries: [], styles: [], roles: [], pol: [
             <span id="email-link" class="social-link">EM</span>
           </div>
 
-          <!-- Activities & Genres Tags -->
-          <div class="tags-line">
-            <div id="all-tags" class="tags-inline">
-              <!-- Tags will be populated dynamically -->
+          <!-- Activities Tags -->
+          <div class="tags-section">
+            <h4 class="tags-section-title">Activities</h4>
+            <div class="tags-line">
+              <div id="all-tags" class="tags-inline">
+                <!-- Activities will be populated dynamically -->
+              </div>
+            </div>
+          </div>
+
+          <!-- Genres Tags -->
+          <div class="tags-section">
+            <h4 class="tags-section-title">Musical Styles</h4>
+            <div class="tags-line">
+              <div id="genres-tags" class="tags-inline">
+                <!-- Genres will be populated dynamically -->
+              </div>
             </div>
           </div>
 
@@ -811,15 +824,9 @@ let selectedFilters = { cities: [], countries: [], styles: [], roles: [], pol: [
       document.body.dataset.scrollY = scrollY.toString();
     }
 
-    console.log('🎨 Showing artist detail for:', artist.artistName);
-    console.log('🔍 Full artist object:', artist);
-    console.log('🔍 Artist keys:', Object.keys(artist));
-    console.log('🔍 themesDevelopment:', artist.themesDevelopment);
-    console.log('🔍 clubPolitics:', artist.clubPolitics);
 
     // Populate basic info
     const artistNameElement = document.getElementById('artist-name-display');
-    console.log('📝 Setting artist name:', artist.artistName, 'Element:', artistNameElement);
     artistNameElement.textContent = artist.artistName || 'Unknown Artist';
 
     // Use full country name instead of code
@@ -881,27 +888,43 @@ let selectedFilters = { cities: [], countries: [], styles: [], roles: [], pol: [
     setSocialLinkState(youtubeLink, artist.youtube);
     setSocialLinkState(emailLink, artist.email, true);
 
-    // Populate ALL tags on single line
+
+    // Populate ACTIVITIES on their own line
     const allTagsContainer = document.getElementById('all-tags');
-    const allTags = [];
+    const activitiesTags = [];
 
-    // Add activities first
     if (artist.activities && Array.isArray(artist.activities)) {
-      allTags.push(...artist.activities);
+      activitiesTags.push(...artist.activities);
     }
 
-    // Add genres after
-    if (artist.genres && Array.isArray(artist.genres)) {
-      allTags.push(...artist.genres);
-    }
-
-    if (allTags.length > 0) {
-      const tagsHTML = allTags.map((tag, index) =>
-        index < allTags.length - 1
+    if (activitiesTags.length > 0) {
+      const activitiesHTML = activitiesTags.map((tag, index) =>
+        index < activitiesTags.length - 1
           ? `<span class="tag-inline">${tag}</span><span class="tag-separator">|</span>`
           : `<span class="tag-inline">${tag}</span>`
       ).join('');
-      allTagsContainer.innerHTML = tagsHTML;
+      allTagsContainer.innerHTML = activitiesHTML;
+    } else {
+      allTagsContainer.innerHTML = '<span class="tag-inline no-data">No activities listed</span>';
+    }
+
+    // Populate GENRES on their own line (new section)
+    const genresContainer = document.getElementById('genres-tags');
+    const genresTags = [];
+
+    if (artist.genres && Array.isArray(artist.genres)) {
+      genresTags.push(...artist.genres);
+    }
+
+    if (genresTags.length > 0) {
+      const genresHTML = genresTags.map((tag, index) =>
+        index < genresTags.length - 1
+          ? `<span class="tag-inline">${tag}</span><span class="tag-separator">|</span>`
+          : `<span class="tag-inline">${tag}</span>`
+      ).join('');
+      genresContainer.innerHTML = genresHTML;
+    } else {
+      genresContainer.innerHTML = '<span class="tag-inline no-data">No genres listed</span>';
     }
 
     // Social/Political Topics
@@ -922,14 +945,10 @@ let selectedFilters = { cities: [], countries: [], styles: [], roles: [], pol: [
     const themesContainer = document.getElementById('themes-container');
     const themesElement = document.getElementById('themes-development-display');
 
-    console.log('🎭 Themes section - Value:', artist.themesDevelopment, 'Container:', themesContainer, 'Element:', themesElement);
     if (artist.themesDevelopment && artist.themesDevelopment.trim()) {
-      console.log('✅ Showing themes section');
       themesContainer.classList.remove('hidden');
       themesElement.textContent = artist.themesDevelopment;
-      console.log('📝 Set themes text to:', themesElement.textContent);
     } else {
-      console.log('❌ Hiding themes section');
       themesContainer.classList.add('hidden');
     }
 
@@ -937,14 +956,10 @@ let selectedFilters = { cities: [], countries: [], styles: [], roles: [], pol: [
     const clubPoliticsContainer = document.getElementById('club-politics-container');
     const clubPoliticsElement = document.getElementById('club-politics-display');
 
-    console.log('🏛️ Politics section - Value:', artist.clubPolitics, 'Container:', clubPoliticsContainer, 'Element:', clubPoliticsElement);
     if (artist.clubPolitics && artist.clubPolitics.trim()) {
-      console.log('✅ Showing politics section');
       clubPoliticsContainer.classList.remove('hidden');
       clubPoliticsElement.textContent = artist.clubPolitics;
-      console.log('📝 Set politics text to:', clubPoliticsElement.textContent);
     } else {
-      console.log('❌ Hiding politics section');
       clubPoliticsContainer.classList.add('hidden');
     }
   }
@@ -1650,9 +1665,24 @@ let selectedFilters = { cities: [], countries: [], styles: [], roles: [], pol: [
     font-size: 1.2rem;
   }
 
+  /* Tags sections */
+  .tags-section {
+    margin: 1.5rem 0;
+  }
+
+  .tags-section-title {
+    font-size: 0.95rem;
+    font-weight: 800;
+    color: #000;
+    text-transform: uppercase;
+    margin: 0 0 0.5rem 0;
+    text-align: center;
+    letter-spacing: 0.5px;
+  }
+
   /* Tags lines */
   .tags-line {
-    margin: 1rem 0;
+    margin: 0.5rem 0;
     text-align: center;
   }
 
@@ -1670,6 +1700,12 @@ let selectedFilters = { cities: [], countries: [], styles: [], roles: [], pol: [
     color: #000;
     padding: 0;
     margin: 0;
+  }
+
+  .tag-inline.no-data {
+    font-style: italic;
+    color: #999;
+    font-weight: 500;
   }
 
   .tag-separator {
