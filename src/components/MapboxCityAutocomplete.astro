@@ -136,8 +136,8 @@ import { MAPBOX_ACCESS_TOKEN } from 'astro:env/client';
       }
 
       try {
-        // Use only the selected country
-        const url = `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(query)}.json?access_token=${MAPBOX_TOKEN}&types=place&limit=8&country=${selectedCountry}`;
+        // Use only the selected country, force English to ensure Latin alphabet (თბილისი → Tbilisi)
+        const url = `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(query)}.json?access_token=${MAPBOX_TOKEN}&types=place&limit=8&country=${selectedCountry}&language=en`;
 
         const response = await fetch(url);
 
