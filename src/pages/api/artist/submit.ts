@@ -59,8 +59,8 @@ interface ArtistSubmission {
   cityid?: string;        // ID unique pour référence rapide
   latitude?: number;      // Coordonnées pour carte Mapbox
   longitude?: number;     // Coordonnées pour carte Mapbox
-  activitydomains: string; // JSON string des activités
-  musicalstyles: string; // JSON string des genres
+  activitydomains: string[]; // Tableau des activités (champ JSON dans Directus)
+  musicalstyles: string[]; // Tableau des genres (champ JSON dans Directus)
   website?: string;
   bandcamp?: string;
   soundcloud?: string;
@@ -70,7 +70,7 @@ interface ArtistSubmission {
   youtube?: string;
   email?: string;
   bio?: string;
-  socialtopics?: string; // JSON string des sujets sociaux/politiques
+  socialtopics?: string[]; // Tableau des sujets sociaux/politiques (champ JSON dans Directus)
   linksbetweenthemeandwork?: string;
   anyotherpoliticalapproach?: string;
   status?: string;        // pending/approved/rejected pour modération
@@ -136,8 +136,8 @@ function transformFormData(formData: ArtistFormData): ArtistSubmission {
     cityid: finalCityId,                    // ID validé/complété par serveur
     latitude: finalLatitude,                // Coordonnées validées/complétées
     longitude: finalLongitude,              // Coordonnées validées/complétées
-    activitydomains: JSON.stringify(formData.activities),
-    musicalstyles: JSON.stringify(formData.genres),
+    activitydomains: formData.activities,   // Envoyer le tableau directement (champ JSON dans Directus)
+    musicalstyles: formData.genres,         // Envoyer le tableau directement (champ JSON dans Directus)
     website: formData.website || '',
     bandcamp: formData.bandcamp || '',
     soundcloud: formData.soundcloud || '',
@@ -147,7 +147,7 @@ function transformFormData(formData: ArtistFormData): ArtistSubmission {
     youtube: formData.youtube || '',
     email: formData.email || '',
     bio: formData.bio || '',
-    socialtopics: formData.socialPolitical ? JSON.stringify(formData.socialPolitical) : '',
+    socialtopics: formData.socialPolitical || [],  // Envoyer le tableau directement (champ JSON dans Directus)
     linksbetweenthemeandwork: formData.themesDevelopment || '',
     anyotherpoliticalapproach: formData.clubPolitics || '',
     status: 'pending'                       // Status par défaut = en attente de validation
@@ -216,13 +216,20 @@ export const POST: APIRoute = async ({ request, cookies, locals }) => {
     
     // Transformer les données pour Directus
     const directusData = transformFormData(data);
-    
+
+    // LOG COMPLET POUR DEBUG
+    console.log('🔍 === ARTIST FORM SUBMISSION DEBUG ===');
+    console.log('📝 Raw form data:', JSON.stringify(data, null, 2));
+    console.log('📤 Directus payload:', JSON.stringify(directusData, null, 2));
+    console.log('🔑 Token exists:', !!token);
+    console.log('=====================================');
+
     // Get DIRECTUS_URL from Cloudflare runtime environment
     const directusUrl = locals.runtime?.env?.DIRECTUS_URL || 'https://directus-production-1f5c.up.railway.app/';
-    
+
     // Créer le client Directus avec authentification
     const client = createTokenClient(token, directusUrl);
-    
+
     // Envoyer à Directus
     const response = await client.request(
       createItem('form', directusData) // 'Form' = nom de votre collection
@@ -243,10 +250,13 @@ export const POST: APIRoute = async ({ request, cookies, locals }) => {
     
   } catch (error: any) {
     console.error('❌ Error submitting artist form:', error);
-    
+    console.error('❌ Error details:', JSON.stringify(error, null, 2));
+    console.error('❌ Error response:', error?.response);
+    console.error('❌ Error errors array:', error?.errors);
+
     // Gestion des erreurs Directus
     let errorMessage = 'An error occurred while submitting the form. Please try again.';
-    
+
     if (error?.response?.status === 403) {
       errorMessage = 'Permission denied. Please check your access rights.';
     } else if (error?.response?.status === 422) {
@@ -256,6 +266,8 @@ export const POST: APIRoute = async ({ request, cookies, locals }) => {
     } else if (error?.message) {
       errorMessage = error.message;
     }
+
+    console.error('❌ Final error message sent to user:', errorMessage);
     
     return new Response(JSON.stringify({
       success: false,
