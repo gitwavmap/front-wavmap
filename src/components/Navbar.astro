@@ -116,6 +116,15 @@ const currentPath = Astro.url.pathname;
     box-sizing: border-box;
   }
 
+  /* When dropdown is open, make navbar fixed to prevent scroll issues */
+  .navbar.dropdown-open {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1001; /* Above the dropdown */
+  }
+
   .navbar::after {
     content: '';
     position: absolute;
@@ -539,6 +548,10 @@ const currentPath = Astro.url.pathname;
     let isOpen = false;
 
     function openDropdown() {
+      // Calculate and fix the dropdown width BEFORE hiding body overflow
+      const currentWidth = dropdownContainer.offsetWidth;
+      dropdown.style.width = `${currentWidth}px`;
+
       dropdown.classList.remove('hidden');
       navbar.classList.add('dropdown-open');
       dropdownContainer.classList.add('dropdown-state');
@@ -557,8 +570,9 @@ const currentPath = Astro.url.pathname;
       // Reset button style - remove inline styles to allow CSS hover to work
       joinBtn.style.background = '';
       joinBtn.style.color = '';
-      // Restore body scroll
+      // Restore body scroll and reset dropdown width
       document.body.style.overflow = '';
+      dropdown.style.width = '';
       isOpen = false;
     }
 
