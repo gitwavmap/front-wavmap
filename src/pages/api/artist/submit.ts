@@ -1,5 +1,5 @@
 import type { APIRoute } from 'astro';
-import { createDirectus, rest, createItem } from '@directus/sdk';
+import { createDirectus, rest, createItem, updateItem, readItems, readMe } from '@directus/sdk';
 import { createTokenClient } from '../../../lib/directus';
 import citiesData from '../../../data/european-cities.json';
 
@@ -26,7 +26,6 @@ function findCityCoordinates(cityName: string, countryCode: string) {
 // Interface pour les données du formulaire
 interface ArtistFormData {
   artistName: string;
-  realName?: string;
   pronouns?: string;
   city: string;
   country: string;
@@ -52,7 +51,6 @@ interface ArtistFormData {
 // Interface pour l'entrée Directus
 interface ArtistSubmission {
   artistname: string;
-  realname?: string;
   pronouns?: string;
   maincity: string;
   country: string;
@@ -129,7 +127,6 @@ function transformFormData(formData: ArtistFormData): ArtistSubmission {
 
   return {
     artistname: formData.artistName,
-    realname: formData.realName || '',
     pronouns: formData.pronouns || '',
     maincity: formData.city,
     country: formData.country,
@@ -161,7 +158,6 @@ export const POST: APIRoute = async ({ request, cookies, locals }) => {
     // Extraire les données du formulaire
     const data: ArtistFormData = {
       artistName: formData.get('artistName')?.toString() || '',
-      realName: formData.get('realName')?.toString() || '',
       pronouns: formData.get('pronouns')?.toString() || '',
       city: formData.get('city')?.toString() || '',
       country: formData.get('country')?.toString() || '',
@@ -230,17 +226,70 @@ export const POST: APIRoute = async ({ request, cookies, locals }) => {
     // Créer le client Directus avec authentification
     const client = createTokenClient(token, directusUrl);
 
-    // Envoyer à Directus
-    const response = await client.request(
-      createItem('form', directusData) // 'Form' = nom de votre collection
+    // Get current user ID
+    const me = await client.request(
+      readMe({
+        fields: ['id']
+      })
     );
-    
-    
+
+    if (!me || !me.id) {
+      return new Response(JSON.stringify({
+        success: false,
+        message: 'User not found',
+        error: 'Could not identify current user'
+      }), {
+        status: 404,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+    }
+
+    const userId = me.id;
+
+    // Check if user already has a submission
+    const existingSubmissions = await client.request(
+      readItems('form', {
+        filter: {
+          user_created: { _eq: userId }
+        },
+        fields: ['id'],
+        limit: 1
+      })
+    );
+
+    let response;
+    let isUpdate = false;
+
+    if (existingSubmissions && existingSubmissions.length > 0) {
+      // UPDATE existing submission
+      const submissionId = existingSubmissions[0].id;
+      console.log(`🔄 Updating existing submission ${submissionId} for user ${userId}`);
+
+      response = await client.request(
+        updateItem('form', submissionId, directusData)
+      );
+      isUpdate = true;
+    } else {
+      // CREATE new submission
+      console.log(`✨ Creating new submission for user ${userId}`);
+
+      response = await client.request(
+        createItem('form', directusData)
+      );
+      isUpdate = false;
+    }
+
+
     return new Response(JSON.stringify({
       success: true,
-      message: '🎉 Thank you for your registration! We will review your profile and contact you soon.',
+      message: isUpdate
+        ? '✅ Your profile has been updated successfully!'
+        : '🎉 Thank you for your registration! We will review your profile and contact you soon.',
       redirect: '/thank-you',
-      data: response
+      data: response,
+      isUpdate: isUpdate
     }), {
       status: 200,
       headers: {

@@ -54,14 +54,38 @@ export const GET: APIRoute = async ({ cookies, locals }) => {
     const userId = me.id;
 
     // Check if user has already submitted a form
-    // Only fetch count, not the actual data (lightweight query)
+    // Fetch all fields to pre-fill the form if exists
     const submissions = await client.request(
       readItems('form', {
         filter: {
           user_created: { _eq: userId }
         },
-        fields: ['id'], // Only fetch ID, nothing else
-        limit: 1 // We only need to know if at least one exists
+        fields: [
+          'id',
+          'artistname',
+          'pronouns',
+          'maincity',
+          'country',
+          'cityid',
+          'latitude',
+          'longitude',
+          'activitydomains',
+          'musicalstyles',
+          'website',
+          'bandcamp',
+          'soundcloud',
+          'instagram',
+          'subvert',
+          'tiktok',
+          'youtube',
+          'email',
+          'bio',
+          'socialtopics',
+          'linksbetweenthemeandwork',
+          'anyotherpoliticalapproach',
+          'status'
+        ],
+        limit: 1
       })
     );
 
@@ -70,6 +94,7 @@ export const GET: APIRoute = async ({ cookies, locals }) => {
     return new Response(JSON.stringify({
       success: true,
       hasSubmission: hasSubmission,
+      data: hasSubmission ? submissions[0] : null,
       message: hasSubmission
         ? 'User has already submitted a form'
         : 'No submission found'
