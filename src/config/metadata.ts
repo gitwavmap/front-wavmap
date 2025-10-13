@@ -3,7 +3,7 @@ export const siteConfig = {
   name: "Wavmap",
   description: "Discover artists from the underground music community around the world",
   url: "https://wavmap.org",
-  ogImage: "/og-image.jpg",
+  ogImage: "/og-image.png",
   twitter: "@wavmap",
 
   // Default metadata for pages
