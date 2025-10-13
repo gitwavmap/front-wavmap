@@ -8,8 +8,11 @@ const currentLang = getLocale();
 ---
 
 <div class="artist-form-container">
-  
+
   <form class="artist-form" id="artist-signup-form">
+    <!-- Error/Success messages -->
+    <div id="form-error" class="error-message hidden"></div>
+    <div id="form-success" class="success-message hidden"></div>
     <div class="form-group">
       <label for="artist-name">{m.artist_name({}, { locale: 'en' })} *</label>
       <input type="text" id="artist-name" name="artistName" required>
@@ -619,29 +622,52 @@ const currentLang = getLocale();
     const form = document.getElementById('artist-signup-form');
     if (!form) return;
 
+    const errorDiv = document.getElementById('form-error');
+    const successDiv = document.getElementById('form-success');
+
+    // Helper function to show error
+    function showError(message) {
+      if (errorDiv) {
+        errorDiv.textContent = message;
+        errorDiv.classList.remove('hidden');
+        successDiv?.classList.add('hidden');
+        // Scroll to error message
+        errorDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }
+    }
+
+    // Helper function to hide messages
+    function hideMessages() {
+      errorDiv?.classList.add('hidden');
+      successDiv?.classList.add('hidden');
+    }
+
     // Initialize character counters
     updateCharCount('bio', 'bio-count', 250);
     updateCharCount('themes-development', 'themes-count', 500);
     updateCharCount('club-politics', 'club-count', 500);
 
-    
+
     form.addEventListener('submit', async function(e) {
       e.preventDefault();
-      
+
+      // Hide any previous messages
+      hideMessages();
+
       const submitBtn = form.querySelector('button[type="submit"]');
       const originalText = submitBtn?.textContent || joinCommunity;
-      
+
       // Check that at least one activity is selected
       const activitiesChecked = form.querySelectorAll('input[name="activities"]:checked');
       if (activitiesChecked.length === 0) {
-        alert(selectActivity);
+        showError(selectActivity);
         return;
       }
 
       // Check that at least one genre is selected
       const genresChecked = form.querySelectorAll('input[name="genres"]:checked');
       if (genresChecked.length === 0) {
-        alert(selectGenre);
+        showError(selectGenre);
         return;
       }
 
@@ -655,7 +681,7 @@ const currentLang = getLocale();
         // Check if coordinates were filled by Mapbox autocomplete
         if (!latField?.value || !lngField?.value || !countryField?.value) {
           console.warn('⚠️ City coordinates missing');
-          alert(`Please select a city from the suggestions list. Type your city name and select it from the dropdown.`);
+          showError('Please select a city from the suggestions list. Type your city name and select it from the dropdown.');
           return;
         }
       }
@@ -696,12 +722,12 @@ const currentLang = getLocale();
           }
         } else {
           // Error
-          alert(`❌ ${result.message}`);
+          showError(result.message || 'An error occurred. Please try again.');
         }
-        
+
       } catch (error) {
         console.error('Form submission error:', error);
-        alert('❌ Network error. Please check your connection and try again.');
+        showError('Network error. Please check your connection and try again.');
       } finally {
         // Re-enable button
         if (submitBtn) {
@@ -752,6 +778,60 @@ const currentLang = getLocale();
     flex-direction: column;
     gap: 1.5rem;
     padding-bottom: 40px; /* Extra space at bottom for mobile scrolling */
+  }
+
+  .error-message {
+    padding: 1rem;
+    background-color: #fef2f2;
+    color: #dc2626;
+    border: 2px solid #dc2626;
+    margin-bottom: 1.5rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    position: relative;
+  }
+
+  .error-message::before {
+    content: "⚠";
+    position: absolute;
+    top: -15px;
+    left: 10px;
+    background: #dc2626;
+    color: white;
+    padding: 0.25rem 0.5rem;
+    font-size: 0.75rem;
+    font-weight: 900;
+  }
+
+  .success-message {
+    padding: 1rem;
+    background-color: #f0fdf4;
+    color: #16a34a;
+    border: 2px solid #16a34a;
+    margin-bottom: 1.5rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    position: relative;
+  }
+
+  .success-message::before {
+    content: "✓";
+    position: absolute;
+    top: -15px;
+    left: 10px;
+    background: #16a34a;
+    color: white;
+    padding: 0.25rem 0.5rem;
+    font-size: 0.75rem;
+    font-weight: 900;
+  }
+
+  .hidden {
+    display: none !important;
   }
 
   .form-group {

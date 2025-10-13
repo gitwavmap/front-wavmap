@@ -28,7 +28,7 @@ const { user, isAuthenticated } = Astro.props;
         <AuthModalForm />
       </div>
 
-  <!-- Artist Form (shown when logged in) -->
+  <!-- Artist Form (shown when logged in AND no submission) -->
   <div id="artist-section" class={isAuthenticated ? "" : "hidden"}>
     <ArtistForm />
   </div>
@@ -215,13 +215,84 @@ const { user, isAuthenticated } = Astro.props;
 </style>
 
 <script>
-  function handleAuthSuccess() {
+  // Check if user has already submitted a form
+  async function checkUserSubmission() {
+    try {
+      // Get Directus URL from environment or use default
+      const directusUrl = 'https://directus-production-1f5c.up.railway.app';
+
+      // Get token from cookie
+      const token = document.cookie
+        .split('; ')
+        .find(row => row.startsWith('directus_session_token='))
+        ?.split('=')[1];
+
+      if (!token) {
+        console.log('⚠️ No authentication token found');
+        return false;
+      }
+
+      const response = await fetch(`${directusUrl}/check-submission`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      if (!response.ok) {
+        console.log('⚠️ Could not check submission status');
+        return false;
+      }
+
+      const data = await response.json();
+      return data.hasSubmission === true;
+    } catch (error) {
+      console.error('Error checking submission:', error);
+      return false;
+    }
+  }
+
+  async function handleAuthSuccess() {
     const authSection = document.getElementById('auth-section');
     const artistSection = document.getElementById('artist-section');
+    const modalTitle = document.querySelector('.modal-title');
 
     if (authSection && artistSection) {
       authSection.classList.add('hidden');
-      artistSection.classList.remove('hidden');
+
+      // Check if user has already submitted
+      const hasSubmitted = await checkUserSubmission();
+
+      if (hasSubmitted) {
+        // User has already submitted - hide the form and update title
+        artistSection.classList.add('hidden');
+        if (modalTitle) {
+          modalTitle.textContent = 'Join the Newsletter';
+        }
+        console.log('✅ User has already submitted a form - hiding artist form');
+      } else {
+        // User hasn't submitted yet - show the form
+        artistSection.classList.remove('hidden');
+      }
+    }
+  }
+
+  // Check submission status on page load if user is authenticated
+  async function checkSubmissionOnLoad() {
+    const authSection = document.getElementById('auth-section');
+    const artistSection = document.getElementById('artist-section');
+    const modalTitle = document.querySelector('.modal-title');
+
+    // Only check if auth section is hidden (user is logged in)
+    if (authSection && authSection.classList.contains('hidden')) {
+      const hasSubmitted = await checkUserSubmission();
+
+      if (hasSubmitted) {
+        artistSection?.classList.add('hidden');
+        if (modalTitle) {
+          modalTitle.textContent = 'Join the Newsletter';
+        }
+        console.log('✅ User has already submitted - form hidden on load');
+      }
     }
   }
 
@@ -244,14 +315,19 @@ const { user, isAuthenticated } = Astro.props;
   document.addEventListener('DOMContentLoaded', () => {
     window.addEventListener('authSuccess', handleAuthSuccess);
     initNewsletterButton();
+    checkSubmissionOnLoad();
   });
 
   // Handle case where script loads after DOM
   if (document.readyState !== 'loading') {
     window.addEventListener('authSuccess', handleAuthSuccess);
     initNewsletterButton();
+    checkSubmissionOnLoad();
   }
 
   // Re-initialize on Astro page transitions
-  document.addEventListener('astro:page-load', initNewsletterButton);
+  document.addEventListener('astro:page-load', () => {
+    initNewsletterButton();
+    checkSubmissionOnLoad();
+  });
 </script>
