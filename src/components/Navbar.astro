@@ -397,18 +397,29 @@ const currentPath = Astro.url.pathname;
   .logout-link {
     color: white;
     text-decoration: none;
-    font-weight: 700;
+    font-weight: 900;
     font-size: 1rem;
     padding: 0.5rem 1rem;
-    border: 2px solid white;
-    border-radius: 4px;
+    border: 3px solid white;
+    border-radius: 0;
     transition: all 0.2s ease;
     white-space: nowrap;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    position: relative;
+    background: transparent;
   }
 
   .logout-link:hover {
     background: white;
     color: black;
+    transform: translateX(-2px) translateY(-2px);
+    box-shadow: 4px 4px 0px rgba(255, 255, 255, 0.3);
+  }
+
+  .logout-link:active {
+    transform: translateX(0) translateY(0);
+    box-shadow: none;
   }
 
   .community-dropdown {
@@ -498,6 +509,13 @@ const currentPath = Astro.url.pathname;
     .logout-link {
       font-size: 0.85rem;
       padding: 0.375rem 0.75rem;
+      border-width: 2px;
+      letter-spacing: 0.5px;
+    }
+
+    .logout-link:hover {
+      transform: translateX(-1px) translateY(-1px);
+      box-shadow: 2px 2px 0px rgba(255, 255, 255, 0.3);
     }
 
     .community-dropdown-container.dropdown-state .dropdown-open-content {
@@ -507,8 +525,16 @@ const currentPath = Astro.url.pathname;
 
   @media (max-width: 480px) {
     .logout-link {
-      font-size: 0.75rem;
+      font-size: 0.7rem;
       padding: 0.25rem 0.5rem;
+      border-width: 2px;
+      letter-spacing: 0.25px;
+      font-weight: 800;
+    }
+
+    .logout-link:hover {
+      transform: translateX(-1px) translateY(-1px);
+      box-shadow: 2px 2px 0px rgba(255, 255, 255, 0.2);
     }
   }
 </style>
