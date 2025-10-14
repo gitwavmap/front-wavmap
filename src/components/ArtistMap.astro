@@ -288,6 +288,30 @@ let selectedFilters = { cities: [], countries: [], styles: [], roles: [], pol: [
     return countryMapping[countryCode] || countryCode;
   }
 
+  // Function to convert social media usernames to full URLs
+  function normalizeSocialUrl(value, platform) {
+    if (!value || !value.trim()) return null;
+
+    const trimmedValue = value.trim();
+
+    // If it's already a full URL, return as is
+    if (trimmedValue.startsWith('http://') || trimmedValue.startsWith('https://')) {
+      return trimmedValue;
+    }
+
+    // Remove @ symbol if present
+    const username = trimmedValue.startsWith('@') ? trimmedValue.substring(1) : trimmedValue;
+
+    // Build the appropriate URL based on platform
+    if (platform === 'instagram') {
+      return `https://instagram.com/${username}`;
+    } else if (platform === 'tiktok') {
+      return `https://tiktok.com/@${username}`;
+    }
+
+    return trimmedValue; // fallback for other platforms
+  }
+
   // Mapping for social topics values to display labels
   function getSocialTopicLabel(value) {
     const socialTopicsLabels = {
@@ -823,9 +847,9 @@ let selectedFilters = { cities: [], countries: [], styles: [], roles: [], pol: [
       { id: 'website-link', url: artist.website, label: 'WS', isEmail: false },
       { id: 'bandcamp-link', url: artist.bandcamp, label: 'BC', isEmail: false },
       { id: 'soundcloud-link', url: artist.soundcloud, label: 'SC', isEmail: false },
-      { id: 'instagram-link', url: artist.instagram, label: 'IN', isEmail: false },
+      { id: 'instagram-link', url: normalizeSocialUrl(artist.instagram, 'instagram'), label: 'IN', isEmail: false },
       { id: 'subvert-link', url: artist.subvert, label: 'SV', isEmail: false },
-      { id: 'tiktok-link', url: artist.tiktok, label: 'TT', isEmail: false },
+      { id: 'tiktok-link', url: normalizeSocialUrl(artist.tiktok, 'tiktok'), label: 'TT', isEmail: false },
       { id: 'youtube-link', url: artist.youtube, label: 'YT', isEmail: false },
       { id: 'email-link', url: artist.email, label: 'EM', isEmail: true }
     ];
