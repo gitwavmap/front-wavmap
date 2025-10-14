@@ -79,8 +79,13 @@ const currentPath = Astro.url.pathname;
     <button id="join-community-btn" class="community-button">
       <div class="community-content">
         <span class="join-text">Join the community</span>
-        <div class="close-icon-wrapper hidden">
-          <CloseButton class="navbar-close" />
+        <div class="dropdown-open-content hidden">
+          <div class="close-icon-wrapper">
+            <CloseButton class="navbar-close" />
+          </div>
+          <a href="/api/auth/logout" class="logout-link" id="navbar-logout-btn" style={user ? '' : 'display: none;'}>
+            Logout
+          </a>
         </div>
         <img class="logo-icon" src={Logo.src} alt="logo" />
       </div>
@@ -382,8 +387,28 @@ const currentPath = Astro.url.pathname;
     display: none;
   }
 
-  .community-dropdown-container.dropdown-state .close-icon-wrapper {
+  .community-dropdown-container.dropdown-state .dropdown-open-content {
     display: flex !important;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  /* Logout link styling */
+  .logout-link {
+    color: white;
+    text-decoration: none;
+    font-weight: 700;
+    font-size: 1rem;
+    padding: 0.5rem 1rem;
+    border: 2px solid white;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+  }
+
+  .logout-link:hover {
+    background: white;
+    color: black;
   }
 
   .community-dropdown {
@@ -469,9 +494,21 @@ const currentPath = Astro.url.pathname;
       position: static;
     }
 
-    .community-dropdown-container {
-      width: auto;
-      position: static;
+    /* Responsive logout button for mobile */
+    .logout-link {
+      font-size: 0.85rem;
+      padding: 0.375rem 0.75rem;
+    }
+
+    .community-dropdown-container.dropdown-state .dropdown-open-content {
+      gap: 0.5rem;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .logout-link {
+      font-size: 0.75rem;
+      padding: 0.25rem 0.5rem;
     }
   }
 </style>
@@ -513,21 +550,13 @@ const currentPath = Astro.url.pathname;
   
   // Listen for successful authentication to show logout button
   function showLogoutButton() {
-    const authButtons = document.querySelector('.flex.items-center.space-x-3');
-    if (authButtons) {
-      // Check if logout button already exists
-      const existingLogout = authButtons.querySelector('a[href="/api/auth/logout"]');
-      if (!existingLogout) {
-        // Create logout button
-        const logoutBtn = document.createElement('a');
-        logoutBtn.href = '/api/auth/logout';
-        logoutBtn.className = 'bg-gray-100 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors';
-        logoutBtn.textContent = 'Logout';
-        authButtons.appendChild(logoutBtn);
-      }
+    const navbarLogoutBtn = document.getElementById('navbar-logout-btn');
+    if (navbarLogoutBtn) {
+      navbarLogoutBtn.style.display = '';
+      console.log('✅ Logout button displayed after auth');
     }
   }
-  
+
   // Listen for authSuccess event
   window.addEventListener('authSuccess', showLogoutButton);
 
