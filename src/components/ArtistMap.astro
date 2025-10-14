@@ -234,7 +234,6 @@ let selectedFilters = { cities: [], countries: [], styles: [], roles: [], pol: [
       }
     });
     await Promise.all(promises);
-    console.log('✅ All selected SVGs preloaded');
   }
 
   // Call preload immediately
@@ -281,7 +280,6 @@ let selectedFilters = { cities: [], countries: [], styles: [], roles: [], pol: [
       'SE': 'Sweden'
     };
 
-    console.log('🗺️ Initialized country mapping:', countryMapping);
     return countryMapping;
   }
 
@@ -350,7 +348,7 @@ let selectedFilters = { cities: [], countries: [], styles: [], roles: [], pol: [
     return [...values].sort();
   }
 
-  // Special function to extract political topics from both socialTopics and clubPolitics
+  // Special function to extract political topics from socialTopics only
   function extractPoliticalTopics(artists) {
     const values = new Set();
     artists.forEach(artist => {
@@ -360,18 +358,12 @@ let selectedFilters = { cities: [], countries: [], styles: [], roles: [], pol: [
           if (topic && topic.trim()) values.add(topic.trim());
         });
       }
-      // Add club politics (string)
-      if (artist.clubPolitics && artist.clubPolitics.trim()) {
-        values.add(artist.clubPolitics.trim());
-      }
     });
     return [...values].sort();
   }
 
   // Function to populate dynamic filter options - factorized and reactive
   function populateFilterOptions(artists, selectedCountries = []) {
-    console.log('🔧 Starting to populate filter options with', artists.length, 'artists');
-    console.log('🌍 Selected countries:', selectedCountries);
 
     // Filter artists by selected countries if any
     let artistsForCityFilter = artists;
@@ -379,7 +371,6 @@ let selectedFilters = { cities: [], countries: [], styles: [], roles: [], pol: [
       artistsForCityFilter = artists.filter(artist =>
         selectedCountries.includes(artist.country)
       );
-      console.log(`🏙️ Filtered to ${artistsForCityFilter.length} artists from selected countries`);
     }
 
     // Define filter mappings - what data to extract and how to display it
@@ -419,7 +410,6 @@ let selectedFilters = { cities: [], countries: [], styles: [], roles: [], pol: [
     // Populate each filter type
     Object.entries(filterConfigs).forEach(([filterId, config]) => {
       const container = document.getElementById(`${filterId}-dynamic-options`);
-      console.log(`🔍 Looking for container: ${filterId}-dynamic-options`, container ? '✅ Found' : '❌ Not found');
 
       if (container && config.data.length > 0) {
         const optionsHTML = config.data.map(value => {
@@ -440,7 +430,6 @@ let selectedFilters = { cities: [], countries: [], styles: [], roles: [], pol: [
         }).join('');
 
         container.innerHTML = optionsHTML;
-        console.log(`🏷️ Populated ${filterId} filter with ${config.data.length} options:`, config.data.slice(0, 5));
       } else if (!container) {
         console.warn(`⚠️ Container not found for ${filterId}`);
       } else if (config.data.length === 0) {
@@ -448,7 +437,6 @@ let selectedFilters = { cities: [], countries: [], styles: [], roles: [], pol: [
       }
     });
 
-    console.log('✅ Filter population complete');
   }
 
   // Function to handle filter selection - factorized
@@ -466,7 +454,6 @@ let selectedFilters = { cities: [], countries: [], styles: [], roles: [], pol: [
     const value = element.dataset.value;
     const isSelected = element.classList.contains('selected');
 
-    console.log('🎯 Filter clicked:', { filterType, value, isSelected });
 
     // Map filter types to selectedFilters keys
     const filterTypeMap = {
@@ -492,7 +479,6 @@ let selectedFilters = { cities: [], countries: [], styles: [], roles: [], pol: [
       element.style.backgroundColor = '';
       element.style.opacity = '1';
       selectedFilters[filterKey] = selectedFilters[filterKey].filter(item => item !== value);
-      console.log(`❌ Deselected ${filterType}:`, value);
     } else {
       // Select - apply preloaded SVG with black fill
       element.classList.add('selected');
@@ -509,14 +495,11 @@ let selectedFilters = { cities: [], countries: [], styles: [], roles: [], pol: [
         element.style.backgroundColor = 'black';
       }
       selectedFilters[filterKey].push(value);
-      console.log(`✅ Selected ${filterType}:`, value);
     }
 
-    console.log('📊 Current selections:', selectedFilters);
 
     // If country filter changed, update city filter options
     if (filterType === 'country') {
-      console.log('🌍 Country filter changed, updating city options...');
       populateFilterOptions(allArtists, selectedFilters.countries);
     }
 
@@ -554,7 +537,6 @@ let selectedFilters = { cities: [], countries: [], styles: [], roles: [], pol: [
       element.style.opacity = '1';
     });
 
-    console.log('🧹 All filters cleared');
 
     // Repopulate filter options to restore all cities (not just from selected country)
     populateFilterOptions(allArtists, []);
@@ -596,17 +578,15 @@ let selectedFilters = { cities: [], countries: [], styles: [], roles: [], pol: [
 
         // Political filter (check if artist has ANY of the selected political topics)
         const politicalMatch = selectedFilters.political.length === 0 ||
-          // Check both socialTopics array and clubPolitics string
+          // Check only socialTopics array
           (Array.isArray(artist.socialTopics) &&
-           artist.socialTopics.some(topic => selectedFilters.political.includes(topic))) ||
-          (artist.clubPolitics && selectedFilters.political.includes(artist.clubPolitics));
+           artist.socialTopics.some(topic => selectedFilters.political.includes(topic)));
 
         // All active filter conditions must be true (AND logic)
         return cityMatch && countryMatch && activitiesMatch && genresMatch && politicalMatch;
       });
     }
 
-    console.log(`🔍 Filtering result: ${filteredArtists.length} of ${allArtists.length} artists match filters`);
 
     // Update map markers
     updateMapMarkers();
@@ -615,13 +595,11 @@ let selectedFilters = { cities: [], countries: [], styles: [], roles: [], pol: [
   // Function to update map markers based on filtered artists
   function updateMapMarkers() {
     if (!window.wavmapInstance) {
-      console.log('⚠️ Map instance not available');
       return;
     }
 
     const map = window.wavmapInstance;
 
-    console.log('🗺️ Updating map with filtered artists:', filteredArtists.length);
 
     // Update the map source data with filtered artists
     const geojsonData = {
@@ -648,15 +626,12 @@ let selectedFilters = { cities: [], countries: [], styles: [], roles: [], pol: [
         }))
     };
 
-    console.log('📍 GeoJSON features count:', geojsonData.features.length);
 
     // Update map source
     if (map.getSource('points')) {
       map.getSource('points').setData(geojsonData);
-      console.log('✅ Map source updated successfully');
       // No need to force refresh - the sourcedata event will handle it
     } else {
-      console.log('❌ Map source "points" not found');
     }
 
     // Build readable filter summary
@@ -668,8 +643,6 @@ let selectedFilters = { cities: [], countries: [], styles: [], roles: [], pol: [
       }
     });
 
-    console.log(`🎯 Applied filters: ${activeFilters.length > 0 ? activeFilters.join(' | ') : 'None'}`);
-    console.log(`📍 Showing ${filteredArtists.length} of ${allArtists.length} artists`);
   }
 
   // Cache configuration
@@ -683,7 +656,6 @@ let selectedFilters = { cities: [], countries: [], styles: [], roles: [], pol: [
       const cacheExpiry = localStorage.getItem(ARTISTS_CACHE_EXPIRY_KEY);
 
       if (cachedData && cacheExpiry && Date.now() < parseInt(cacheExpiry)) {
-        console.log('✅ Using cached artists data');
         return JSON.parse(cachedData);
       }
     } catch (error) {
@@ -696,7 +668,6 @@ let selectedFilters = { cities: [], countries: [], styles: [], roles: [], pol: [
     try {
       localStorage.setItem(ARTISTS_CACHE_KEY, JSON.stringify(artists));
       localStorage.setItem(ARTISTS_CACHE_EXPIRY_KEY, (Date.now() + CACHE_DURATION).toString());
-      console.log('💾 Artists cached for 10 minutes');
     } catch (error) {
       console.warn('⚠️ Error saving artists to cache:', error);
     }
@@ -708,21 +679,11 @@ let selectedFilters = { cities: [], countries: [], styles: [], roles: [], pol: [
       // Try cache first
       const cachedArtists = getArtistsFromCache();
       if (cachedArtists) {
-        console.log('🚨 DATA SOURCE: CACHED DATA');
         return cachedArtists;
       }
 
-      console.log('🔍 Fetching artists from API...');
-      console.log('🔍 Current timestamp:', new Date().toISOString());
       const response = await fetch('/api/artists/approved?_t=' + Date.now());
       const data = await response.json();
-
-      console.log('🔍 API Response:', data);
-      console.log('🔍 API Response details:');
-      console.log('  - Success:', data.success);
-      console.log('  - Count:', data.count);
-      console.log('  - Artists array:', data.artists);
-
       if (data.artists && data.artists.length > 0) {
         data.artists.forEach((artist, index) => {
           console.log(`🎵 Artist ${index + 1}:`, {
@@ -742,11 +703,8 @@ let selectedFilters = { cities: [], countries: [], styles: [], roles: [], pol: [
         // Save to cache
         saveArtistsToCache(data.artists);
 
-        console.log('✅ Using fresh API data:', data.artists.length, 'artists');
-        console.log('🚨 DATA SOURCE: FRESH API DATA');
         return data.artists;
       } else {
-        console.log('⚠️ No artists found in database');
         return [];
       }
     } catch (error) {
@@ -759,14 +717,12 @@ let selectedFilters = { cities: [], countries: [], styles: [], roles: [], pol: [
   // Function to get random artist from filtered artists
   function getRandomArtist() {
     if (!filteredArtists || filteredArtists.length === 0) {
-      console.log('⚠️ No artists available for shuffle');
       return null;
     }
 
     const randomIndex = Math.floor(Math.random() * filteredArtists.length);
     const randomArtist = filteredArtists[randomIndex];
 
-    console.log('🎲 Shuffled to random artist:', randomArtist.artistName);
     return randomArtist;
   }
 
@@ -1175,7 +1131,6 @@ let selectedFilters = { cities: [], countries: [], styles: [], roles: [], pol: [
     mapContainer.addEventListener('mouseover', mouseoverHandler);
     mapContainer.addEventListener('mouseout', mouseoutHandler);
 
-    console.log('✅ Events attached to map container');
   }
 
   // Cleanup is handled automatically when page changes with transition:persist="false"
@@ -1205,7 +1160,6 @@ let selectedFilters = { cities: [], countries: [], styles: [], roles: [], pol: [
 
     // Ensure container is completely empty for Mapbox
     mapContainer.innerHTML = '';
-    console.log('🧹 Map container cleared completely');
     
     // Wait for Mapbox GL to load with retry mechanism
     let attempts = 0;
@@ -1284,19 +1238,14 @@ let selectedFilters = { cities: [], countries: [], styles: [], roles: [], pol: [
       // Load and add real artist data when map is ready
       map.on('load', async function() {
         // Log current map state
-        console.log('🗺️ Map loaded!');
-        console.log('📍 Initial center:', map.getCenter());
-        console.log('🔍 Initial zoom:', map.getZoom());
 
         // Fetch approved artists from API
         const artists = await loadApprovedArtists();
 
         if (artists.length === 0) {
-          console.log('ℹ️ No artists to display on map');
           return;
         }
 
-        console.log(`🎵 Loaded ${artists.length} artists for clustering`);
         artists.forEach((artist, i) => {
           if (i < 3) { // Log first 3 for debugging
             console.log(`Artist ${i + 1}:`, {
@@ -1320,7 +1269,6 @@ let selectedFilters = { cities: [], countries: [], styles: [], roles: [], pol: [
         }, 100);
 
         // Log that filter options are ready
-        console.log('✅ Filter options populated and ready for interaction');
 
         // Convert artist data to GeoJSON format with null checks
         const geojsonData = {
@@ -1348,7 +1296,6 @@ let selectedFilters = { cities: [], countries: [], styles: [], roles: [], pol: [
         };
 
         // Add cluster source with proper configuration
-        console.log('🗺️ Adding points source with', geojsonData.features.length, 'features');
         map.addSource('points', {
           type: 'geojson',
           data: geojsonData,
@@ -1362,7 +1309,6 @@ let selectedFilters = { cities: [], countries: [], styles: [], roles: [], pol: [
         });
 
         // Implémentation du clustering selon le tutoriel officiel Mapbox
-        console.log('✅ Points source added, adding cluster layers');
 
         // Create SVG icons with radial gradients for clusters
         function createClusterIcon(pointCount) {
@@ -1433,7 +1379,6 @@ let selectedFilters = { cities: [], countries: [], styles: [], roles: [], pol: [
 
         // Wait for all icons to load
         Promise.all(clusterIconPromises).then(() => {
-          console.log('✅ All cluster icons loaded');
 
           // Add cluster symbol layer with gradient icons
           map.addLayer({
