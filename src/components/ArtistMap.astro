@@ -1794,6 +1794,7 @@ let selectedFilters = { cities: [], countries: [], styles: [], roles: [], pol: [
     flex-shrink: 0;
     height: 100%;
     overflow-y: auto;
+    overflow-x: visible;
     padding-left: 1rem;
     position: relative;
     z-index: 10;
@@ -1803,6 +1804,7 @@ let selectedFilters = { cities: [], countries: [], styles: [], roles: [], pol: [
     padding-left: 2rem;
     height: 100%;
     overflow-y: auto;
+    overflow-x: visible;
   }
 
   /* Close hover button */
@@ -2083,16 +2085,31 @@ let selectedFilters = { cities: [], countries: [], styles: [], roles: [], pol: [
     opacity: 1;
   }
 
+  .filter {
+    overflow: visible;
+  }
+
   .filter img {
     height: 50px;
   }
 
   .filter-button-image {
     transition: opacity 0.2s ease, transform 0.2s ease;
+    display: block;
+    width: 100%;
+    height: 100%;
   }
 
-  .filter-hover-btn:hover .filter-button-image {
-    transform: scale(1.05);
+  .filter-hover-btn {
+    overflow: visible;
+    position: relative;
+  }
+
+  /* Hover effect only for devices with a cursor (not touch devices) */
+  @media (hover: hover) and (pointer: fine) {
+    .filter-hover-btn:hover .filter-button-image {
+      transform: scale(1.05);
+    }
   }
 
   .filter-hover-btn:active .filter-button-image {
@@ -2101,7 +2118,9 @@ let selectedFilters = { cities: [], countries: [], styles: [], roles: [], pol: [
 
   .filter-wrapper {
     position: relative;
-    margin-bottom: 0.5rem;
+    margin-bottom: 0.4rem;
+    overflow: visible;
+    padding: 5px; /* Add padding to prevent clipping during scale */
   }
 
   .filter-options.hidden {
@@ -2366,10 +2385,6 @@ let selectedFilters = { cities: [], countries: [], styles: [], roles: [], pol: [
       padding-left: 0;
       height: auto;
       width: 100%;
-    }
-
-    .filter-wrapper {
-      margin-bottom: 1rem;
     }
 
     .filter img {
