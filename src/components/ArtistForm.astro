@@ -622,8 +622,18 @@ const currentLang = getLocale();
     const form = document.getElementById('artist-signup-form');
     if (!form) return;
 
+    // Prevent multiple initializations
+    if (form.dataset.initialized === 'true') {
+      console.log('⚠️ Form already initialized, skipping...');
+      return;
+    }
+    form.dataset.initialized = 'true';
+
     const errorDiv = document.getElementById('form-error');
     const successDiv = document.getElementById('form-success');
+
+    // Flag to prevent double submission
+    let isSubmitting = false;
 
     // Helper function to show error
     function showError(message) {
@@ -742,6 +752,13 @@ const currentLang = getLocale();
     form.addEventListener('submit', async function(e) {
       e.preventDefault();
 
+      // Prevent double submission
+      if (isSubmitting) {
+        console.log('⚠️ Form is already being submitted, ignoring...');
+        return;
+      }
+      isSubmitting = true;
+
       // Hide any previous messages
       hideMessages();
 
@@ -820,7 +837,8 @@ const currentLang = getLocale();
         console.error('Form submission error:', error);
         showError('Network error. Please check your connection and try again.');
       } finally {
-        // Re-enable button
+        // Re-enable button and reset submitting flag
+        isSubmitting = false;
         if (submitBtn) {
           submitBtn.disabled = false;
           submitBtn.textContent = originalText;
