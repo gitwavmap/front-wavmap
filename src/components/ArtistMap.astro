@@ -2087,10 +2087,21 @@ let selectedFilters = { cities: [], countries: [], styles: [], roles: [], pol: [
 
   .filter {
     overflow: visible;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    margin: 5px; /* Add margin to prevent clipping during scale */
+    display: inline-block;
+    width: fit-content;
+    width: -moz-fit-content;
+    width: -webkit-fit-content;
   }
 
   .filter img {
     height: 50px;
+    width: auto;
+    display: block;
   }
 
   .filter-button-image {
@@ -2098,6 +2109,7 @@ let selectedFilters = { cities: [], countries: [], styles: [], roles: [], pol: [
     display: block;
     width: 100%;
     height: 100%;
+    transform-origin: center center;
   }
 
   .filter-hover-btn {
@@ -2120,7 +2132,7 @@ let selectedFilters = { cities: [], countries: [], styles: [], roles: [], pol: [
     position: relative;
     margin-bottom: 0.4rem;
     overflow: visible;
-    padding: 5px; /* Add padding to prevent clipping during scale */
+    padding-left: 0;
   }
 
   .filter-options.hidden {
