@@ -256,6 +256,37 @@ const { user, isAuthenticated } = Astro.props;
     :global(.form-group textarea) {
       box-sizing: border-box;
     }
+
+    .logout-container {
+      margin-top: 1.5rem;
+      padding: 1rem 0;
+    }
+
+    .logout-link {
+      font-size: 0.85rem;
+      padding: 0.625rem 1.5rem;
+      border-width: 2px;
+      letter-spacing: 0.5px;
+    }
+
+    .logout-link:hover {
+      transform: translateX(-1px) translateY(-1px);
+      box-shadow: 2px 2px 0px rgba(255, 255, 255, 0.3);
+    }
+  }
+
+  @media (max-width: 480px) {
+    .logout-link {
+      font-size: 0.75rem;
+      padding: 0.5rem 1rem;
+      border-width: 2px;
+      letter-spacing: 0.25px;
+    }
+
+    .logout-link:hover {
+      transform: translateX(-1px) translateY(-1px);
+      box-shadow: 2px 2px 0px rgba(255, 255, 255, 0.2);
+    }
   }
 </style>
 
@@ -299,10 +330,17 @@ const { user, isAuthenticated } = Astro.props;
   async function handleAuthSuccess() {
     const authSection = document.getElementById('auth-section');
     const artistSection = document.getElementById('artist-section');
+    const logoutSection = document.getElementById('logout-section');
     const modalTitle = document.querySelector('.modal-title');
 
     if (authSection && artistSection) {
       authSection.classList.add('hidden');
+
+      // Show logout button
+      if (logoutSection) {
+        logoutSection.classList.remove('hidden');
+        logoutSection.classList.add('logout-container');
+      }
 
       // Check if user has already submitted
       const hasSubmitted = await checkUserSubmission();
