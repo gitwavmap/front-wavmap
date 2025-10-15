@@ -405,6 +405,7 @@ const currentPath = Astro.url.pathname;
     overflow-y: auto;
     overflow-x: hidden;
     -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+    overscroll-behavior: contain; /* Prevent scroll chaining to body */
   }
 
   .community-dropdown.hidden {
@@ -466,6 +467,7 @@ const currentPath = Astro.url.pathname;
       overflow-y: auto;
       overflow-x: hidden;
       -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+      overscroll-behavior: contain; /* Prevent scroll chaining to body */
     }
 
     .community-dropdown-container {
@@ -530,6 +532,32 @@ const currentPath = Astro.url.pathname;
 
     let isOpen = false;
 
+    // Prevent wheel event from propagating to body when scrolling inside dropdown
+    function handleDropdownScroll(e) {
+      const element = dropdown;
+      const scrollTop = element.scrollTop;
+      const scrollHeight = element.scrollHeight;
+      const height = element.clientHeight;
+      const delta = e.deltaY;
+      const up = delta < 0;
+
+      // Prevent scroll chaining: stop propagation if we're scrolling within bounds
+      if (!up && -delta > scrollHeight - height - scrollTop) {
+        // Scrolling down at bottom
+        element.scrollTop = scrollHeight;
+        e.preventDefault();
+        return false;
+      } else if (up && delta > scrollTop) {
+        // Scrolling up at top
+        element.scrollTop = 0;
+        e.preventDefault();
+        return false;
+      }
+
+      // We're scrolling within the element - stop propagation
+      e.stopPropagation();
+    }
+
     function openDropdown() {
       // Calculate and fix the dropdown width BEFORE hiding body overflow
       const currentWidth = dropdownContainer.offsetWidth;
@@ -541,8 +569,14 @@ const currentPath = Astro.url.pathname;
       // Change button style
       joinBtn.style.background = 'linear-gradient(to right, #E9930F, #3E44E6, #8FD116)';
       joinBtn.style.color = 'white';
-      // Prevent body scroll
-      document.body.style.overflow = 'hidden';
+
+      // Add padding to body to compensate for fixed navbar
+      const navbarHeight = navbar.offsetHeight;
+      document.body.style.paddingTop = `${navbarHeight}px`;
+
+      // Add scroll event listener to dropdown
+      dropdown.addEventListener('wheel', handleDropdownScroll, { passive: false });
+
       isOpen = true;
     }
 
@@ -553,8 +587,11 @@ const currentPath = Astro.url.pathname;
       // Reset button style - remove inline styles to allow CSS hover to work
       joinBtn.style.background = '';
       joinBtn.style.color = '';
-      // Restore body scroll and reset dropdown width
-      document.body.style.overflow = '';
+      // Remove body padding
+      document.body.style.paddingTop = '';
+      // Remove scroll event listener
+      dropdown.removeEventListener('wheel', handleDropdownScroll);
+      // Reset dropdown width
       dropdown.style.width = '';
       isOpen = false;
     }
