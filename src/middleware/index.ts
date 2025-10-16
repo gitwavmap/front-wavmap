@@ -76,9 +76,72 @@ export const onRequest = defineMiddleware(async (context, next) => {
         context.cookies.delete('directus_session_token');
       }
     } catch (error) {
-      console.log('❌ Token invalid, clearing token:', error.message || error);
-      // Clear invalid token
-      context.cookies.delete('directus_session_token');
+      console.log('❌ Token invalid, attempting refresh:', error.message || error);
+
+      // Try to refresh token before deleting
+      const refreshToken = context.cookies.get('directus_refresh_token')?.value;
+
+      if (refreshToken) {
+        try {
+          console.log('🔄 Attempting token refresh in middleware...');
+          const response = await fetch(`${directusUrl}auth/refresh`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ refresh_token: refreshToken })
+          });
+
+          const data = await response.json();
+
+          if (response.ok && data.data?.access_token) {
+            console.log('✅ Token refreshed successfully in middleware');
+
+            // Update session token cookie
+            context.cookies.set('directus_session_token', data.data.access_token, {
+              httpOnly: true,
+              secure: process.env.NODE_ENV === 'production',
+              sameSite: 'lax',
+              path: '/',
+              maxAge: 60 * 60 * 24 * 7 // 7 days
+            });
+
+            // Update refresh token if provided
+            if (data.data.refresh_token) {
+              context.cookies.set('directus_refresh_token', data.data.refresh_token, {
+                httpOnly: true,
+                secure: process.env.NODE_ENV === 'production',
+                sameSite: 'lax',
+                path: '/',
+                maxAge: 60 * 60 * 24 * 7 // 7 days
+              });
+            }
+
+            // Retry user fetch with new token
+            try {
+              const tokenClient = createTokenClient(data.data.access_token, directusUrl);
+              const user = await tokenClient.request(readMe());
+
+              if (user && (user.email || user.id)) {
+                context.locals.user = user;
+                console.log('✅ User authenticated with refreshed token');
+                return next();
+              }
+            } catch (retryError) {
+              console.log('❌ Failed to fetch user with refreshed token:', retryError.message || retryError);
+            }
+          } else {
+            console.log('❌ Token refresh failed:', data.error || data.message);
+          }
+        } catch (refreshError) {
+          console.log('❌ Refresh request failed:', refreshError.message || refreshError);
+        }
+      } else {
+        console.log('❌ No refresh token available');
+      }
+
+      // Only delete tokens if refresh failed or wasn't available
+      console.log('🧹 Clearing invalid tokens');
+      context.cookies.delete('directus_session_token', { path: '/' });
+      context.cookies.delete('directus_refresh_token', { path: '/' });
     }
   }
 

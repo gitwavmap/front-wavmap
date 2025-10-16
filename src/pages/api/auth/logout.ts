@@ -7,12 +7,23 @@ export const GET: APIRoute = async ({ redirect, cookies, locals }) => {
     const directusUrl = locals.runtime?.env?.DIRECTUS_URL ||
                         'https://directus-production-1f5c.up.railway.app/';
 
-    // Create client instance (not just the function)
-    const client = createDirectusClient(directusUrl);
+    // Get refresh token from cookies
+    const refreshToken = cookies.get('directus_refresh_token')?.value;
 
-    // Logout - SDK will automatically send cookies via 'credentials: include'
-    await client.logout();
-    console.log('✅ Session invalidated on Directus');
+    // Only attempt to invalidate session on server if we have a refresh token
+    if (refreshToken) {
+      // Call Directus logout endpoint directly with refresh_token in body
+      await fetch(`${directusUrl}auth/logout`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          refresh_token: refreshToken
+        })
+      });
+      console.log('✅ Session invalidated on Directus');
+    }
   } catch (error) {
     console.error('❌ Logout error:', error);
     // Continue anyway to clear cookies locally

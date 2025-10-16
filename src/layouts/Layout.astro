@@ -209,6 +209,14 @@ const isAuthenticated = !!user;
 			  }
 
 			  redirectToLogin() {
+			    // Clear cookies server-side via logout endpoint
+			    fetch('/api/auth/logout', {
+			      method: 'GET',
+			      credentials: 'include'
+			    }).catch((error) => {
+			      console.log('❌ Failed to clear cookies via logout endpoint:', error);
+			    });
+
 			    // Émettre un événement pour que l'UI puisse réagir
 			    window.dispatchEvent(new CustomEvent('authExpired', {
 			      detail: { message: 'Your session has expired. Please log in again.' }
