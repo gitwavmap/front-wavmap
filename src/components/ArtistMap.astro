@@ -56,8 +56,8 @@ let selectedFilters = { cities: [], countries: [], styles: [], roles: [], pol: [
   <div class="map-wrapper">
     <div id="wavmap" class="map"></div>
     <button class="shuffle">
-      <img src={ShuffleBtn.src} alt="shuffle" class="shuffle-normal" />
-      <img src={ShuffleBg.src} alt="shuffle" class="shuffle-hover" />
+      <img src={ShuffleBtn.src} alt="shuffle" class="shuffle-normal" width="150" height="auto" />
+      <img src={ShuffleBg.src} alt="shuffle" class="shuffle-hover" width="150" height="auto" loading="lazy" />
     </button>
   </div>
     <div class="filters-container">
@@ -71,7 +71,7 @@ let selectedFilters = { cities: [], countries: [], styles: [], roles: [], pol: [
               data-normal-src={filter.icon.src}
               data-hover-src={filter.hoverIcon.src}
             >
-              <img src={filter.icon.src} alt={filter.label} class="filter-button-image" />
+              <img src={filter.icon.src} alt={filter.label} class="filter-button-image" width="auto" height="50" />
             </button>
 
             <!-- Ligne d'options cachée par défaut -->
@@ -94,8 +94,8 @@ let selectedFilters = { cities: [], countries: [], styles: [], roles: [], pol: [
         <div class="artist-detail-inner">
 
           <div id="close-artist-panel" class="close-hover-btn">
-            <img src={BackBtn.src} alt="Close" class="close-btn-normal" />
-            <img src={BackBtnBg.src} alt="Close" class="close-btn-hover" />
+            <img src={BackBtn.src} alt="Close" class="close-btn-normal" width="auto" height="30" />
+            <img src={BackBtnBg.src} alt="Close" class="close-btn-hover" width="auto" height="30" loading="lazy" />
           </div>
 
 
@@ -117,7 +117,7 @@ let selectedFilters = { cities: [], countries: [], styles: [], roles: [], pol: [
 
           <!-- Decorative line -->
           <div class="separator-line">
-            <img src={Separator.src} alt="Separator" />
+            <img src={Separator.src} alt="Separator" width="400" height="auto" loading="lazy" />
           </div>
 
           <!-- Social Media Links -->
@@ -165,7 +165,7 @@ let selectedFilters = { cities: [], countries: [], styles: [], roles: [], pol: [
 
           <!-- Decorative line -->
           <div class="separator-line separator-bottom">
-            <img src={Separator.src} alt="Separator" />
+            <img src={Separator.src} alt="Separator" width="400" height="auto" loading="lazy" />
           </div>
 
           <!-- Social/Political Topics -->
@@ -1513,6 +1513,13 @@ let selectedFilters = { cities: [], countries: [], styles: [], roles: [], pol: [
   function initializeApp() {
     console.log('🚀 Map initialization started...');
 
+    // Wait for Mapbox to be loaded (with defer, it loads asynchronously)
+    if (typeof mapboxgl === 'undefined') {
+      console.log('⏳ Waiting for Mapbox GL to load...');
+      setTimeout(initializeApp, 50);
+      return;
+    }
+
     initializeMap().then(() => {
       initializeFilterButtonHover();
       attachSimpleEvents();
@@ -2565,4 +2572,4 @@ let selectedFilters = { cities: [], countries: [], styles: [], roles: [], pol: [
 
 <!-- Import Mapbox CSS and JS -->
 <link href="https://api.mapbox.com/mapbox-gl-js/v3.0.1/mapbox-gl.css" rel="stylesheet">
-<script src="https://api.mapbox.com/mapbox-gl-js/v3.0.1/mapbox-gl.js"></script>
+<script defer src="https://api.mapbox.com/mapbox-gl-js/v3.0.1/mapbox-gl.js"></script>

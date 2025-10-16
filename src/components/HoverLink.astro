@@ -3,7 +3,7 @@ const { href = '#', normal, hover, alt = '' } = Astro.props;
 const uniqueId = `hover-link-${Math.random().toString(36).substr(2, 9)}`;
 ---
 <a href={href} class="nav-button hover-link" id={uniqueId} data-normal-src={normal} data-hover-src={hover}>
-  <img src={normal} alt={alt} class="hover-image" />
+  <img src={normal} alt={alt} class="hover-image" width="auto" height="40" />
 </a>
 
 <script define:vars={{ uniqueId, normal, hover }}>

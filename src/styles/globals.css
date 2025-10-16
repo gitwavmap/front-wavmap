@@ -178,6 +178,7 @@
   src: url('/src/assets/font/delight/delight-thin.otf') format('opentype');
   font-weight: 100;
   font-style: normal;
+  font-display: swap;
 }
 
 @font-face {
@@ -185,6 +186,7 @@
   src: url('/src/assets/font/delight/delight-extralight.otf') format('opentype');
   font-weight: 200;
   font-style: normal;
+  font-display: swap;
 }
 
 @font-face {
@@ -192,6 +194,7 @@
   src: url('/src/assets/font/delight/delight-regular.otf') format('opentype');
   font-weight: 400;
   font-style: normal;
+  font-display: swap;
 }
 
 @font-face {
@@ -199,6 +202,7 @@
   src: url('/src/assets/font/delight/delight-medium.otf') format('opentype');
   font-weight: 500;
   font-style: normal;
+  font-display: swap;
 }
 
 @font-face {
@@ -206,6 +210,7 @@
   src: url('/src/assets/font/delight/delight-bold.otf') format('opentype');
   font-weight: 700;
   font-style: normal;
+  font-display: swap;
 }
 
 @font-face {
@@ -213,6 +218,7 @@
   src: url('/src/assets/font/delight/delight-extrabold.otf') format('opentype');
   font-weight: 800;
   font-style: normal;
+  font-display: swap;
 }
 
 @font-face {
@@ -220,6 +226,7 @@
   src: url('/src/assets/font/delight/delight-black.otf') format('opentype');
   font-weight: 900;
   font-style: normal;
+  font-display: swap;
 }
 
 /* Reset & global */

@@ -10,8 +10,8 @@ const { class: className = '' } = Astro.props;
 ---
 
 <div class={`close-hover-btn ${className}`}>
-  <img src={CloseBtn.src} alt="Close" class="close-btn-normal" />
-  <img src={CloseBtnBg.src} alt="Close" class="close-btn-hover" />
+  <img src={CloseBtn.src} alt="Close" class="close-btn-normal" width="auto" height="30" />
+  <img src={CloseBtnBg.src} alt="Close" class="close-btn-hover" width="auto" height="30" loading="lazy" />
 </div>
 
 <style>

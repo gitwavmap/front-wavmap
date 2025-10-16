@@ -98,9 +98,13 @@ const isAuthenticated = !!user;
 		}
 		</script>
 
-		<link rel="preconnect" href="https://fonts.googleapis.com">
-		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-		<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+		<!-- Preload LCP image (loading logo) -->
+		<link rel="preload" href="/src/assets/images/logo.gif" as="image" />
+
+		<!-- Self-hosted Inter font for better performance -->
+		<link rel="preload" href="/fonts/inter-400.ttf" as="font" type="font/ttf" crossorigin>
+		<link rel="preload" href="/fonts/inter-600.ttf" as="font" type="font/ttf" crossorigin>
+		<link rel="stylesheet" href="/fonts/inter.css">
 	</head>
 	<body class="min-h-screen bg-gray-50 font-sans antialiased">
 		<slot user={user} isAuthenticated={isAuthenticated} />
