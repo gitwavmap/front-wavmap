@@ -13,6 +13,7 @@ interface Props {
 	ogImage?: string;
 	type?: 'website' | 'article';
 	canonical?: string;
+	noindex?: boolean;
 }
 
 const {
@@ -21,7 +22,8 @@ const {
 	lang,
 	ogImage,
 	type = 'website',
-	canonical
+	canonical,
+	noindex = false
 } = Astro.props;
 
 // Force English as default if no specific language is set
@@ -61,6 +63,7 @@ const isAuthenticated = !!user;
 		<meta name="title" content={metadata.title} />
 		<meta name="description" content={metadata.description} />
 		<link rel="canonical" href={canonical || metadata.canonical} />
+		{noindex && <meta name="robots" content="noindex, nofollow" />}
 
 		<!-- Open Graph / Facebook -->
 		<meta property="og:type" content={metadata.openGraph.type} />

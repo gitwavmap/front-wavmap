@@ -4,7 +4,7 @@ import * as m from '../paraglide/messages.js';
 import { PUBLIC_DIRECTUS_URL } from 'astro:env/client';
 ---
 
-<Layout title={m.emailConfirmation ? m.emailConfirmation({}, { locale: 'en' }) : 'Email Confirmation'}>
+<Layout title={m.emailConfirmation ? m.emailConfirmation({}, { locale: 'en' }) : 'Email Confirmation'} noindex={true}>
   <main class="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 px-4">
     <div class="max-w-md w-full">
       <div class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl p-8 border border-white/20">

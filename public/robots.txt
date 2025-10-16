@@ -1,0 +1,27 @@
+# Robots.txt for Wavmap
+# https://wavmap.org
+
+User-agent: *
+
+# Allow main pages
+Allow: /
+Allow: /map
+Allow: /about
+Allow: /blog
+
+# Disallow incomplete language versions
+Disallow: /fr/
+Disallow: /es/
+
+# Disallow API endpoints
+Disallow: /api/
+
+# Disallow functional/utility pages
+Disallow: /forgot-password
+Disallow: /reset-password
+Disallow: /confirm-email
+Disallow: /thank-you
+Disallow: /404
+
+# Sitemap location
+Sitemap: https://wavmap.org/sitemap.xml
