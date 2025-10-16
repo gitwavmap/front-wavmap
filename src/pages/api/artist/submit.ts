@@ -1,6 +1,6 @@
 import type { APIRoute } from 'astro';
 import { createDirectus, rest, createItem, updateItem, readItems, readMe } from '@directus/sdk';
-import { createTokenClient } from '../../../lib/directus';
+import { withTokenRefresh } from '../../../lib/directus';
 import citiesData from '../../../data/european-cities.json';
 
 export const prerender = false;
@@ -195,21 +195,6 @@ export const POST: APIRoute = async ({ request, cookies, locals }) => {
       });
     }
     
-    // Vérifier l'authentification
-    const token = cookies.get('directus_session_token')?.value;
-    if (!token) {
-      return new Response(JSON.stringify({
-        success: false,
-        message: 'Authentication required. Please log in first.',
-        error: 'No authentication token found'
-      }), {
-        status: 401,
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-    }
-    
     // Transformer les données pour Directus
     const directusData = transformFormData(data);
 
@@ -217,79 +202,87 @@ export const POST: APIRoute = async ({ request, cookies, locals }) => {
     console.log('🔍 === ARTIST FORM SUBMISSION DEBUG ===');
     console.log('📝 Raw form data:', JSON.stringify(data, null, 2));
     console.log('📤 Directus payload:', JSON.stringify(directusData, null, 2));
-    console.log('🔑 Token exists:', !!token);
     console.log('=====================================');
 
     // Get DIRECTUS_URL from Cloudflare runtime environment
     const directusUrl = locals.runtime?.env?.DIRECTUS_URL || 'https://directus-production-1f5c.up.railway.app/';
 
-    // Créer le client Directus avec authentification
-    const client = createTokenClient(token, directusUrl);
+    // Execute with automatic token refresh
+    const result = await withTokenRefresh(cookies, directusUrl, async (client) => {
+      // Get current user ID
+      const me = await client.request(
+        readMe({
+          fields: ['id']
+        })
+      );
 
-    // Get current user ID
-    const me = await client.request(
-      readMe({
-        fields: ['id']
-      })
-    );
+      if (!me || !me.id) {
+        throw new Error('User not found');
+      }
 
-    if (!me || !me.id) {
+      const userId = me.id;
+
+      // Check if user already has a submission
+      const existingSubmissions = await client.request(
+        readItems('form', {
+          filter: {
+            user_created: { _eq: userId }
+          },
+          fields: ['id'],
+          limit: 1
+        })
+      );
+
+      let response;
+      let isUpdate = false;
+
+      if (existingSubmissions && existingSubmissions.length > 0) {
+        // UPDATE existing submission
+        const submissionId = existingSubmissions[0].id;
+        console.log(`🔄 Updating existing submission ${submissionId} for user ${userId}`);
+
+        response = await client.request(
+          updateItem('form', submissionId, directusData)
+        );
+        isUpdate = true;
+      } else {
+        // CREATE new submission
+        console.log(`✨ Creating new submission for user ${userId}`);
+
+        response = await client.request(
+          createItem('form', directusData)
+        );
+        isUpdate = false;
+      }
+
+      return { response, isUpdate };
+    });
+
+    // Handle authentication failure
+    if (!result.success) {
       return new Response(JSON.stringify({
         success: false,
-        message: 'User not found',
-        error: 'Could not identify current user'
+        message: result.requiresLogin
+          ? 'Your session has expired. Please log in again.'
+          : result.error,
+        error: result.error,
+        requiresLogin: result.requiresLogin
       }), {
-        status: 404,
+        status: result.requiresLogin ? 401 : 500,
         headers: {
           'Content-Type': 'application/json',
         },
       });
     }
 
-    const userId = me.id;
-
-    // Check if user already has a submission
-    const existingSubmissions = await client.request(
-      readItems('form', {
-        filter: {
-          user_created: { _eq: userId }
-        },
-        fields: ['id'],
-        limit: 1
-      })
-    );
-
-    let response;
-    let isUpdate = false;
-
-    if (existingSubmissions && existingSubmissions.length > 0) {
-      // UPDATE existing submission
-      const submissionId = existingSubmissions[0].id;
-      console.log(`🔄 Updating existing submission ${submissionId} for user ${userId}`);
-
-      response = await client.request(
-        updateItem('form', submissionId, directusData)
-      );
-      isUpdate = true;
-    } else {
-      // CREATE new submission
-      console.log(`✨ Creating new submission for user ${userId}`);
-
-      response = await client.request(
-        createItem('form', directusData)
-      );
-      isUpdate = false;
-    }
-
-
     return new Response(JSON.stringify({
       success: true,
-      message: isUpdate
+      message: result.data.isUpdate
         ? '✅ Your profile has been updated successfully!'
         : '🎉 Thank you for your registration! We will review your profile and contact you soon.',
       redirect: '/thank-you',
-      data: response,
-      isUpdate: isUpdate
+      data: result.data.response,
+      isUpdate: result.data.isUpdate
     }), {
       status: 200,
       headers: {
