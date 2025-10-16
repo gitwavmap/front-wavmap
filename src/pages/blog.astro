@@ -15,7 +15,7 @@ const initialSkeletonCount = 6;
 
 		<!-- Blog Content -->
 		<main class="py-16 flex-1">
-			<div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+			<div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
 
 				<!-- Articles Grid -->
 				<div id="articles-container">
@@ -35,8 +35,8 @@ const initialSkeletonCount = 6;
 						</p>
 					</div>
 
-					<!-- Articles in single column layout -->
-					<div class="flex flex-col gap-12" id="articles-grid">
+					<!-- Articles Grid -->
+					<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8" id="articles-grid">
 						{Array.from({ length: initialSkeletonCount }, (_, i) => (
 							<BlogArticle skeleton={true} />
 						))}
