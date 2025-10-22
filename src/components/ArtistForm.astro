@@ -641,8 +641,14 @@ const currentLang = getLocale();
         errorDiv.textContent = message;
         errorDiv.classList.remove('hidden');
         successDiv?.classList.add('hidden');
-        // Scroll to error message
-        errorDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+        // Scroll to error message with fallback for older Safari/Firefox
+        try {
+          errorDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        } catch (e) {
+          // Fallback for browsers that don't support smooth scroll options
+          errorDiv.scrollIntoView();
+        }
       }
     }
 
@@ -757,29 +763,25 @@ const currentLang = getLocale();
         console.log('⚠️ Form is already being submitted, ignoring...');
         return;
       }
-      isSubmitting = true;
 
       // Hide any previous messages
       hideMessages();
 
-      const submitBtn = form.querySelector('button[type="submit"]');
-      const originalText = submitBtn?.textContent || joinCommunity;
+      // ✅ VALIDATION BLOCK - Perform ALL validations BEFORE setting isSubmitting
+      // This ensures early returns don't leave the button stuck in disabled state
 
-      // Check that at least one activity is selected
       const activitiesChecked = form.querySelectorAll('input[name="activities"]:checked');
       if (activitiesChecked.length === 0) {
         showError(selectActivity);
-        return;
+        return; // Safe - isSubmitting is still false
       }
 
-      // Check that at least one genre is selected
       const genresChecked = form.querySelectorAll('input[name="genres"]:checked');
       if (genresChecked.length === 0) {
         showError(selectGenre);
-        return;
+        return; // Safe - isSubmitting is still false
       }
 
-      // Validate that city has coordinates from Mapbox
       const cityInput = form.querySelector('#city');
       const latField = form.querySelector('#latitude');
       const lngField = form.querySelector('#longitude');
@@ -790,38 +792,72 @@ const currentLang = getLocale();
         if (!latField?.value || !lngField?.value || !countryField?.value) {
           console.warn('⚠️ City coordinates missing');
           showError('Please select a city from the suggestions list. Type your city name and select it from the dropdown.');
-          return;
+          return; // Safe - isSubmitting is still false
         }
       }
-      
-      try {
-        // Disable button
+
+      // ✅ All validations passed - NOW we can lock the form
+      isSubmitting = true;
+
+      const submitBtn = form.querySelector('button[type="submit"]');
+      const originalText = submitBtn?.textContent || joinCommunity;
+
+      // Disable button
+      if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.textContent = submitting;
+      }
+
+      // ✅ FAILSAFE: Force re-enable button after 30 seconds
+      // This protects against edge cases where fetch hangs indefinitely (Safari/Firefox)
+      const failsafeTimeout = setTimeout(() => {
+        console.error('⚠️ FAILSAFE TIMEOUT: Request took too long - force re-enabling button');
+        isSubmitting = false;
         if (submitBtn) {
-          submitBtn.disabled = true;
-          submitBtn.textContent = submitting;
+          submitBtn.disabled = false;
+          submitBtn.textContent = originalText;
         }
-        
+        showError('Request timeout. Please try again.');
+      }, 30000);
+
+      try {
+        // ✅ Create AbortController to implement fetch timeout (25 seconds)
+        // Safari/Firefox don't have built-in fetch timeouts like Chrome
+        const controller = new AbortController();
+        const fetchTimeout = setTimeout(() => {
+          console.warn('⏱️ Fetch timeout reached - aborting request');
+          controller.abort();
+        }, 25000);
+
         // Prepare data
         const formData = new FormData(form);
-        
-        // Send to API
+
+        // Send to API with abort signal
         const response = await fetch('/api/artist/submit', {
           method: 'POST',
           body: formData,
-          credentials: 'include' // Important: include cookies
+          credentials: 'include', // Important: include cookies
+          signal: controller.signal // Enable timeout via AbortController
         });
 
-        if (!response) {
-          throw new Error('No response received from server');
+        // Clear fetch timeout since request completed
+        clearTimeout(fetchTimeout);
+
+        // ✅ Parse JSON response
+        // Backend (withTokenRefresh) handles token refresh automatically
+        let result;
+        try {
+          result = await response.json();
+        } catch (jsonError) {
+          console.error('❌ Failed to parse JSON response:', jsonError);
+          throw new Error('Invalid response from server. Please try again.');
         }
 
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-
-        const result = await response.json();
-        
+        // Check if response was successful
         if (result.success) {
+          // Clear failsafe timeout before redirecting
+          clearTimeout(failsafeTimeout);
+
           // Success - redirect to thank you page
           if (result.redirect) {
             window.location.href = result.redirect;
@@ -829,14 +865,34 @@ const currentLang = getLocale();
             window.location.href = '/thank-you';
           }
         } else {
-          // Error
-          showError(result.message || 'An error occurred. Please try again.');
+          // Error from server
+          // Backend already attempted token refresh if needed via withTokenRefresh()
+          // If requiresLogin is true, it means refresh failed and user needs to log in
+          if (result.requiresLogin) {
+            showError(result.message || 'Your session has expired. Please log in again.');
+            setTimeout(() => {
+              window.location.reload();
+            }, 2000);
+          } else {
+            showError(result.message || 'An error occurred. Please try again.');
+          }
         }
 
       } catch (error) {
         console.error('Form submission error:', error);
-        showError('Network error. Please check your connection and try again.');
+
+        // ✅ Provide better error messages for different error types
+        if (error.name === 'AbortError') {
+          showError('Request timeout. Please check your connection and try again.');
+        } else if (error.message && error.message.includes('Invalid response')) {
+          showError(error.message);
+        } else {
+          showError('Network error. Please check your connection and try again.');
+        }
       } finally {
+        // Always clean up: clear failsafe timeout and re-enable button
+        clearTimeout(failsafeTimeout);
+
         // Re-enable button and reset submitting flag
         isSubmitting = false;
         if (submitBtn) {

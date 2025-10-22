@@ -198,11 +198,15 @@ export const POST: APIRoute = async ({ request, cookies, locals }) => {
     // Transformer les données pour Directus
     const directusData = transformFormData(data);
 
-    // LOG COMPLET POUR DEBUG
-    console.log('🔍 === ARTIST FORM SUBMISSION DEBUG ===');
-    console.log('📝 Raw form data:', JSON.stringify(data, null, 2));
-    console.log('📤 Directus payload:', JSON.stringify(directusData, null, 2));
-    console.log('=====================================');
+    // Debug logging (can be commented out in production)
+    if (process.env.NODE_ENV !== 'production') {
+      console.log('🔍 Form submission:', {
+        artistname: directusData.artistname,
+        city: directusData.maincity,
+        activitiesCount: directusData.activitydomains.length,
+        genresCount: directusData.musicalstyles.length
+      });
+    }
 
     // Get DIRECTUS_URL from Cloudflare runtime environment
     const directusUrl = locals.runtime?.env?.DIRECTUS_URL || 'https://directus-production-1f5c.up.railway.app/';
