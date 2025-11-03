@@ -5,6 +5,7 @@ import * as m from '../paraglide/messages.js';
 import { ViewTransitions } from 'astro:transitions';
 import Loading from '../components/Loading.astro';
 import { siteConfig, generateMetadata } from '../config/metadata.ts';
+import LogoGif from '../assets/images/logo.gif';
 
 interface Props {
 	title?: string;
@@ -98,12 +99,7 @@ const isAuthenticated = !!user;
 		}
 		</script>
 
-		<!-- Preload LCP image (loading logo) -->
-		<link rel="preload" href="/src/assets/images/logo.gif" as="image" />
-
-		<!-- Self-hosted Inter font for better performance -->
-		<link rel="preload" href="/fonts/inter-400.ttf" as="font" type="font/ttf" crossorigin>
-		<link rel="preload" href="/fonts/inter-600.ttf" as="font" type="font/ttf" crossorigin>
+		<!-- Self-hosted Inter font -->
 		<link rel="stylesheet" href="/fonts/inter.css">
 	</head>
 	<body class="min-h-screen bg-gray-50 font-sans antialiased">
@@ -116,7 +112,14 @@ const isAuthenticated = !!user;
 			  constructor() {
 			    this.isRefreshing = false;
 			    this.failedRequests = [];
+			    this.debugMode = new URLSearchParams(window.location.search).get('debug') === 'true';
 			    this.setupInterceptor();
+			  }
+
+			  log(...args) {
+			    if (this.debugMode) {
+			      console.log(...args);
+			    }
 			  }
 
 			  setupInterceptor() {
@@ -138,16 +141,16 @@ const isAuthenticated = !!user;
 			          (url.startsWith('/') || url.includes(window.location.origin));
 
 			        if (shouldIntercept) {
-			          console.log('🔄 Token expired, attempting refresh...');
+			          this.log('🔄 Token expired, attempting refresh...');
 
 			          const refreshed = await this.handleTokenRefresh();
 			          if (refreshed) {
 			            // Retry la requête originale
-			            console.log('✅ Token refreshed, retrying request...');
+			            this.log('✅ Token refreshed, retrying request...');
 			            return originalFetch(url, options);
 			          } else {
-			            // Redirect vers login
-			            console.log('❌ Refresh failed, redirecting to login...');
+			            // Redirect vers login - silently fail if not logged in
+			            this.log('❌ Refresh failed, user not logged in');
 			            this.redirectToLogin();
 			            return response;
 			          }
@@ -186,7 +189,7 @@ const isAuthenticated = !!user;
 			      const result = await response.json();
 
 			      if (response.ok && result.success) {
-			        console.log('✅ Token refresh successful');
+			        this.log('✅ Token refresh successful');
 
 			        // Résoudre toutes les requêtes en attente
 			        this.failedRequests.forEach(resolve => resolve(true));
@@ -194,7 +197,7 @@ const isAuthenticated = !!user;
 
 			        return true;
 			      } else {
-			        console.log('❌ Token refresh failed:', result.error);
+			        this.log('❌ Token refresh failed:', result.error);
 
 			        // Résoudre toutes les requêtes en attente avec échec
 			        this.failedRequests.forEach(resolve => resolve(false));
@@ -203,7 +206,10 @@ const isAuthenticated = !!user;
 			        return false;
 			      }
 			    } catch (error) {
-			      console.error('Token refresh error:', error);
+			      // Only log if it's not a 401 (which is expected when not logged in)
+			      if (this.debugMode) {
+			        console.error('Token refresh error:', error);
+			      }
 
 			      // Résoudre toutes les requêtes en attente avec échec
 			      this.failedRequests.forEach(resolve => resolve(false));
@@ -221,7 +227,7 @@ const isAuthenticated = !!user;
 			      method: 'GET',
 			      credentials: 'include'
 			    }).catch((error) => {
-			      console.log('❌ Failed to clear cookies via logout endpoint:', error);
+			      this.log('❌ Failed to clear cookies via logout endpoint:', error);
 			    });
 
 			    // Émettre un événement pour que l'UI puisse réagir
@@ -240,7 +246,9 @@ const isAuthenticated = !!user;
 			function initAuthInterceptor() {
 			  if (!authInterceptor) {
 			    authInterceptor = new AuthInterceptor();
-			    console.log('🔐 Auth interceptor initialized');
+			    if (authInterceptor.debugMode) {
+			      console.log('🔐 Auth interceptor initialized (debug mode)');
+			    }
 			  }
 			}
 

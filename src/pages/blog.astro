@@ -4,6 +4,7 @@ import Navbar from '../components/Navbar.astro';
 import * as m from '../paraglide/messages.js';
 import Footer from '../components/Footer.astro';
 import BlogArticle from '../components/BlogArticle.astro';
+import CountImgWhite from '../assets/images/count_img_white.svg';
 
 // Start with skeleton loading - articles will be loaded client-side
 const initialSkeletonCount = 6;
@@ -15,7 +16,7 @@ const initialSkeletonCount = 6;
 
 		<!-- Blog Content -->
 		<main class="py-16 flex-1">
-			<div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+			<div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8" data-count-img={CountImgWhite.src}>
 
 				<!-- Articles Grid -->
 				<div id="articles-container">
@@ -124,6 +125,7 @@ const initialSkeletonCount = 6;
 
   function replaceSkeletonWithArticle(articleElement, article, index) {
     const skeletonElement = articleElement;
+    const countImgSrc = document.querySelector('[data-count-img]')?.getAttribute('data-count-img') || '';
 
     // Create the image HTML if there's an image, wrapped in a link
     const imageHtml = article.imageUrl
@@ -142,7 +144,7 @@ const initialSkeletonCount = 6;
         <div class="divider-container">
           <div class="divider"></div>
           <div class="count">
-            <img src="/src/assets/images/count_img.svg" alt="" />
+            <img src="${countImgSrc}" alt="" />
             <p>${postNumber}</p>
           </div>
         </div>
@@ -159,6 +161,7 @@ const initialSkeletonCount = 6;
   function createArticleElement(article, index) {
     const articleEl = document.createElement('article');
     articleEl.className = '';
+    const countImgSrc = document.querySelector('[data-count-img]')?.getAttribute('data-count-img') || '';
 
     const imageHtml = article.imageUrl
       ? `<a href="/blog/${article.slug}" class="block aspect-video">
@@ -175,7 +178,7 @@ const initialSkeletonCount = 6;
         <div class="divider-container">
           <div class="divider"></div>
           <div class="count">
-            <img src="/src/assets/images/count_img.svg" alt="" />
+            <img src="${countImgSrc}" alt="" />
             <p>${postNumber}</p>
           </div>
         </div>

@@ -528,8 +528,6 @@ const currentPath = Astro.url.pathname;
     // Remove existing event listeners to prevent duplicates
     joinBtn.removeEventListener('click', joinBtn._dropdownToggle);
 
-    console.log('🔄 Initializing community dropdown...');
-
     let isOpen = false;
 
     // Prevent wheel event from propagating to body when scrolling inside dropdown
