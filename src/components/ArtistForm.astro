@@ -666,13 +666,25 @@ const currentLang = getLocale();
     // Check if user already has a submission and pre-fill form
     async function loadExistingSubmission() {
       try {
+        // Check if user is authenticated before making the request
+        // This prevents unnecessary 401 errors in the console
+        const token = document.cookie
+          .split('; ')
+          .find(row => row.startsWith('directus_session_token='))
+          ?.split('=')[1];
+
+        if (!token) {
+          // User not authenticated, skip the request silently
+          return;
+        }
+
         const response = await fetch('/api/artist/check-submission', {
           method: 'GET',
           credentials: 'include'
         });
 
         if (!response.ok) {
-          console.log('No existing submission or not authenticated');
+          // Silently fail - no need to log
           return;
         }
 
