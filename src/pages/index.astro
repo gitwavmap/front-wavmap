@@ -118,82 +118,42 @@ const animationSteps = [
 </style>
 
 <script>
-	const container = document.getElementById('logo-animation');
 	const frames = document.querySelectorAll('.animation-frame');
 	let currentFrame = 0;
-	let isAnimating = false;
-	let autoAnimationInterval: number | null = null;
-
-	// Detect if device is mobile/touch
-	const isMobile = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
 
 	// Preload all images to prevent flashing
 	function preloadImages() {
 		frames.forEach(frame => {
 			const img = new Image();
-			img.src = frame.src;
+			img.src = (frame as HTMLImageElement).src;
 		});
 	}
 
 	// Call preload on page load
 	preloadImages();
 
-	function showFrame(frameIndex) {
-		// Use faster, direct manipulation without transition
+	function showFrame(frameIndex: number) {
 		frames.forEach((frame, index) => {
-			frame.style.opacity = index === frameIndex ? '1' : '0';
+			(frame as HTMLElement).style.opacity = index === frameIndex ? '1' : '0';
 		});
 		currentFrame = frameIndex;
 	}
 
-	function startAnimation(shouldLoop = true) {
-		if (isAnimating) return;
-		isAnimating = true;
-
+	// Automatic animation (plays once)
+	function startAnimation() {
 		let frame = 0;
+
 		const interval = setInterval(() => {
 			showFrame(frame);
 			frame++;
 
+			// Stop at last frame
 			if (frame >= frames.length) {
 				clearInterval(interval);
-				isAnimating = false;
-				// Loop back to first frame after animation completes (only on desktop)
-				if (shouldLoop) {
-					setTimeout(() => {
-						showFrame(0);
-					}, 500);
-				}
 			}
-		}, 50); // 50ms per frame = ~20fps, adjust for speed
+		}, 80); // 80ms per frame = ~12fps for smooth but not too fast animation
 	}
 
-	if (isMobile) {
-		// On mobile: play animation once and stay at final frame
-		startAnimation(false);
-	} else {
-		// On desktop: mouse-controlled animation
-		container?.addEventListener('mouseenter', () => {
-			startAnimation();
-		});
-
-		// Optional: scrub through frames based on mouse position
-		container?.addEventListener('mousemove', (e) => {
-			if (isAnimating) return;
-
-			const rect = container.getBoundingClientRect();
-			const x = e.clientX - rect.left;
-			const progress = x / rect.width;
-			const targetFrame = Math.floor(progress * frames.length);
-
-			showFrame(Math.max(0, Math.min(frames.length - 1, targetFrame)));
-		});
-
-		// Reset to first frame when mouse leaves
-		container?.addEventListener('mouseleave', () => {
-			if (!isAnimating) {
-				showFrame(0);
-			}
-		});
-	}
+	// Start animation automatically on page load
+	startAnimation();
 </script>
