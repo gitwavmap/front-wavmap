@@ -618,15 +618,97 @@ const currentLang = getLocale();
     }
   }
 
+  // Check if user already has a submission and pre-fill form
+  async function loadExistingSubmission() {
+    const form = document.getElementById('artist-signup-form');
+    if (!form) return;
+
+    try {
+      const response = await fetch('/api/artist/check-submission', {
+        method: 'GET',
+        credentials: 'include' // This will send httpOnly cookies automatically
+      });
+
+      if (!response.ok) return;
+
+      const result = await response.json();
+
+      if (result.success && result.hasSubmission && result.data) {
+        const data = result.data;
+
+        // Change modal title to "Update your profile"
+        const modalTitle = document.getElementById('form-modal-title');
+        if (modalTitle) {
+          modalTitle.textContent = 'Update your profile';
+        }
+
+        // Fill text inputs
+        if (data.artistname) document.getElementById('artist-name').value = data.artistname;
+        if (data.pronouns) document.getElementById('pronouns').value = data.pronouns;
+        if (data.maincity) document.getElementById('city').value = data.maincity;
+        if (data.country) document.getElementById('country').value = data.country;
+        if (data.latitude) document.getElementById('latitude').value = data.latitude;
+        if (data.longitude) document.getElementById('longitude').value = data.longitude;
+
+        // Fill social links
+        if (data.website) document.getElementById('website').value = data.website;
+        if (data.bandcamp) document.getElementById('bandcamp').value = data.bandcamp;
+        if (data.soundcloud) document.getElementById('soundcloud').value = data.soundcloud;
+        if (data.instagram) document.getElementById('instagram').value = data.instagram;
+        if (data.subvert) document.getElementById('subvert').value = data.subvert;
+        if (data.tiktok) document.getElementById('tiktok').value = data.tiktok;
+        if (data.youtube) document.getElementById('youtube').value = data.youtube;
+        if (data.email) document.getElementById('email').value = data.email;
+
+        // Fill textareas
+        if (data.bio) {
+          document.getElementById('bio').value = data.bio;
+          updateCharCount('bio', 'bio-count', 250);
+        }
+        if (data.linksbetweenthemeandwork) {
+          document.getElementById('themes-development').value = data.linksbetweenthemeandwork;
+          updateCharCount('themes-development', 'themes-count', 500);
+        }
+        if (data.anyotherpoliticalapproach) {
+          document.getElementById('club-politics').value = data.anyotherpoliticalapproach;
+          updateCharCount('club-politics', 'club-count', 500);
+        }
+
+        // Check activities checkboxes
+        if (data.activitydomains && Array.isArray(data.activitydomains)) {
+          data.activitydomains.forEach(activity => {
+            const checkbox = form.querySelector(`input[name="activities"][value="${activity}"]`);
+            if (checkbox) checkbox.checked = true;
+          });
+        }
+
+        // Check genres checkboxes
+        if (data.musicalstyles && Array.isArray(data.musicalstyles)) {
+          data.musicalstyles.forEach(genre => {
+            const checkbox = form.querySelector(`input[name="genres"][value="${genre}"]`);
+            if (checkbox) checkbox.checked = true;
+          });
+        }
+
+        // Check social/political topics checkboxes
+        if (data.socialtopics && Array.isArray(data.socialtopics)) {
+          data.socialtopics.forEach(topic => {
+            const checkbox = form.querySelector(`input[name="socialPolitical"][value="${topic}"]`);
+            if (checkbox) checkbox.checked = true;
+          });
+        }
+      }
+    } catch (error) {
+      // Silently fail - form remains empty
+    }
+  }
+
   function initArtistForm() {
     const form = document.getElementById('artist-signup-form');
     if (!form) return;
 
     // Prevent multiple initializations
-    if (form.dataset.initialized === 'true') {
-      console.log('⚠️ Form already initialized, skipping...');
-      return;
-    }
+    if (form.dataset.initialized === 'true') return;
     form.dataset.initialized = 'true';
 
     const errorDiv = document.getElementById('form-error');
@@ -663,108 +745,7 @@ const currentLang = getLocale();
     updateCharCount('themes-development', 'themes-count', 500);
     updateCharCount('club-politics', 'club-count', 500);
 
-    // Check if user already has a submission and pre-fill form
-    async function loadExistingSubmission() {
-      try {
-        // Check if user is authenticated before making the request
-        // This prevents unnecessary 401 errors in the console
-        const token = document.cookie
-          .split('; ')
-          .find(row => row.startsWith('directus_session_token='))
-          ?.split('=')[1];
-
-        if (!token) {
-          // User not authenticated, skip the request silently
-          return;
-        }
-
-        const response = await fetch('/api/artist/check-submission', {
-          method: 'GET',
-          credentials: 'include'
-        });
-
-        if (!response.ok) {
-          // Silently fail - no need to log
-          return;
-        }
-
-        const result = await response.json();
-
-        if (result.success && result.hasSubmission && result.data) {
-          console.log('✅ Found existing submission, pre-filling form...');
-          const data = result.data;
-
-          // Change modal title to "Update your profile"
-          const modalTitle = document.getElementById('form-modal-title');
-          if (modalTitle) {
-            modalTitle.textContent = 'Update your profile';
-          }
-
-          // Fill text inputs
-          if (data.artistname) document.getElementById('artist-name').value = data.artistname;
-          if (data.pronouns) document.getElementById('pronouns').value = data.pronouns;
-          if (data.maincity) document.getElementById('city').value = data.maincity;
-          if (data.country) document.getElementById('country').value = data.country;
-          if (data.latitude) document.getElementById('latitude').value = data.latitude;
-          if (data.longitude) document.getElementById('longitude').value = data.longitude;
-
-          // Fill social links
-          if (data.website) document.getElementById('website').value = data.website;
-          if (data.bandcamp) document.getElementById('bandcamp').value = data.bandcamp;
-          if (data.soundcloud) document.getElementById('soundcloud').value = data.soundcloud;
-          if (data.instagram) document.getElementById('instagram').value = data.instagram;
-          if (data.subvert) document.getElementById('subvert').value = data.subvert;
-          if (data.tiktok) document.getElementById('tiktok').value = data.tiktok;
-          if (data.youtube) document.getElementById('youtube').value = data.youtube;
-          if (data.email) document.getElementById('email').value = data.email;
-
-          // Fill textareas
-          if (data.bio) {
-            document.getElementById('bio').value = data.bio;
-            updateCharCount('bio', 'bio-count', 250);
-          }
-          if (data.linksbetweenthemeandwork) {
-            document.getElementById('themes-development').value = data.linksbetweenthemeandwork;
-            updateCharCount('themes-development', 'themes-count', 500);
-          }
-          if (data.anyotherpoliticalapproach) {
-            document.getElementById('club-politics').value = data.anyotherpoliticalapproach;
-            updateCharCount('club-politics', 'club-count', 500);
-          }
-
-          // Check activities checkboxes
-          if (data.activitydomains && Array.isArray(data.activitydomains)) {
-            data.activitydomains.forEach(activity => {
-              const checkbox = form.querySelector(`input[name="activities"][value="${activity}"]`);
-              if (checkbox) checkbox.checked = true;
-            });
-          }
-
-          // Check genres checkboxes
-          if (data.musicalstyles && Array.isArray(data.musicalstyles)) {
-            data.musicalstyles.forEach(genre => {
-              const checkbox = form.querySelector(`input[name="genres"][value="${genre}"]`);
-              if (checkbox) checkbox.checked = true;
-            });
-          }
-
-          // Check social/political topics checkboxes
-          if (data.socialtopics && Array.isArray(data.socialtopics)) {
-            data.socialtopics.forEach(topic => {
-              const checkbox = form.querySelector(`input[name="socialPolitical"][value="${topic}"]`);
-              if (checkbox) checkbox.checked = true;
-            });
-          }
-
-          console.log('✅ Form pre-filled successfully');
-        }
-      } catch (error) {
-        console.error('Error loading existing submission:', error);
-        // Silently fail - form remains empty
-      }
-    }
-
-    // Load existing submission on init
+    // Load existing submission on init (function is now defined outside)
     loadExistingSubmission();
 
     form.addEventListener('submit', async function(e) {
@@ -920,15 +901,10 @@ const currentLang = getLocale();
 
   // Re-load form data after successful auth
   window.addEventListener('authSuccess', () => {
-    console.log('🔄 Auth success detected, reloading form data...');
-    // Give a small delay to ensure cookie is set
-    setTimeout(() => {
-      const form = document.getElementById('artist-signup-form');
-      if (form) {
-        // Re-run the load function
-        initArtistForm();
-      }
-    }, 100);
+    // Give delay to ensure the form is visible and cookie is set
+    setTimeout(async () => {
+      await loadExistingSubmission();
+    }, 500);
   });
 
   // Make updateCharCount available globally for inline onInput calls

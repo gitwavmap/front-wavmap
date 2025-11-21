@@ -331,7 +331,6 @@ const { user, isAuthenticated } = Astro.props;
     const authSection = document.getElementById('auth-section');
     const artistSection = document.getElementById('artist-section');
     const logoutSection = document.getElementById('logout-section');
-    const modalTitle = document.querySelector('.modal-title');
 
     if (authSection && artistSection) {
       authSection.classList.add('hidden');
@@ -342,20 +341,9 @@ const { user, isAuthenticated } = Astro.props;
         logoutSection.classList.add('logout-container');
       }
 
-      // Check if user has already submitted
-      const hasSubmitted = await checkUserSubmission();
-
-      if (hasSubmitted) {
-        // User has already submitted - hide the form and update title
-        artistSection.classList.add('hidden');
-        if (modalTitle) {
-          modalTitle.textContent = 'Join the Newsletter';
-        }
-        console.log('✅ User has already submitted a form - hiding artist form');
-      } else {
-        // User hasn't submitted yet - show the form
-        artistSection.classList.remove('hidden');
-      }
+      // Always show the artist form when authenticated
+      // The form will auto-fill if user has existing data (handled by loadExistingSubmission)
+      artistSection.classList.remove('hidden');
     }
   }
 
@@ -363,19 +351,12 @@ const { user, isAuthenticated } = Astro.props;
   async function checkSubmissionOnLoad() {
     const authSection = document.getElementById('auth-section');
     const artistSection = document.getElementById('artist-section');
-    const modalTitle = document.querySelector('.modal-title');
 
     // Only check if auth section is hidden (user is logged in)
     if (authSection && authSection.classList.contains('hidden')) {
-      const hasSubmitted = await checkUserSubmission();
-
-      if (hasSubmitted) {
-        artistSection?.classList.add('hidden');
-        if (modalTitle) {
-          modalTitle.textContent = 'Join the Newsletter';
-        }
-        console.log('✅ User has already submitted - form hidden on load');
-      }
+      // Always show the artist form when authenticated
+      // The form will auto-fill if user has existing data (handled by loadExistingSubmission)
+      artistSection?.classList.remove('hidden');
     }
   }
 
